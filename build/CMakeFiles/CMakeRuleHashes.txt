@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+adbc8a37292ffbd6010a054ed74708c3 CMakeFiles/artes-papeis_autogen
+3cadde7ba4a29230867b8953660bef1a artes-papeis_autogen/timestamp

@@ -1,0 +1,9 @@
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/artes-papeis.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/edit_cache.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/rebuild_cache.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/list_install_components.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/install.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/install/local.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/install/strip.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/artes-papeis_autogen_timestamp_deps.dir
+/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/artes-papeis_autogen.dir
