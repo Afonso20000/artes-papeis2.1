@@ -891,13 +891,10 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtransform.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvalidator.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHBoxLayout
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLabel
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QListWidget
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QMainWindow
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QPushButton
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QVBoxLayout
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractbutton.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemdelegate.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemview.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractscrollarea.h
@@ -912,7 +909,6 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistview.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistwidget.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qpushbutton.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qrubberband.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qsizepolicy.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qslider.h

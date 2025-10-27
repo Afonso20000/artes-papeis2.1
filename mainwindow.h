@@ -3,10 +3,8 @@
 
 #include <QMainWindow>
 #include <QListWidget>
-#include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -15,19 +13,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    // Permite adicionar produtos apenas através do código
+    void addProductFromCode(const QString &name, double price);
+
 private:
     void setupUI();
     void createMenus();
-    
+
     QWidget *centralWidget;
     QListWidget *productList;
-    QPushButton *addButton;
-    QPushButton *removeButton;
     QLabel *totalLabel;
-
-private slots:
-    void addProduct();
-    void removeProduct();
+    double total = 0.0;
 };
 
 #endif

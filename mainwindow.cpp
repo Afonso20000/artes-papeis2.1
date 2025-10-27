@@ -2,10 +2,17 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
+#include <QDateTime>
+#include <QLocale>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupUI();
     createMenus();
+
+    // Produtos adicionados apenas por código (interface é apenas para visualização/clientes)
+    addProductFromCode("Vela da Vida", 7.50);
+    addProductFromCode("Concha de Baptismo", 12.00);
+    addProductFromCode("Convites de Casamento", 1.20);
 }
 
 MainWindow::~MainWindow() {}
@@ -16,26 +23,20 @@ void MainWindow::setupUI() {
 
     QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
     
-    // Product list
+    // Lista de produtos (somente leitura para o cliente)
     productList = new QListWidget(this);
+    productList->setSelectionMode(QAbstractItemView::SingleSelection);
+    productList->setContextMenuPolicy(Qt::NoContextMenu);
     mainLayout->addWidget(productList);
     
-    // Buttons layout
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    addButton = new QPushButton("Adicionar Produto", this);
-    removeButton = new QPushButton("Remover Produto", this);
-    
-    buttonLayout->addWidget(addButton);
-    buttonLayout->addWidget(removeButton);
-    mainLayout->addLayout(buttonLayout);
-    
-    // Total label
-    totalLabel = new QLabel("Total: 0.00€", this);
+    // Label de total
+    totalLabel = new QLabel(this);
     mainLayout->addWidget(totalLabel);
-    
-    // Connect signals
-    connect(addButton, &QPushButton::clicked, this, &MainWindow::addProduct);
-    connect(removeButton, &QPushButton::clicked, this, &MainWindow::removeProduct);
+
+    // Inicializar total
+    total = 0.0;
+    QLocale l = QLocale::system();
+    totalLabel->setText(QString("Total: %1").arg(l.toString(total, 'f', 2) + "€"));
 }
 
 void MainWindow::createMenus() {
@@ -46,19 +47,24 @@ void MainWindow::createMenus() {
     QMenu *helpMenu = menuBar()->addMenu("&Ajuda");
     QAction *aboutAction = helpMenu->addAction("Sobre");
     connect(aboutAction, &QAction::triggered, [this]() {
-        QMessageBox::about(this, "Sobre", "Loja de Artesanato v1.0");
+        QMessageBox::about(this, "Sobre", "Loja de Artesanato — Interface de cliente\nVersão 1.0");
     });
 }
 
-void MainWindow::addProduct() {
-    // TODO: Implement add product dialog
-    productList->addItem("Novo Produto");
-}
+void MainWindow::addProductFromCode(const QString &name, double price) {
+    // Apresenta o produto na lista e atualiza o total.
+    // Produtos só devem ser adicionados por chamadas a este método.
+    QString text = QString("%1 — %2€").arg(name).arg(QString::number(price, 'f', 2));
+    QListWidgetItem *item = new QListWidgetItem(text, productList);
 
-void MainWindow::removeProduct() {
-    // Remove selected product
-    QListWidgetItem *currentItem = productList->currentItem();
-    if (currentItem) {
-        delete currentItem;
-    }
+    // Guardar o preço nos dados do item para usos futuros
+    item->setData(Qt::UserRole, price);
+
+    // Tornar o item não editável pelo usuário
+    item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsDragEnabled & ~Qt::ItemIsDropEnabled);
+
+    // Atualizar total (opcional: se quiser apenas mostrar lista retire isto)
+    total += price;
+    QLocale l = QLocale::system();
+    totalLabel->setText(QString("Total: %1").arg(l.toString(total, 'f', 2) + "€"));
 }

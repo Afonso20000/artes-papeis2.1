@@ -894,13 +894,10 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
   /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtransform.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvalidator.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h \
-  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHBoxLayout \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLabel \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QListWidget \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QMainWindow \
-  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QPushButton \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QVBoxLayout \
-  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractbutton.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemdelegate.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemview.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractscrollarea.h \
@@ -915,7 +912,6 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistview.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistwidget.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h \
-  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qpushbutton.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qrubberband.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qsizepolicy.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qslider.h \
@@ -1272,6 +1268,8 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 
 /opt/homebrew/share/cmake/Modules/Compiler/Clang-DetermineCompiler.cmake:
 
+/opt/homebrew/share/cmake/Modules/Compiler/AppleClang-DetermineCompiler.cmake:
+
 /opt/homebrew/share/cmake/Modules/Compiler/AppleClang-CXX.cmake:
 
 /opt/homebrew/share/cmake/Modules/Compiler/ARMCC-DetermineCompiler.cmake:
@@ -1393,6 +1391,8 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 /Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6DBusTools/Qt6DBusToolsTargets.cmake:
 
 /Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6DBusTools/Qt6DBusToolsTargets-relwithdebinfo.cmake:
+
+/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6DBusTools/Qt6DBusToolsDependencies.cmake:
 
 /Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6DBusTools/Qt6DBusToolsConfigVersionImpl.cmake:
 
@@ -1556,8 +1556,6 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qslider.h:
 
-/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qpushbutton.h:
-
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistview.h:
@@ -1572,21 +1570,11 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemview.h:
 
-/opt/homebrew/share/cmake/Modules/Compiler/AppleClang-DetermineCompiler.cmake:
-
-/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractbutton.h:
-
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QVBoxLayout:
-
-/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6DBusTools/Qt6DBusToolsDependencies.cmake:
-
-/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QPushButton:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QListWidget:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLabel:
-
-/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHBoxLayout:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h:
 
