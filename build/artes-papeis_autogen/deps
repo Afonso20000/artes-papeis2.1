@@ -731,6 +731,8 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QString \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QVector \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q17memory.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20functional.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20iterator.h \
@@ -855,6 +857,7 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qutf8stringview.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvariant.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvarlengtharray.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvector.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h \

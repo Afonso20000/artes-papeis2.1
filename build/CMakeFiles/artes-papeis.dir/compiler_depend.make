@@ -733,6 +733,8 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
   /Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp \
   /Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp \
   /Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h \
+  /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QString \
+  /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QVector \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q17memory.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20functional.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20iterator.h \
@@ -857,6 +859,7 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qutf8stringview.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvariant.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvarlengtharray.h \
+  /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvector.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h \
@@ -1518,8 +1521,6 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsexports.h:
 
-/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgets-config.h:
-
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabwidget.h:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h:
@@ -1557,6 +1558,10 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qaction.h:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h:
+
+/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgets-config.h:
+
+/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvector.h:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtypeinfo.h:
 
@@ -1747,6 +1752,8 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20iterator.h:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20functional.h:
+
+/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QString:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/xlocale/_time.h:
 
@@ -3191,6 +3198,8 @@ CMakeFiles/4.1.2/CMakeSystem.cmake:
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/c++/v1/__concepts/copyable.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/c++/v1/__algorithm/make_heap.h:
+
+/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QVector:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/c++/v1/__verbose_abort:
 

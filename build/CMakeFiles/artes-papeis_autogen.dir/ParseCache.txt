@@ -730,6 +730,8 @@
  mdp:/Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/xlocale/_time.h
  mdp:/Users/valass/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/moc_predefs.h
  mdp:/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h
+ mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QString
+ mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QVector
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q17memory.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20functional.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20iterator.h
@@ -854,6 +856,7 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qutf8stringview.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvariant.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvarlengtharray.h
+ mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvector.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h
