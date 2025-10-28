@@ -737,7 +737,6 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20type_traits.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20utility.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q23utility.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qabstractitemmodel.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qalgorithms.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qalloc.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qanystringview.h
@@ -780,15 +779,12 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qglobalstatic.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qhash.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qhashfunctions.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qiodevice.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qiodevicebase.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qitemselectionmodel.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qiterable.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qiterator.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qlatin1stringview.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qline.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qlist.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qlocale.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qlogging.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qmalloc.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qmap.h
@@ -809,7 +805,6 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qprocessordetection.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qrect.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qrefcount.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qregularexpression.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qscopedpointer.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qscopeguard.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qset.h
@@ -856,7 +851,6 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtversionchecks.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtypeinfo.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtypes.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qurl.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qutf8stringview.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvariant.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvarlengtharray.h
@@ -877,44 +871,20 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qkeysequence.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpaintdevice.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpalette.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpicture.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpixelformat.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpixmap.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpolygon.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qregion.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qrgb.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qrgba64.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextdocument.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtgui-config.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiexports.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiglobal.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtransform.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvalidator.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLabel
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QListWidget
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QMainWindow
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QVBoxLayout
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemdelegate.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemview.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractscrollarea.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractslider.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractspinbox.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qboxlayout.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qframe.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qgridlayout.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlabel.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlayout.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlayoutitem.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistview.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistwidget.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qrubberband.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qsizepolicy.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qslider.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstyle.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstyleoption.h
- mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabbar.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabwidget.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgets-config.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsexports.h
