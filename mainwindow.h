@@ -3,8 +3,8 @@
 
 #include <QMainWindow>
 #include <QVector>
-#include <QString>
-#include <QColor>
+#include "produto.h"
+#include "productmanager.h"
 
 class QStackedWidget;
 class QLabel;
@@ -13,22 +13,6 @@ class QPushButton;
 class QHBoxLayout;
 class QGridLayout;
 class QScrollArea;
-
-struct Produto {
-    QString nome;
-    double preco;
-};
-
-// Produto completo com cor para apresentação na loja
-struct ProdutoFull {
-    QString nome;
-    double preco;
-    QColor cor;
-    QString id;
-    int quantidade = 1;
-    QString imagePath;    // relative path to stored image (optional)
-    QString categoria;
-};
 
 class MainWindow : public QMainWindow
 {
@@ -50,6 +34,7 @@ public slots:
     // Admin
     void solicitarAdmin();
     void tentarLoginAdmin(const QString& senha);
+    void logoutAdmin();
 
 private:
     void atualizarCarrinhoIcon();
@@ -66,19 +51,16 @@ private:
     QWidget* contatoPage;
 
     // Loja: produtos geridos por código, mutáveis via admin
-    QVector<ProdutoFull> produtosDisponiveis;
+    ProductManager* productManager;
     QWidget* productsWidget = nullptr;
     QGridLayout* productsGrid = nullptr;
     QScrollArea* productsScroll = nullptr;
     QPushButton* editProductsButton = nullptr; // visível apenas para admin
 
-    // Gerir produtos (apenas admin)
+        // Gerir produtos (apenas admin)
     void refreshLojaProducts();
     void showProductManager();
     void updateAdminUI();
-    void saveProductsToJson();
-    void loadProductsFromJson();
-    void logoutAdmin();
 
     // Admin page and state
     QWidget* adminPage;

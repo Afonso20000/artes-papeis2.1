@@ -272,6 +272,78 @@ mainwindow.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/mainwindow.cpp.s
 .PHONY : mainwindow.cpp.s
 
+productcard.o: productcard.cpp.o
+.PHONY : productcard.o
+
+# target to build an object file
+productcard.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productcard.cpp.o
+.PHONY : productcard.cpp.o
+
+productcard.i: productcard.cpp.i
+.PHONY : productcard.i
+
+# target to preprocess a source file
+productcard.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productcard.cpp.i
+.PHONY : productcard.cpp.i
+
+productcard.s: productcard.cpp.s
+.PHONY : productcard.s
+
+# target to generate assembly for a file
+productcard.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productcard.cpp.s
+.PHONY : productcard.cpp.s
+
+productformdialog.o: productformdialog.cpp.o
+.PHONY : productformdialog.o
+
+# target to build an object file
+productformdialog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productformdialog.cpp.o
+.PHONY : productformdialog.cpp.o
+
+productformdialog.i: productformdialog.cpp.i
+.PHONY : productformdialog.i
+
+# target to preprocess a source file
+productformdialog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productformdialog.cpp.i
+.PHONY : productformdialog.cpp.i
+
+productformdialog.s: productformdialog.cpp.s
+.PHONY : productformdialog.s
+
+# target to generate assembly for a file
+productformdialog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productformdialog.cpp.s
+.PHONY : productformdialog.cpp.s
+
+productmanager.o: productmanager.cpp.o
+.PHONY : productmanager.o
+
+# target to build an object file
+productmanager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productmanager.cpp.o
+.PHONY : productmanager.cpp.o
+
+productmanager.i: productmanager.cpp.i
+.PHONY : productmanager.i
+
+# target to preprocess a source file
+productmanager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productmanager.cpp.i
+.PHONY : productmanager.cpp.i
+
+productmanager.s: productmanager.cpp.s
+.PHONY : productmanager.s
+
+# target to generate assembly for a file
+productmanager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/artes-papeis.dir/build.make CMakeFiles/artes-papeis.dir/productmanager.cpp.s
+.PHONY : productmanager.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -296,6 +368,15 @@ help:
 	@echo "... mainwindow.o"
 	@echo "... mainwindow.i"
 	@echo "... mainwindow.s"
+	@echo "... productcard.o"
+	@echo "... productcard.i"
+	@echo "... productcard.s"
+	@echo "... productformdialog.o"
+	@echo "... productformdialog.i"
+	@echo "... productformdialog.s"
+	@echo "... productmanager.o"
+	@echo "... productmanager.i"
+	@echo "... productmanager.s"
 .PHONY : help
 
 

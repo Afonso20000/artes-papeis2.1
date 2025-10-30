@@ -1088,8 +1088,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn"
-      binary: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn"
+      source: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X"
+      binary: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -1102,19 +1102,19 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn'
+        Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X'
         
-        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_58bfe/fast
-        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_58bfe.dir/build.make CMakeFiles/cmTC_58bfe.dir/build
-        Building CXX object CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o
-        /usr/bin/c++   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_f2d4a/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_f2d4a.dir/build.make CMakeFiles/cmTC_f2d4a.dir/build
+        Building CXX object CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -arch arm64   -v -Wl,-v -MD -MT CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
         Apple clang version 17.0.0 (clang-1700.0.13.5)
         Target: arm64-apple-darwin25.0.0
         Thread model: posix
         InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
         clang++: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
         ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"
-         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx16.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.0 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx16.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.0 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp
         clang -cc1 version 17.0.0 (clang-1700.0.13.5) default target arm64-apple-darwin25.0.0
         ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/local/include"
         ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/Library/Frameworks"
@@ -1128,13 +1128,13 @@ events:
          /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)
          /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/SubFrameworks (framework directory)
         End of search list.
-        Linking CXX executable cmTC_58bfe
-        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_58bfe.dir/link.txt --verbose=1
+        Linking CXX executable cmTC_f2d4a
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f2d4a.dir/link.txt --verbose=1
         Apple clang version 17.0.0 (clang-1700.0.13.5)
         Target: arm64-apple-darwin25.0.0
         Thread model: posix
         InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
-         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 16.0.0 26.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_58bfe -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
+         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 16.0.0 26.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_f2d4a -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a
         @(#)PROGRAM:ld PROJECT:ld-1167.5
         BUILD 01:45:05 Apr 30 2025
         configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
@@ -1147,7 +1147,7 @@ events:
         	/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/swift
         Framework search paths:
         	/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks
-        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_58bfe
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_f2d4a
         
       exitCode: 0
   -
@@ -1193,19 +1193,19 @@ events:
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
-        ignore line: [Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn']
+        ignore line: [Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X']
         ignore line: []
-        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_58bfe/fast]
-        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_58bfe.dir/build.make CMakeFiles/cmTC_58bfe.dir/build]
-        ignore line: [Building CXX object CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o]
-        ignore line: [/usr/bin/c++   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_f2d4a/fast]
+        ignore line: [/Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_f2d4a.dir/build.make CMakeFiles/cmTC_f2d4a.dir/build]
+        ignore line: [Building CXX object CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -arch arm64   -v -Wl -v -MD -MT CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -c /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.5)]
         ignore line: [Target: arm64-apple-darwin25.0.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
         ignore line: [clang++: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
         ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"]
-        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx16.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.0 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-GwFuAn -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-macosx16.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -ffp-contract=on -fno-rounding-math -funwind-tables=1 -fobjc-msgsend-selector-stubs -target-sdk-version=26.0 -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-assume-unique-vtables -fno-modulemap-allow-subdirectory-search -target-cpu apple-m1 -target-feature +zcm -target-feature +zcz -target-feature +v8.5a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -debugger-tuning=lldb -fdebug-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X -target-linker-version 1167.5 -v -fcoverage-compilation-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-lLCU7X -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17 -dependency-file CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o.d -skip-unused-modulemap-deps -MT CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -I/usr/local/include -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1 -internal-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include -internal-externc-isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -fdeprecated-macro -ferror-limit 19 -stack-protector 1 -fstack-check -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fno-cxx-modules -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -fmax-type-align=16 -fcommon -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -x c++ /opt/homebrew/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [clang -cc1 version 17.0.0 (clang-1700.0.13.5) default target arm64-apple-darwin25.0.0]
         ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/local/include"]
         ignore line: [ignoring nonexistent directory "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/Library/Frameworks"]
@@ -1219,13 +1219,13 @@ events:
         ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks (framework directory)]
         ignore line: [ /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/SubFrameworks (framework directory)]
         ignore line: [End of search list.]
-        ignore line: [Linking CXX executable cmTC_58bfe]
-        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_58bfe.dir/link.txt --verbose=1]
+        ignore line: [Linking CXX executable cmTC_f2d4a]
+        ignore line: [/opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f2d4a.dir/link.txt --verbose=1]
         ignore line: [Apple clang version 17.0.0 (clang-1700.0.13.5)]
         ignore line: [Target: arm64-apple-darwin25.0.0]
         ignore line: [Thread model: posix]
         ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
-        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 16.0.0 26.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_58bfe -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
+        link line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -demangle -lto_library /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib -dynamic -arch arm64 -platform_version macos 16.0.0 26.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mllvm -enable-linkonceodr-outlining -o cmTC_f2d4a -L/usr/local/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
           arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld] ==> ignore
           arg [-demangle] ==> ignore
           arg [-lto_library] ==> ignore, skip following value
@@ -1242,12 +1242,12 @@ events:
           arg [-mllvm] ==> ignore
           arg [-enable-linkonceodr-outlining] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_58bfe] ==> ignore
+          arg [cmTC_f2d4a] ==> ignore
           arg [-L/usr/local/lib] ==> dir [/usr/local/lib]
           arg [-search_paths_first] ==> ignore
           arg [-headerpad_max_install_names] ==> ignore
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_58bfe.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [CMakeFiles/cmTC_f2d4a.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
           arg [-lc++] ==> lib [c++]
           arg [-lSystem] ==> lib [System]
           arg [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a] ==> lib [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/lib/darwin/libclang_rt.osx.a]
@@ -1293,12 +1293,12 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Dependencies.cmake:37 (_qt_internal_find_third_party_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:172 (include)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     checks:
       - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
     directories:
-      source: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-vrdOn4"
-      binary: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-vrdOn4"
+      source: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-UlXNf6"
+      binary: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-UlXNf6"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -1311,15 +1311,15 @@ events:
       variable: "CMAKE_HAVE_LIBC_PTHREAD"
       cached: true
       stdout: |
-        Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-vrdOn4'
+        Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-UlXNf6'
         
-        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_0c0b4/fast
-        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_0c0b4.dir/build.make CMakeFiles/cmTC_0c0b4.dir/build
-        Building CXX object CMakeFiles/cmTC_0c0b4.dir/src.cxx.o
-        /usr/bin/c++ -DCMAKE_HAVE_LIBC_PTHREAD  -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_0c0b4.dir/src.cxx.o -MF CMakeFiles/cmTC_0c0b4.dir/src.cxx.o.d -o CMakeFiles/cmTC_0c0b4.dir/src.cxx.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-vrdOn4/src.cxx
-        Linking CXX executable cmTC_0c0b4
-        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0c0b4.dir/link.txt --verbose=1
-        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_0c0b4.dir/src.cxx.o -o cmTC_0c0b4
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_44f8b/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_44f8b.dir/build.make CMakeFiles/cmTC_44f8b.dir/build
+        Building CXX object CMakeFiles/cmTC_44f8b.dir/src.cxx.o
+        /usr/bin/c++ -DCMAKE_HAVE_LIBC_PTHREAD  -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_44f8b.dir/src.cxx.o -MF CMakeFiles/cmTC_44f8b.dir/src.cxx.o.d -o CMakeFiles/cmTC_44f8b.dir/src.cxx.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-UlXNf6/src.cxx
+        Linking CXX executable cmTC_44f8b
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_44f8b.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_44f8b.dir/src.cxx.o -o cmTC_44f8b
         
       exitCode: 0
   -
@@ -1333,12 +1333,12 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:42 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     checks:
       - "Performing Test HAVE_STDATOMIC"
     directories:
-      source: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-RHkp67"
-      binary: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-RHkp67"
+      source: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-q7MpH0"
+      binary: "/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-q7MpH0"
     cmakeVariables:
       CMAKE_CXX_FLAGS: ""
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -1351,15 +1351,15 @@ events:
       variable: "HAVE_STDATOMIC"
       cached: true
       stdout: |
-        Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-RHkp67'
+        Change Dir: '/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-q7MpH0'
         
-        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_c6779/fast
-        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_c6779.dir/build.make CMakeFiles/cmTC_c6779.dir/build
-        Building CXX object CMakeFiles/cmTC_c6779.dir/src.cxx.o
-        /usr/bin/c++ -DHAVE_STDATOMIC  -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_c6779.dir/src.cxx.o -MF CMakeFiles/cmTC_c6779.dir/src.cxx.o.d -o CMakeFiles/cmTC_c6779.dir/src.cxx.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-RHkp67/src.cxx
-        Linking CXX executable cmTC_c6779
-        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c6779.dir/link.txt --verbose=1
-        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_c6779.dir/src.cxx.o -o cmTC_c6779
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_93f5d/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_93f5d.dir/build.make CMakeFiles/cmTC_93f5d.dir/build
+        Building CXX object CMakeFiles/cmTC_93f5d.dir/src.cxx.o
+        /usr/bin/c++ -DHAVE_STDATOMIC  -std=gnu++17 -arch arm64 -MD -MT CMakeFiles/cmTC_93f5d.dir/src.cxx.o -MF CMakeFiles/cmTC_93f5d.dir/src.cxx.o.d -o CMakeFiles/cmTC_93f5d.dir/src.cxx.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/CMakeScratch/TryCompile-q7MpH0/src.cxx
+        Linking CXX executable cmTC_93f5d
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_93f5d.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_93f5d.dir/src.cxx.o -o cmTC_93f5d
         
       exitCode: 0
   -
@@ -1369,7 +1369,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake:40 (_qt_internal_find_tool_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:42 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6CoreTools"
     configs:
       -
@@ -1644,7 +1644,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreConfigExtras.cmake:30 (_qt_internal_setup_deploy_support)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:190 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     mode: "program"
     variable: "MACDEPLOYQT_EXECUTABLE"
     description: "Path to a program."
@@ -1752,7 +1752,7 @@ events:
     kind: "find_package-v1"
     backtrace:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6Core"
     configs:
       -
@@ -1867,7 +1867,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     mode: "library"
     variable: "OPENGL_gl_LIBRARY"
     description: "OpenGL GL library"
@@ -1965,7 +1965,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     mode: "library"
     variable: "OPENGL_glu_LIBRARY"
     description: "OpenGL GLU library"
@@ -2063,7 +2063,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     mode: "path"
     variable: "OPENGL_INCLUDE_DIR"
     description: "Include for OpenGL"
@@ -2220,7 +2220,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:35 (_qt_internal_find_third_party_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     mode: "path"
     variable: "OPENGL_GLU_INCLUDE_DIR"
     description: "Include for the OpenGL GLU library"
@@ -2374,7 +2374,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:40 (_qt_internal_find_tool_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6GuiTools"
     configs:
       -
@@ -2653,7 +2653,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:46 (_qt_internal_find_qt_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6DBusTools"
     configs:
       -
@@ -2929,7 +2929,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake:46 (_qt_internal_find_qt_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6DBus"
     configs:
       -
@@ -3033,7 +3033,7 @@ events:
     kind: "find_package-v1"
     backtrace:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6Gui"
     configs:
       -
@@ -3145,7 +3145,7 @@ events:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Widgets/Qt6WidgetsDependencies.cmake:39 (_qt_internal_find_tool_dependencies)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Widgets/Qt6WidgetsConfig.cmake:40 (include)"
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6WidgetsTools"
     configs:
       -
@@ -3417,7 +3417,7 @@ events:
     kind: "find_package-v1"
     backtrace:
       - "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/Qt6Config.cmake:233 (find_package)"
-      - "CMakeLists.txt:13 (find_package)"
+      - "CMakeLists.txt:27 (find_package)"
     name: "Qt6Widgets"
     configs:
       -

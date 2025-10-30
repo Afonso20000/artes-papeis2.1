@@ -731,6 +731,14 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/produto.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QObject \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QString \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QVector \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q17memory.h \
@@ -887,7 +895,10 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiglobal.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtransform.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QDialog \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QMainWindow \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qdialog.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qsizepolicy.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabwidget.h \

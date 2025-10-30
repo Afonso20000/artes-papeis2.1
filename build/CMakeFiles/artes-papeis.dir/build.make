@@ -121,11 +121,56 @@ CMakeFiles/artes-papeis.dir/mainwindow.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/artes-papeis.dir/mainwindow.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp -o CMakeFiles/artes-papeis.dir/mainwindow.cpp.s
 
+CMakeFiles/artes-papeis.dir/productcard.cpp.o: CMakeFiles/artes-papeis.dir/flags.make
+CMakeFiles/artes-papeis.dir/productcard.cpp.o: /Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp
+CMakeFiles/artes-papeis.dir/productcard.cpp.o: CMakeFiles/artes-papeis.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/artes-papeis.dir/productcard.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/artes-papeis.dir/productcard.cpp.o -MF CMakeFiles/artes-papeis.dir/productcard.cpp.o.d -o CMakeFiles/artes-papeis.dir/productcard.cpp.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp
+
+CMakeFiles/artes-papeis.dir/productcard.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/artes-papeis.dir/productcard.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp > CMakeFiles/artes-papeis.dir/productcard.cpp.i
+
+CMakeFiles/artes-papeis.dir/productcard.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/artes-papeis.dir/productcard.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp -o CMakeFiles/artes-papeis.dir/productcard.cpp.s
+
+CMakeFiles/artes-papeis.dir/productformdialog.cpp.o: CMakeFiles/artes-papeis.dir/flags.make
+CMakeFiles/artes-papeis.dir/productformdialog.cpp.o: /Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp
+CMakeFiles/artes-papeis.dir/productformdialog.cpp.o: CMakeFiles/artes-papeis.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/artes-papeis.dir/productformdialog.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/artes-papeis.dir/productformdialog.cpp.o -MF CMakeFiles/artes-papeis.dir/productformdialog.cpp.o.d -o CMakeFiles/artes-papeis.dir/productformdialog.cpp.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp
+
+CMakeFiles/artes-papeis.dir/productformdialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/artes-papeis.dir/productformdialog.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp > CMakeFiles/artes-papeis.dir/productformdialog.cpp.i
+
+CMakeFiles/artes-papeis.dir/productformdialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/artes-papeis.dir/productformdialog.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp -o CMakeFiles/artes-papeis.dir/productformdialog.cpp.s
+
+CMakeFiles/artes-papeis.dir/productmanager.cpp.o: CMakeFiles/artes-papeis.dir/flags.make
+CMakeFiles/artes-papeis.dir/productmanager.cpp.o: /Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp
+CMakeFiles/artes-papeis.dir/productmanager.cpp.o: CMakeFiles/artes-papeis.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/artes-papeis.dir/productmanager.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/artes-papeis.dir/productmanager.cpp.o -MF CMakeFiles/artes-papeis.dir/productmanager.cpp.o.d -o CMakeFiles/artes-papeis.dir/productmanager.cpp.o -c /Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp
+
+CMakeFiles/artes-papeis.dir/productmanager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/artes-papeis.dir/productmanager.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp > CMakeFiles/artes-papeis.dir/productmanager.cpp.i
+
+CMakeFiles/artes-papeis.dir/productmanager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/artes-papeis.dir/productmanager.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp -o CMakeFiles/artes-papeis.dir/productmanager.cpp.s
+
 # Object files for target artes-papeis
 artes__papeis_OBJECTS = \
 "CMakeFiles/artes-papeis.dir/artes-papeis_autogen/mocs_compilation.cpp.o" \
 "CMakeFiles/artes-papeis.dir/main.cpp.o" \
-"CMakeFiles/artes-papeis.dir/mainwindow.cpp.o"
+"CMakeFiles/artes-papeis.dir/mainwindow.cpp.o" \
+"CMakeFiles/artes-papeis.dir/productcard.cpp.o" \
+"CMakeFiles/artes-papeis.dir/productformdialog.cpp.o" \
+"CMakeFiles/artes-papeis.dir/productmanager.cpp.o"
 
 # External object files for target artes-papeis
 artes__papeis_EXTERNAL_OBJECTS =
@@ -133,12 +178,15 @@ artes__papeis_EXTERNAL_OBJECTS =
 artes-papeis: CMakeFiles/artes-papeis.dir/artes-papeis_autogen/mocs_compilation.cpp.o
 artes-papeis: CMakeFiles/artes-papeis.dir/main.cpp.o
 artes-papeis: CMakeFiles/artes-papeis.dir/mainwindow.cpp.o
+artes-papeis: CMakeFiles/artes-papeis.dir/productcard.cpp.o
+artes-papeis: CMakeFiles/artes-papeis.dir/productformdialog.cpp.o
+artes-papeis: CMakeFiles/artes-papeis.dir/productmanager.cpp.o
 artes-papeis: CMakeFiles/artes-papeis.dir/build.make
 artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/QtWidgets
 artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/QtGui
 artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/QtCore
 artes-papeis: CMakeFiles/artes-papeis.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable artes-papeis"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable artes-papeis"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/artes-papeis.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
