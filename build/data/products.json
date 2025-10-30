@@ -1,0 +1,47 @@
+[
+    {
+        "categoria": "Geral",
+        "cor": "#8197ac",
+        "id": "V001",
+        "image": "",
+        "nome": "Vela da Vida",
+        "preco": 7.5,
+        "quantidade": 10
+    },
+    {
+        "categoria": "Geral",
+        "cor": "#607ea2",
+        "id": "C002",
+        "image": "",
+        "nome": "Concha de Batismo",
+        "preco": 12,
+        "quantidade": 5
+    },
+    {
+        "categoria": "Geral",
+        "cor": "#314b6e",
+        "id": "CV03",
+        "image": "",
+        "nome": "Convites",
+        "preco": 1.2,
+        "quantidade": 200
+    },
+    {
+        "categoria": "Geral",
+        "cor": "#bdb3a3",
+        "id": "CX04",
+        "image": "",
+        "nome": "Caixa de Madeira",
+        "preco": 9.5,
+        "quantidade": 8
+    },
+    {
+        "categoria": "Geral",
+        "cor": "#c860ba",
+        "id": "123",
+        "image": "/Users/valass/Documents/GitHub/artes-papeis2.1/build/data/images/IMG_1621.jpeg",
+        "nome": "Teste",
+        "preco": 87.87,
+        "quantidade": 234
+    }
+]

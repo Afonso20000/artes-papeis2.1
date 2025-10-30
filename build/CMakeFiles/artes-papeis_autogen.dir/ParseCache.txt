@@ -860,6 +860,7 @@
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h
+ mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QColor
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qaction.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbitmap.h
  mdp:/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbrush.h

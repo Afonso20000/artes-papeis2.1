@@ -48,7 +48,10 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "adicionarAoCarrinho",
         "nome",
         "preco",
-        "mostrarCarrinho"
+        "mostrarCarrinho",
+        "solicitarAdmin",
+        "tentarLoginAdmin",
+        "senha"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -68,6 +71,12 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         }}),
         // Slot 'mostrarCarrinho'
         QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'solicitarAdmin'
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'tentarLoginAdmin'
+        QtMocHelpers::SlotData<void(const QString &)>(12, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 13 },
+        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -98,6 +107,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 4: _t->abrirContato(); break;
         case 5: _t->adicionarAoCarrinho((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<double>>(_a[2]))); break;
         case 6: _t->mostrarCarrinho(); break;
+        case 7: _t->solicitarAdmin(); break;
+        case 8: _t->tentarLoginAdmin((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
         default: ;
         }
     }
@@ -122,14 +133,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 9;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 7)
+        if (_id < 9)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 7;
+        _id -= 9;
     }
     return _id;
 }

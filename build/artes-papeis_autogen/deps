@@ -861,6 +861,7 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QColor \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qaction.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbitmap.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbrush.h \

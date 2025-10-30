@@ -863,6 +863,7 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h \
+  /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QColor \
   /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qaction.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbitmap.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbrush.h \
@@ -1556,6 +1557,8 @@ artes-papeis_autogen/timestamp: /Applications/Xcode.app/Contents/Developer/Toolc
 /Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6Widgets/Qt6WidgetsMacros.cmake:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qaction.h:
+
+/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QColor:
 
 /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h:
 
