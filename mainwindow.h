@@ -28,8 +28,10 @@ public slots:
     void abrirLoja();
     void abrirInicio();
     void abrirContato();
-    void adicionarAoCarrinho(const QString& nome, double preco);
+    void adicionarAoCarrinho(const QString& id);
     void mostrarCarrinho();
+    void atualizarQuantidadeCarrinho(const QString& id, int delta);
+    void removerDoCarrinho(const QString& id);
 
     // Admin
     void solicitarAdmin();
@@ -40,7 +42,7 @@ private:
     void atualizarCarrinhoIcon();
     void atualizarCarrinhoPagina();
 
-    QVector<Produto> carrinho;
+    QMap<QString, int> carrinho; // id -> quantidade
     QLabel* carrinhoIconLabel;
     QStackedWidget* paginas;
     QWidget* lojaPage;

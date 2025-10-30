@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget* parent)
     QVBoxLayout* mainLayout = new QVBoxLayout(central);
 
     QLabel* header = new QLabel("Frete grátis para todo o mundo em pedidos acima de 50€");
-    header->setStyleSheet("background-color: #0E141C; color: #BDB3A3; padding: 7px; font-size: 14px; letter-spacing: 1.1px;");
+    header->setStyleSheet("background-color: #1e1e1e; color: #BDB3A3; padding: 7px; font-size: 14px; letter-spacing: 1.1px;");
     header->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(header);
 
@@ -43,12 +43,14 @@ MainWindow::MainWindow(QWidget* parent)
     QLineEdit* searchBar = new QLineEdit();
     searchBar->setPlaceholderText("Buscar");
     searchBar->setFixedWidth(210);
+    searchBar->setStyleSheet("QLineEdit { background-color: #363636; color: #ffffff; border: 1px solid #404040; padding: 5px; border-radius: 4px; }"
+                           "QLineEdit:focus { border-color: #4CAF50; }");
 
     QLabel* logo = new QLabel("<b>Loja Artesanatos</b>");
-    logo->setStyleSheet("font-size: 24px; color: #314B6E;");
+    logo->setStyleSheet("font-size: 24px; color: #4CAF50;");
 
     carrinhoIconLabel = new QLabel("🛒 Carrinho (0)");
-    carrinhoIconLabel->setStyleSheet("color: #314B6E; font-size: 15px; text-decoration: underline;");
+    carrinhoIconLabel->setStyleSheet("color: #4CAF50; font-size: 15px; text-decoration: underline;");
     carrinhoIconLabel->setCursor(Qt::PointingHandCursor);
 
     navLayout->addWidget(searchBar, 0);
@@ -124,27 +126,28 @@ MainWindow::MainWindow(QWidget* parent)
     carrinhoPage = new QWidget;
     QVBoxLayout* carrinhoLayout = new QVBoxLayout(carrinhoPage);
     carrinhoPage->setLayout(carrinhoLayout);
+    carrinhoPage->setStyleSheet("QWidget { background-color: #2b2b2b; } QLabel { color: #ffffff; }");
 
     // --------- Página BLOG -------------
     blogPage = new QWidget;
     QVBoxLayout* blogLayout = new QVBoxLayout(blogPage);
     QLabel* blogTitle = new QLabel("Blog Artesanal");
-    blogTitle->setStyleSheet("font-size: 22px; font-weight: bold; color: #0E141C; margin: 14px;");
+    blogTitle->setStyleSheet("font-size: 22px; font-weight: bold; color: #4CAF50; margin: 14px;");
     blogLayout->addWidget(blogTitle);
     QTextEdit* blogContent = new QTextEdit();
     blogContent->setText("Bem-vindo ao nosso blog!\n\nAqui partilhamos novidades e dicas sobre artesanato.");
     blogContent->setReadOnly(true);
-    blogContent->setStyleSheet("background-color: #F4F4F4; color: #314B6E; font-size: 15px;");
+    blogContent->setStyleSheet("background-color: #363636; color: #ffffff; font-size: 15px; border: 1px solid #404040; border-radius: 4px; padding: 10px;");
     blogLayout->addWidget(blogContent);
 
     // --------- Página SOBRE -------------
     sobrePage = new QWidget;
     QVBoxLayout* sobreLayout = new QVBoxLayout(sobrePage);
     QLabel* sobreTitle = new QLabel("Sobre a Loja");
-    sobreTitle->setStyleSheet("font-size: 22px; font-weight: bold; color: #0E141C; margin: 14px;");
+    sobreTitle->setStyleSheet("font-size: 22px; font-weight: bold; color: #4CAF50; margin: 14px;");
     sobreLayout->addWidget(sobreTitle);
     QLabel* sobreContent = new QLabel("Loja dedicada ao artesanato local!\nFundada em 2025.");
-    sobreContent->setStyleSheet("color: #314B6E; font-size: 16px;");
+    sobreContent->setStyleSheet("color: #ffffff; font-size: 16px;");
     sobreContent->setAlignment(Qt::AlignCenter);
     sobreLayout->addWidget(sobreContent);
 
@@ -152,20 +155,20 @@ MainWindow::MainWindow(QWidget* parent)
     inicioPage = new QWidget;
     QVBoxLayout* inicioLayout = new QVBoxLayout(inicioPage);
     QLabel* inicioTitle = new QLabel("Bem-vindo à Loja de Artesanatos!");
-    inicioTitle->setStyleSheet("font-size: 24px; color: #314B6E; margin: 20px;");
+    inicioTitle->setStyleSheet("font-size: 24px; color: #4CAF50; margin: 20px;");
     inicioLayout->addWidget(inicioTitle);
     QLabel* destaqueLbl = new QLabel("Aproveite as nossas coleções exclusivas.", inicioPage);
-    destaqueLbl->setStyleSheet("color: #314B6E; font-size: 16px;");
+    destaqueLbl->setStyleSheet("color: #ffffff; font-size: 16px;");
     inicioLayout->addWidget(destaqueLbl);
 
     // --------- Página CONTATO -----------
     contatoPage = new QWidget;
     QVBoxLayout* contatoLayout = new QVBoxLayout(contatoPage);
     QLabel* contatoTitle = new QLabel("Contacte-nos");
-    contatoTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #0E141C;");
+    contatoTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #4CAF50;");
     contatoLayout->addWidget(contatoTitle);
     QLabel* contatoContent = new QLabel("Email: artes@loja.com\nTelemóvel: 999-999-999");
-    contatoContent->setStyleSheet("color: #314B6E; font-size: 16px;");
+    contatoContent->setStyleSheet("color: #ffffff; font-size: 16px;");
     contatoLayout->addWidget(contatoContent);
 
     paginas->addWidget(inicioPage);
@@ -179,13 +182,20 @@ MainWindow::MainWindow(QWidget* parent)
 
     mainLayout->addStretch(1);
     QLabel* footer = new QLabel("© 2025 Loja Artesanatos");
-    footer->setStyleSheet("color: #8197AC; font-size: 13px; margin-top: 27px;");
+    footer->setStyleSheet("color: #9e9e9e; font-size: 13px; margin-top: 27px;");
     footer->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(footer);
 
     central->setLayout(mainLayout);
     setCentralWidget(central);
-    setStyleSheet("background-color: #F4F4F4;");
+    setStyleSheet("QMainWindow { background-color: #2b2b2b; color: #ffffff; }"
+                "QLabel { color: #ffffff; }"
+                "QTextEdit { background-color: #363636; color: #ffffff; border: 1px solid #404040; border-radius: 4px; }"
+                "QScrollArea { background-color: #2b2b2b; border: none; }"
+                "QScrollBar:vertical { background-color: #363636; width: 12px; margin: 0; }"
+                "QScrollBar::handle:vertical { background-color: #4a4a4a; min-height: 20px; border-radius: 6px; }"
+                "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
+                "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { height: 0; }");
     resize(1200, 790);
 
     QHBoxLayout* menuLayout = new QHBoxLayout();
@@ -196,20 +206,20 @@ MainWindow::MainWindow(QWidget* parent)
             QPushButton {
                 background: none;
                 border: none;
-                color: #314B6E;
+                color: #ffffff;
                 font-size: 17px;
                 font-weight: bold;
                 padding: 8px 23px;
                 border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #BDB3A3;
-                color: #0E141C;
+                background-color: #4a4a4a;
+                color: #4CAF50;
                 cursor: pointer;
             }
             QPushButton:pressed {
-                background-color: #607EA2;
-                color: #0E141C;
+                background-color: #363636;
+                color: #4CAF50;
             }
         )");
         connect(btn, &QPushButton::clicked, this, [this, i]() {
@@ -223,13 +233,16 @@ MainWindow::MainWindow(QWidget* parent)
     adminBtn->setStyleSheet(R"(
         QPushButton {
             background: none;
-            border: 1px solid #E0E0E0;
-            color: #C0392B;
+            border: 1px solid #ff5252;
+            color: #ff5252;
             font-size: 14px;
             padding: 6px 12px;
             border-radius: 6px;
         }
-        QPushButton:hover { background-color: #F2D7D5; }
+        QPushButton:hover { 
+            background-color: #ff5252;
+            color: #ffffff;
+        }
     )");
     // store member pointer so updateAdminUI can toggle behavior
     adminButton = adminBtn;
@@ -246,14 +259,34 @@ void MainWindow::abrirLoja()    { paginas->setCurrentWidget(lojaPage);        }
 void MainWindow::abrirInicio()  { paginas->setCurrentWidget(inicioPage);      }
 void MainWindow::abrirContato() { paginas->setCurrentWidget(contatoPage);     }
 
-void MainWindow::adicionarAoCarrinho(const QString& nome, double preco) {
-    Produto p{nome, preco};
-    carrinho.append(p);
+void MainWindow::adicionarAoCarrinho(const QString& id) {
+    carrinho[id] = carrinho.value(id, 0) + 1;
     atualizarCarrinhoIcon();
 }
 
+void MainWindow::atualizarQuantidadeCarrinho(const QString& id, int delta) {
+    int novaQuant = carrinho[id] + delta;
+    if (novaQuant <= 0) {
+        carrinho.remove(id);
+    } else {
+        carrinho[id] = novaQuant;
+    }
+    atualizarCarrinhoIcon();
+    atualizarCarrinhoPagina();
+}
+
+void MainWindow::removerDoCarrinho(const QString& id) {
+    carrinho.remove(id);
+    atualizarCarrinhoIcon();
+    atualizarCarrinhoPagina();
+}
+
 void MainWindow::atualizarCarrinhoIcon() {
-    carrinhoIconLabel->setText(QString("🛒 Carrinho (%1)").arg(carrinho.size()));
+    int total = 0;
+    for (int quant : carrinho.values()) {
+        total += quant;
+    }
+    carrinhoIconLabel->setText(QString("🛒 Carrinho (%1)").arg(total));
 }
 
 void MainWindow::mostrarCarrinho() {
@@ -263,28 +296,158 @@ void MainWindow::mostrarCarrinho() {
 
 void MainWindow::atualizarCarrinhoPagina() {
     auto* layout = qobject_cast<QVBoxLayout*>(carrinhoPage->layout());
-    while (layout->count() > 1) {
-        QLayoutItem* item = layout->takeAt(1);
+    QWidget* content = new QWidget(carrinhoPage);
+    QVBoxLayout* contentLayout = new QVBoxLayout(content);
+    
+    // Limpar layout existente
+    while (layout->count() > 0) {
+        QLayoutItem* item = layout->takeAt(0);
         if (auto w = item->widget()) w->deleteLater();
         delete item;
     }
+
+    // Configurar o estilo do widget de conteúdo
+    content->setStyleSheet("QWidget { background-color: #2b2b2b; color: #ffffff; }");
+
     if (carrinho.isEmpty()) {
         QLabel* vazioLbl = new QLabel("O seu carrinho está vazio.");
-        vazioLbl->setStyleSheet("color: #0E141C; font-size: 18px; font-weight: bold;");
-        layout->addWidget(vazioLbl);
+        vazioLbl->setStyleSheet("color: #ffffff; font-size: 18px; font-weight: bold; padding: 20px;");
+        contentLayout->addWidget(vazioLbl);
     } else {
         double total = 0;
-        for (const auto& p: carrinho) {
-            QString precoStr = QString::number(p.preco, 'f', 2);
-            QLabel* prodLbl = new QLabel(QString("• %1: %2€").arg(p.nome).arg(precoStr));
-            prodLbl->setStyleSheet("font-size: 15px; color: #314B6E;");
-            layout->addWidget(prodLbl);
-            total += p.preco;
+        
+        // Header
+        QWidget* header = new QWidget(content);
+        QHBoxLayout* headerLayout = new QHBoxLayout(header);
+        header->setStyleSheet("background-color: #363636; border-radius: 8px; padding: 10px; color: #ffffff;");
+        
+        QLabel* produtoLabel = new QLabel("Produto");
+        QLabel* precoLabel = new QLabel("Preço");
+        QLabel* quantLabel = new QLabel("Quantidade");
+        QLabel* headerTotalLabel = new QLabel("Total");
+        QLabel* acoesLabel = new QLabel("");
+        
+        QString headerLabelStyle = "color: #9e9e9e; font-weight: bold; font-size: 14px;";
+        produtoLabel->setStyleSheet(headerLabelStyle);
+        precoLabel->setStyleSheet(headerLabelStyle);
+        quantLabel->setStyleSheet(headerLabelStyle);
+        headerTotalLabel->setStyleSheet(headerLabelStyle);
+        
+        headerLayout->addWidget(produtoLabel, 3);
+        headerLayout->addWidget(precoLabel, 1);
+        headerLayout->addWidget(quantLabel, 2);
+        headerLayout->addWidget(headerTotalLabel, 1);
+        headerLayout->addWidget(acoesLabel, 1); // Espaço para botões
+        contentLayout->addWidget(header);
+
+        // Itens do carrinho
+        for (auto it = carrinho.begin(); it != carrinho.end(); ++it) {
+            const QString& id = it.key();
+            int quantidade = it.value();
+            ProdutoFull produto = productManager->getProduct(id);
+            
+            QWidget* itemWidget = new QWidget(content);
+            QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
+            itemWidget->setStyleSheet("background-color: #363636; border-radius: 8px; margin: 5px 0; padding: 10px; border: 1px solid #404040;");
+
+            // Container para imagem e nome
+            QWidget* produtoInfo = new QWidget(itemWidget);
+            QHBoxLayout* produtoInfoLayout = new QHBoxLayout(produtoInfo);
+            produtoInfo->setStyleSheet("border: none;");
+            
+            // Imagem do produto
+            QLabel* imgLabel = new QLabel(produtoInfo);
+            imgLabel->setFixedSize(50, 50);
+            if (!produto.imagePath.isEmpty()) {
+                QPixmap px(produto.imagePath);
+                if (!px.isNull()) {
+                    imgLabel->setPixmap(px.scaled(imgLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                } else {
+                    imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px;").arg(produto.cor.name()));
+                }
+            } else {
+                imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px;").arg(produto.cor.name()));
+            }
+            
+            QLabel* nomeLabel = new QLabel(produto.nome, produtoInfo);
+            nomeLabel->setStyleSheet("font-weight: bold; color: #ffffff; font-size: 14px;");
+            
+            produtoInfoLayout->addWidget(imgLabel);
+            produtoInfoLayout->addWidget(nomeLabel);
+            produtoInfoLayout->addStretch();
+
+            // Preço unitário
+            QLabel* precoLabel = new QLabel(QString::number(produto.preco, 'f', 2) + "€");
+            precoLabel->setStyleSheet("color: #9e9e9e; font-size: 14px;");
+            
+            // Controles de quantidade
+            QWidget* quantWidget = new QWidget(itemWidget);
+            QHBoxLayout* quantLayout = new QHBoxLayout(quantWidget);
+            quantWidget->setStyleSheet("border: none;");
+            
+            QPushButton* minusBtn = new QPushButton("−", quantWidget); // Unicode minus sign
+            QPushButton* plusBtn = new QPushButton("＋", quantWidget); // Unicode full-width plus
+            QLabel* quantLabel = new QLabel(QString::number(quantidade), quantWidget);
+            
+            minusBtn->setFixedSize(26, 26);
+            plusBtn->setFixedSize(26, 26);
+            QString btnStyle = "QPushButton { background-color: #4a4a4a; color: #ffffff; border: none; border-radius: 13px; font-size: 16px; font-weight: bold; } "
+                             "QPushButton:hover { background-color: #5a5a5a; } "
+                             "QPushButton:pressed { background-color: #666666; }";
+            minusBtn->setStyleSheet(btnStyle);
+            plusBtn->setStyleSheet(btnStyle);
+            quantLabel->setStyleSheet("color: #ffffff; font-size: 15px; font-weight: bold;");
+            quantLabel->setAlignment(Qt::AlignCenter);
+            quantLabel->setMinimumWidth(30);
+            
+            connect(minusBtn, &QPushButton::clicked, this, [this, id](){ atualizarQuantidadeCarrinho(id, -1); });
+            connect(plusBtn, &QPushButton::clicked, this, [this, id](){ atualizarQuantidadeCarrinho(id, 1); });
+            
+            quantLayout->addWidget(minusBtn);
+            quantLayout->addWidget(quantLabel);
+            quantLayout->addWidget(plusBtn);
+            
+            // Total do item
+            double totalItem = produto.preco * quantidade;
+            QLabel* totalLabel = new QLabel(QString::number(totalItem, 'f', 2) + "€");
+            totalLabel->setStyleSheet("color: #4CAF50; font-weight: bold; font-size: 14px;");
+            
+            // Botão remover
+            QPushButton* removerBtn = new QPushButton("🗑️", itemWidget);
+            removerBtn->setStyleSheet("QPushButton { background: none; border: none; color: #ff5252; font-size: 16px; } "
+                                    "QPushButton:hover { color: #ff8a80; }");
+            connect(removerBtn, &QPushButton::clicked, this, [this, id](){ removerDoCarrinho(id); });
+            
+            itemLayout->addWidget(produtoInfo, 3);
+            itemLayout->addWidget(precoLabel, 1);
+            itemLayout->addWidget(quantWidget, 2);
+            itemLayout->addWidget(totalLabel, 1);
+            itemLayout->addWidget(removerBtn, 1);
+            
+            contentLayout->addWidget(itemWidget);
+            
+            total += totalItem;
         }
-        QLabel* totalLbl = new QLabel(QString("<b>Total: %1€</b>").arg(QString::number(total, 'f', 2)));
-        totalLbl->setStyleSheet("font-size: 16px; color: #0E141C; padding-top:10px;");
-        layout->addWidget(totalLbl);
+
+        // Total geral
+        QWidget* totalWidget = new QWidget(content);
+        QHBoxLayout* totalLayout = new QHBoxLayout(totalWidget);
+        totalWidget->setStyleSheet("background-color: #1e1e1e; border-radius: 8px; padding: 20px; margin-top: 20px; border: 1px solid #404040;");
+        
+        QLabel* totalLabel = new QLabel("Total:", totalWidget);
+        totalLabel->setStyleSheet("color: #9e9e9e; font-size: 16px;");
+        QLabel* valorLabel = new QLabel(QString("%1€").arg(QString::number(total, 'f', 2)), totalWidget);
+        valorLabel->setStyleSheet("font-size: 20px; color: #4CAF50; font-weight: bold;");
+        
+        totalLayout->addWidget(totalLabel);
+        totalLayout->addStretch();
+        totalLayout->addWidget(valorLabel);
+        
+        contentLayout->addWidget(totalWidget);
     }
+
+    contentLayout->addStretch();
+    layout->addWidget(content);
 }
 
 void MainWindow::solicitarAdmin()
@@ -365,8 +528,12 @@ void MainWindow::tentarLoginAdmin(const QString& senha)
             // Exemplo de controlo admin (apenas demonstrativo)
             QPushButton* demoBtn = new QPushButton("Adicionar produto demo ao carrinho", adminPage);
             connect(demoBtn, &QPushButton::clicked, this, [this]() {
-                adicionarAoCarrinho("Produto Admin (demo)", 99.99);
-                QMessageBox::information(this, "Demo", "Produto demo adicionado ao carrinho.");
+                // Adiciona o primeiro produto disponível como demo
+                auto produtos = productManager->getAllProducts();
+                if (!produtos.isEmpty()) {
+                    adicionarAoCarrinho(produtos.first().id);
+                    QMessageBox::information(this, "Demo", "Produto demo adicionado ao carrinho.");
+                }
             });
             layout->addWidget(demoBtn, 0, Qt::AlignCenter);
             layout->addStretch(1);
@@ -397,9 +564,7 @@ void MainWindow::refreshLojaProducts()
     int idx = 0;
     for (const auto &pf : produtos) {
         ProductCard* card = new ProductCard(pf, this);
-        connect(card, &ProductCard::compraProduto, this, [this, pf](const QString&) {
-            adicionarAoCarrinho(pf.nome, pf.preco);
-        });
+        connect(card, &ProductCard::compraProduto, this, &MainWindow::adicionarAoCarrinho);
         int row = idx / cols;
         int col = idx % cols;
         productsGrid->addWidget(card, row, col, Qt::AlignTop);

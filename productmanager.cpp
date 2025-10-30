@@ -116,7 +116,12 @@ ProdutoFull* ProductManager::findProductById(const QString& id)
     return nullptr;
 }
 
-QVector<ProdutoFull> ProductManager::getAllProducts() const
+ProdutoFull ProductManager::getProduct(const QString& id) const
 {
-    return produtos;
+    for (const auto& produto : produtos) {
+        if (produto.id == id) {
+            return produto;
+        }
+    }
+    return ProdutoFull(); // retorna produto vazio se não encontrado
 }
