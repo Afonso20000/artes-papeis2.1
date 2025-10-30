@@ -2,9 +2,13 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
+#include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QFrame>
 #include <QScrollArea>
 #include <QStackedWidget>
@@ -21,6 +25,7 @@
 #include <QFileDialog>
 #include <QColorDialog>
 #include <QCoreApplication>
+#include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QFileInfo>
 #include <QUuid>
@@ -144,16 +149,20 @@ MainWindow::MainWindow(QWidget* parent)
         };
     }
 
-    // Widget/flow usados para mostrar os cards (serão atualizados por refreshLojaProducts)
+    // Widget/grid usado para mostrar os cards (será atualizado por refreshLojaProducts)
     productsWidget = new QWidget;
-    productsFlow = new QHBoxLayout(productsWidget);
-    productsFlow->addSpacing(25);
+    productsGrid = new QGridLayout(productsWidget);
+    productsGrid->setContentsMargins(20, 10, 20, 10);
+    productsGrid->setHorizontalSpacing(18);
+    productsGrid->setVerticalSpacing(18);
 
     productsScroll = new QScrollArea();
     productsScroll->setWidget(productsWidget);
     productsScroll->setWidgetResizable(true);
-    productsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    productsScroll->setFixedHeight(350);
+    // esconder scroll horizontal e permitir scroll vertical quando necessário
+    productsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    productsScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    productsScroll->setFixedHeight(520);
 
     lojaLayout->addWidget(productsScroll);
     lojaPage->setLayout(lojaLayout);
@@ -351,8 +360,8 @@ void MainWindow::solicitarAdmin()
 void MainWindow::tentarLoginAdmin(const QString& senha)
 {
     // Autenticação por ficheiro (data/admin.json com salt+hash)
-    QString appDir = QCoreApplication::applicationDirPath();
-    QDir dataDir(appDir + "/data");
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
     if (!dataDir.exists()) dataDir.mkpath(".");
     QString adminPath = dataDir.filePath("admin.json");
 
@@ -424,22 +433,25 @@ void MainWindow::tentarLoginAdmin(const QString& senha)
 
 void MainWindow::refreshLojaProducts()
 {
-    if (!productsFlow || !productsWidget) return;
-    // Limpar conteúdos existentes do layout
-    while (productsFlow->count() > 0) {
-        QLayoutItem* it = productsFlow->takeAt(0);
+    if (!productsGrid || !productsWidget) return;
+    // Limpar conteúdos existentes do layout (remover widgets anteriores)
+    while (productsGrid->count() > 0) {
+        QLayoutItem* it = productsGrid->takeAt(0);
         if (!it) break;
         if (QWidget* w = it->widget()) { w->deleteLater(); }
         delete it;
     }
-    productsFlow->addSpacing(25);
+
+    const int cols = 4; // itens por linha
+    int idx = 0;
     for (const auto &pf : produtosDisponiveis) {
         QString imgPath = pf.imagePath.isEmpty() ? QString() : pf.imagePath;
-        productsFlow->addWidget(criarCard(this, pf.nome, QString::number(pf.preco, 'f', 2), pf.cor, imgPath));
-        productsFlow->addSpacing(12);
+        QWidget* card = criarCard(this, pf.nome, QString::number(pf.preco, 'f', 2), pf.cor, imgPath);
+        int row = idx / cols;
+        int col = idx % cols;
+        productsGrid->addWidget(card, row, col, Qt::AlignTop);
+        ++idx;
     }
-    // ensure layout is set
-    productsWidget->setLayout(productsFlow);
 }
 
 void MainWindow::showProductManager()
@@ -484,39 +496,109 @@ void MainWindow::showProductManager()
     )");
 
     connect(addBtn, &QPushButton::clicked, this, [&]() {
-        bool ok = false;
-        QString nome = QInputDialog::getText(&dlg, "Adicionar Produto", "Nome:", QLineEdit::Normal, QString(), &ok);
-        if (!ok || nome.isEmpty()) return;
-        QString id = QInputDialog::getText(&dlg, "Adicionar Produto", "ID:", QLineEdit::Normal, QString(), &ok);
-        if (!ok || id.isEmpty()) return;
-        int quantidade = QInputDialog::getInt(&dlg, "Adicionar Produto", "Quantidade:", 1, 0, 100000, 1, &ok);
-        if (!ok) return;
-        double preco = QInputDialog::getDouble(&dlg, "Adicionar Produto", "Preço:", 1.0, 0.0, 100000.0, 2, &ok);
-        if (!ok) return;
-        // escolha de imagem
-        QString imageFile = QFileDialog::getOpenFileName(&dlg, "Escolher imagem", QDir::homePath(), "Images (*.png *.jpg *.jpeg *.bmp)");
+        // Diálogo para edição completa do produto
+        QDialog formDlg(&dlg);
+        formDlg.setWindowTitle("Adicionar Produto");
+        formDlg.setStyleSheet(dlg.styleSheet());
+        QVBoxLayout* formLayout = new QVBoxLayout(&formDlg);
+        
+        // Criar campos do formulário
+        QLineEdit* nomeEdit = new QLineEdit(&formDlg);
+        QLineEdit* idEdit = new QLineEdit(&formDlg);
+        QSpinBox* quantidadeEdit = new QSpinBox(&formDlg);
+        QDoubleSpinBox* precoEdit = new QDoubleSpinBox(&formDlg);
+        QLineEdit* categoriaEdit = new QLineEdit(&formDlg);
+        QPushButton* imgBtn = new QPushButton("Escolher imagem...", &formDlg);
+        QPushButton* colorBtn = new QPushButton("Escolher cor...", &formDlg);
+        QLabel* imgPathLabel = new QLabel(&formDlg);
+        QLabel* colorPreview = new QLabel(&formDlg);
+        
+        // Configurar campos
+        quantidadeEdit->setRange(0, 100000);
+        quantidadeEdit->setValue(1);
+        precoEdit->setRange(0, 100000);
+        precoEdit->setDecimals(2);
+        precoEdit->setValue(1.0);
+        categoriaEdit->setText("Geral");
+        imgPathLabel->setWordWrap(true);
+        colorPreview->setFixedSize(40, 20);
+        
+        // Layout do formulário
+        QFormLayout* form = new QFormLayout;
+        form->addRow("Nome:", nomeEdit);
+        form->addRow("ID:", idEdit);
+        form->addRow("Quantidade:", quantidadeEdit);
+        form->addRow("Preço:", precoEdit);
+        form->addRow("Categoria:", categoriaEdit);
+        form->addRow("Imagem:", imgBtn);
+        form->addRow("", imgPathLabel);
+        form->addRow("Cor:", colorBtn);
+        form->addRow("", colorPreview);
+        
+        formLayout->addLayout(form);
+        
+        // Botões OK/Cancelar
+        QHBoxLayout* buttonBox = new QHBoxLayout;
+        QPushButton* okBtn = new QPushButton("OK", &formDlg);
+        QPushButton* cancelBtn = new QPushButton("Cancelar", &formDlg);
+        buttonBox->addStretch();
+        buttonBox->addWidget(okBtn);
+        buttonBox->addWidget(cancelBtn);
+        formLayout->addLayout(buttonBox);
+        
+        // Valores iniciais
         QString savedImagePath;
-        if (!imageFile.isEmpty()) {
-            // copiar para pasta data/images
-            QString appDir = QCoreApplication::applicationDirPath();
-            QDir dataDir(appDir + "/data");
-            if (!dataDir.exists()) dataDir.mkpath(".");
-            QDir imagesDir(dataDir.filePath("images"));
-            if (!imagesDir.exists()) imagesDir.mkpath(".");
-            QFileInfo fi(imageFile);
-            QString target = imagesDir.filePath(fi.fileName());
-            QFile::copy(imageFile, target);
-            savedImagePath = target;
+        QColor chosenColor = QColor("#BDB3A3");
+        colorPreview->setStyleSheet(QString("background-color: %1; border: 1px solid #999;").arg(chosenColor.name()));
+        
+        // Conectar botões
+        connect(imgBtn, &QPushButton::clicked, [&]() {
+            QString imageFile = QFileDialog::getOpenFileName(&formDlg, "Escolher imagem", 
+                QDir::homePath(), "Images (*.png *.jpg *.jpeg *.bmp)");
+            if (!imageFile.isEmpty()) {
+                QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+                QDir dataDir(dataPath + "/artes-papeis");
+                if (!dataDir.exists()) dataDir.mkpath(".");
+                QDir imagesDir(dataDir.filePath("images"));
+                if (!imagesDir.exists()) imagesDir.mkpath(".");
+                QFileInfo fi(imageFile);
+                QString target = imagesDir.filePath(fi.fileName());
+                QFile::copy(imageFile, target);
+                savedImagePath = target;
+                imgPathLabel->setText(fi.fileName());
+            }
+        });
+        
+        connect(colorBtn, &QPushButton::clicked, [&]() {
+            QColor newColor = QColorDialog::getColor(chosenColor, &formDlg, "Escolher cor do card");
+            if (newColor.isValid()) {
+                chosenColor = newColor;
+                colorPreview->setStyleSheet(QString("background-color: %1; border: 1px solid #999;")
+                    .arg(chosenColor.name()));
+            }
+        });
+        
+        connect(okBtn, &QPushButton::clicked, &formDlg, &QDialog::accept);
+        connect(cancelBtn, &QPushButton::clicked, &formDlg, &QDialog::reject);
+        
+        if (formDlg.exec() == QDialog::Accepted && !nomeEdit->text().isEmpty() && !idEdit->text().isEmpty()) {
+            produtosDisponiveis.append({
+                nomeEdit->text(),
+                precoEdit->value(),
+                chosenColor,
+                idEdit->text(),
+                quantidadeEdit->value(),
+                savedImagePath,
+                categoriaEdit->text()
+            });
+            list->addItem(QString("%1 [id:%2] x%3 — %4€")
+                .arg(nomeEdit->text())
+                .arg(idEdit->text())
+                .arg(quantidadeEdit->value())
+                .arg(QString::number(precoEdit->value(), 'f', 2)));
+            saveProductsToJson();
+            refreshLojaProducts();
         }
-        // escolha de cor (opcional)
-        QColor chosenColor = QColorDialog::getColor(QColor("#BDB3A3"), &dlg, "Escolher cor do card");
-        if (!chosenColor.isValid()) chosenColor = QColor("#BDB3A3");
-        QString categoria = QInputDialog::getText(&dlg, "Adicionar Produto", "Categoria:", QLineEdit::Normal, QString("Geral"), &ok);
-        if (!ok) categoria = "Geral";
-        produtosDisponiveis.append({nome, preco, chosenColor, id, quantidade, savedImagePath, categoria});
-        list->addItem(QString("%1 [id:%2] x%3 — %4€").arg(nome).arg(id).arg(quantidade).arg(QString::number(preco, 'f', 2)));
-        saveProductsToJson();
-        refreshLojaProducts();
     });
 
     connect(removeBtn, &QPushButton::clicked, this, [&]() {
@@ -531,38 +613,112 @@ void MainWindow::showProductManager()
     connect(editBtn, &QPushButton::clicked, this, [&]() {
         int idx = list->currentRow();
         if (idx < 0 || idx >= produtosDisponiveis.size()) return;
-        bool ok = false;
         const ProdutoFull &pf = produtosDisponiveis[idx];
-        QString novoNome = QInputDialog::getText(&dlg, "Editar Produto", "Nome:", QLineEdit::Normal, pf.nome, &ok);
-        if (!ok || novoNome.isEmpty()) return;
-        QString novoId = QInputDialog::getText(&dlg, "Editar Produto", "ID:", QLineEdit::Normal, pf.id, &ok);
-        if (!ok || novoId.isEmpty()) return;
-        int novaQuantidade = QInputDialog::getInt(&dlg, "Editar Produto", "Quantidade:", pf.quantidade, 0, 100000, 1, &ok);
-        if (!ok) return;
-        double novoPreco = QInputDialog::getDouble(&dlg, "Editar Produto", "Preço:", pf.preco, 0.0, 100000.0, 2, &ok);
-        if (!ok) return;
-        produtosDisponiveis[idx].nome = novoNome;
-        produtosDisponiveis[idx].id = novoId;
-        produtosDisponiveis[idx].quantidade = novaQuantidade;
-        produtosDisponiveis[idx].preco = novoPreco;
-        // imagem e cor também podem ser alterados via dialogs extras
-        QString changeImg = QInputDialog::getText(&dlg, "Editar Produto", "Mudar imagem (seleccione caminho ou deixe vazio):", QLineEdit::Normal, produtosDisponiveis[idx].imagePath, &ok);
-        if (ok && !changeImg.isEmpty()) {
-            QString appDir = QCoreApplication::applicationDirPath();
-            QDir dataDir(appDir + "/data");
-            QDir imagesDir(dataDir.filePath("images"));
-            if (!imagesDir.exists()) imagesDir.mkpath(".");
-            QFileInfo fi(changeImg);
-            QString target = imagesDir.filePath(fi.fileName());
-            QFile::copy(changeImg, target);
-            produtosDisponiveis[idx].imagePath = target;
+        
+        // Diálogo para edição completa do produto
+        QDialog formDlg(&dlg);
+        formDlg.setWindowTitle("Editar Produto");
+        formDlg.setStyleSheet(dlg.styleSheet());
+        QVBoxLayout* formLayout = new QVBoxLayout(&formDlg);
+        
+        // Criar campos do formulário
+        QLineEdit* nomeEdit = new QLineEdit(pf.nome, &formDlg);
+        QLineEdit* idEdit = new QLineEdit(pf.id, &formDlg);
+        QSpinBox* quantidadeEdit = new QSpinBox(&formDlg);
+        QDoubleSpinBox* precoEdit = new QDoubleSpinBox(&formDlg);
+        QLineEdit* categoriaEdit = new QLineEdit(pf.categoria, &formDlg);
+        QPushButton* imgBtn = new QPushButton("Escolher imagem...", &formDlg);
+        QPushButton* colorBtn = new QPushButton("Escolher cor...", &formDlg);
+        QLabel* imgPathLabel = new QLabel(&formDlg);
+        QLabel* colorPreview = new QLabel(&formDlg);
+        
+        // Configurar campos com valores existentes
+        quantidadeEdit->setRange(0, 100000);
+        quantidadeEdit->setValue(pf.quantidade);
+        precoEdit->setRange(0, 100000);
+        precoEdit->setDecimals(2);
+        precoEdit->setValue(pf.preco);
+        imgPathLabel->setText(QFileInfo(pf.imagePath).fileName());
+        imgPathLabel->setWordWrap(true);
+        colorPreview->setFixedSize(40, 20);
+        colorPreview->setStyleSheet(QString("background-color: %1; border: 1px solid #999;")
+            .arg(pf.cor.name()));
+        
+        // Layout do formulário
+        QFormLayout* form = new QFormLayout;
+        form->addRow("Nome:", nomeEdit);
+        form->addRow("ID:", idEdit);
+        form->addRow("Quantidade:", quantidadeEdit);
+        form->addRow("Preço:", precoEdit);
+        form->addRow("Categoria:", categoriaEdit);
+        form->addRow("Imagem:", imgBtn);
+        form->addRow("", imgPathLabel);
+        form->addRow("Cor:", colorBtn);
+        form->addRow("", colorPreview);
+        
+        formLayout->addLayout(form);
+        
+        // Botões OK/Cancelar
+        QHBoxLayout* buttonBox = new QHBoxLayout;
+        QPushButton* okBtn = new QPushButton("OK", &formDlg);
+        QPushButton* cancelBtn = new QPushButton("Cancelar", &formDlg);
+        buttonBox->addStretch();
+        buttonBox->addWidget(okBtn);
+        buttonBox->addWidget(cancelBtn);
+        formLayout->addLayout(buttonBox);
+        
+        // Valores iniciais para imagem/cor
+        QString savedImagePath = pf.imagePath;
+        QColor chosenColor = pf.cor;
+        
+        // Conectar botões
+        connect(imgBtn, &QPushButton::clicked, [&]() {
+            QString imageFile = QFileDialog::getOpenFileName(&formDlg, "Escolher imagem", 
+                QDir::homePath(), "Images (*.png *.jpg *.jpeg *.bmp)");
+            if (!imageFile.isEmpty()) {
+                QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+                QDir dataDir(dataPath + "/artes-papeis");
+                if (!dataDir.exists()) dataDir.mkpath(".");
+                QDir imagesDir(dataDir.filePath("images"));
+                if (!imagesDir.exists()) imagesDir.mkpath(".");
+                QFileInfo fi(imageFile);
+                QString target = imagesDir.filePath(fi.fileName());
+                QFile::copy(imageFile, target);
+                savedImagePath = target;
+                imgPathLabel->setText(fi.fileName());
+            }
+        });
+        
+        connect(colorBtn, &QPushButton::clicked, [&]() {
+            QColor newColor = QColorDialog::getColor(chosenColor, &formDlg, "Escolher cor do card");
+            if (newColor.isValid()) {
+                chosenColor = newColor;
+                colorPreview->setStyleSheet(QString("background-color: %1; border: 1px solid #999;")
+                    .arg(chosenColor.name()));
+            }
+        });
+        
+        connect(okBtn, &QPushButton::clicked, &formDlg, &QDialog::accept);
+        connect(cancelBtn, &QPushButton::clicked, &formDlg, &QDialog::reject);
+        
+        if (formDlg.exec() == QDialog::Accepted && !nomeEdit->text().isEmpty() && !idEdit->text().isEmpty()) {
+            produtosDisponiveis[idx].nome = nomeEdit->text();
+            produtosDisponiveis[idx].id = idEdit->text();
+            produtosDisponiveis[idx].quantidade = quantidadeEdit->value();
+            produtosDisponiveis[idx].preco = precoEdit->value();
+            produtosDisponiveis[idx].cor = chosenColor;
+            produtosDisponiveis[idx].imagePath = savedImagePath;
+            produtosDisponiveis[idx].categoria = categoriaEdit->text();
+            
+            list->currentItem()->setText(QString("%1 [id:%2] x%3 — %4€")
+                .arg(nomeEdit->text())
+                .arg(idEdit->text())
+                .arg(quantidadeEdit->value())
+                .arg(QString::number(precoEdit->value(), 'f', 2)));
+            
+            saveProductsToJson();
+            refreshLojaProducts();
         }
-        QColor newColor = QColorDialog::getColor(produtosDisponiveis[idx].cor, &dlg, "Escolher cor do card");
-        if (newColor.isValid()) produtosDisponiveis[idx].cor = newColor;
-        produtosDisponiveis[idx].categoria = QInputDialog::getText(&dlg, "Editar Produto", "Categoria:", QLineEdit::Normal, produtosDisponiveis[idx].categoria, &ok);
-        list->currentItem()->setText(QString("%1 [id:%2] x%3 — %4€").arg(novoNome).arg(novoId).arg(novaQuantidade).arg(QString::number(novoPreco, 'f', 2)));
-        saveProductsToJson();
-        refreshLojaProducts();
     });
 
     connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
@@ -590,8 +746,8 @@ MainWindow::~MainWindow(){}
 
 void MainWindow::saveProductsToJson()
 {
-    QString appDir = QCoreApplication::applicationDirPath();
-    QDir dataDir(appDir + "/data");
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
     if (!dataDir.exists()) dataDir.mkpath(".");
     QFile file(dataDir.filePath("products.json"));
     if (!file.open(QIODevice::WriteOnly)) return;
@@ -615,8 +771,8 @@ void MainWindow::saveProductsToJson()
 void MainWindow::loadProductsFromJson()
 {
     produtosDisponiveis.clear();
-    QString appDir = QCoreApplication::applicationDirPath();
-    QDir dataDir(appDir + "/data");
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
     QFile file(dataDir.filePath("products.json"));
     if (!file.exists()) return; // nothing to load
     if (!file.open(QIODevice::ReadOnly)) return;

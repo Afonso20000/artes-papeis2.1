@@ -11,6 +11,7 @@ class QLabel;
 class QWidget;
 class QPushButton;
 class QHBoxLayout;
+class QGridLayout;
 class QScrollArea;
 
 struct Produto {
@@ -67,7 +68,7 @@ private:
     // Loja: produtos geridos por código, mutáveis via admin
     QVector<ProdutoFull> produtosDisponiveis;
     QWidget* productsWidget = nullptr;
-    QHBoxLayout* productsFlow = nullptr;
+    QGridLayout* productsGrid = nullptr;
     QScrollArea* productsScroll = nullptr;
     QPushButton* editProductsButton = nullptr; // visível apenas para admin
 
