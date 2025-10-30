@@ -7,7 +7,6 @@
 
 class QStackedWidget;
 class QLabel;
-class QPushButton;
 
 struct Produto {
     QString nome;

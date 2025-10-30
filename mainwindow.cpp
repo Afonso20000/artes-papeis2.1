@@ -26,7 +26,7 @@ QWidget* criarCard(MainWindow* win, const QString& nome, const QString& preco, c
     title->setAlignment(Qt::AlignHCenter);
 
     QLabel* priceLabel = new QLabel(preco + " €", card);
-    priceLabel->setStyleSheet("font-size: 16px; color: #607EA2;");
+    priceLabel->setStyleSheet("font-size: 16px; color: #314B6E;");
     priceLabel->setAlignment(Qt::AlignHCenter);
 
     QPushButton* btn = new QPushButton("Comprar", card);
@@ -54,7 +54,6 @@ MainWindow::MainWindow(QWidget* parent)
     QWidget* central = new QWidget(this);
     QVBoxLayout* mainLayout = new QVBoxLayout(central);
 
-    // Cabeçalho e navegação igual exemplo anterior
     QLabel* header = new QLabel("Frete grátis para todo o mundo em pedidos acima de 50€");
     header->setStyleSheet("background-color: #0E141C; color: #BDB3A3; padding: 7px; font-size: 14px; letter-spacing: 1.1px;");
     header->setAlignment(Qt::AlignCenter);
@@ -71,7 +70,6 @@ MainWindow::MainWindow(QWidget* parent)
     carrinhoIconLabel = new QLabel("🛒 Carrinho (0)");
     carrinhoIconLabel->setStyleSheet("color: #314B6E; font-size: 15px; text-decoration: underline;");
     carrinhoIconLabel->setCursor(Qt::PointingHandCursor);
-    connect(carrinhoIconLabel, &QLabel::linkActivated, this, &MainWindow::mostrarCarrinho);
 
     navLayout->addWidget(searchBar, 0);
     navLayout->addStretch(1);
@@ -86,10 +84,9 @@ MainWindow::MainWindow(QWidget* parent)
     line->setFrameShadow(QFrame::Sunken);
     mainLayout->addWidget(line);
 
-    // StackedWidget para as páginas principais
     paginas = new QStackedWidget(this);
 
-    // Página: Loja (produtos)
+    // --------- Página LOJA -----------
     lojaPage = new QWidget;
     QVBoxLayout* lojaLayout = new QVBoxLayout(lojaPage);
     QLabel* sectionTitle = new QLabel("Comprar coleções");
@@ -123,12 +120,12 @@ MainWindow::MainWindow(QWidget* parent)
     lojaLayout->addWidget(scroll);
     lojaPage->setLayout(lojaLayout);
 
-    // Página do carrinho
+    // --------- Página CARRINHO ---------
     carrinhoPage = new QWidget;
     QVBoxLayout* carrinhoLayout = new QVBoxLayout(carrinhoPage);
     carrinhoPage->setLayout(carrinhoLayout);
 
-    // Página do blog (apresentação simples)
+    // --------- Página BLOG -------------
     blogPage = new QWidget;
     QVBoxLayout* blogLayout = new QVBoxLayout(blogPage);
     QLabel* blogTitle = new QLabel("Blog Artesanal");
@@ -140,7 +137,7 @@ MainWindow::MainWindow(QWidget* parent)
     blogContent->setStyleSheet("background-color: #F4F4F4; color: #314B6E; font-size: 15px;");
     blogLayout->addWidget(blogContent);
 
-    // Página sobre
+    // --------- Página SOBRE -------------
     sobrePage = new QWidget;
     QVBoxLayout* sobreLayout = new QVBoxLayout(sobrePage);
     QLabel* sobreTitle = new QLabel("Sobre a Loja");
@@ -151,21 +148,23 @@ MainWindow::MainWindow(QWidget* parent)
     sobreContent->setAlignment(Qt::AlignCenter);
     sobreLayout->addWidget(sobreContent);
 
-    // Página início
+    // --------- Página INÍCIO ------------
     inicioPage = new QWidget;
     QVBoxLayout* inicioLayout = new QVBoxLayout(inicioPage);
     QLabel* inicioTitle = new QLabel("Bem-vindo à Loja de Artesanatos!");
     inicioTitle->setStyleSheet("font-size: 24px; color: #314B6E; margin: 20px;");
     inicioLayout->addWidget(inicioTitle);
-    inicioLayout->addWidget(new QLabel("Aproveite as nossas coleções exclusivas.", inicioPage));
+    QLabel* destaqueLbl = new QLabel("Aproveite as nossas coleções exclusivas.", inicioPage);
+    destaqueLbl->setStyleSheet("color: #314B6E; font-size: 16px;");
+    inicioLayout->addWidget(destaqueLbl);
 
-    // Página contato
+    // --------- Página CONTATO -----------
     contatoPage = new QWidget;
     QVBoxLayout* contatoLayout = new QVBoxLayout(contatoPage);
     QLabel* contatoTitle = new QLabel("Contacte-nos");
     contatoTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #0E141C;");
     contatoLayout->addWidget(contatoTitle);
-    QLabel* contatoContent = new QLabel("Email: a39694@aepombal.edu.pt\nTelemóvel: +351 928 052 266");
+    QLabel* contatoContent = new QLabel("Email: artes@loja.com\nTelemóvel: 999-999-999");
     contatoContent->setStyleSheet("color: #314B6E; font-size: 16px;");
     contatoLayout->addWidget(contatoContent);
 
@@ -189,21 +188,38 @@ MainWindow::MainWindow(QWidget* parent)
     setStyleSheet("background-color: #F4F4F4;");
     resize(1200, 790);
 
-    // Menu funcional
     QHBoxLayout* menuLayout = new QHBoxLayout();
     QStringList labels = {"Início", "Loja", "Carrinho", "Blog", "Sobre", "Contato"};
     for (int i = 0; i < labels.size(); ++i) {
         QPushButton* btn = new QPushButton(labels[i]);
-        btn->setStyleSheet("background: none; border: none; color: #607EA2; font-size: 17px; font-weight: 600; padding: 0 18px;");
+        btn->setStyleSheet(R"(
+            QPushButton {
+                background: none;
+                border: none;
+                color: #314B6E;
+                font-size: 17px;
+                font-weight: bold;
+                padding: 8px 23px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #BDB3A3;
+                color: #0E141C;
+                cursor: pointer;
+            }
+            QPushButton:pressed {
+                background-color: #607EA2;
+                color: #0E141C;
+            }
+        )");
         connect(btn, &QPushButton::clicked, this, [this, i]() {
             paginas->setCurrentIndex(i);
             if (i == 2) atualizarCarrinhoPagina();
         });
         menuLayout->addWidget(btn);
     }
-    mainLayout->insertLayout(3, menuLayout);  // Logo abaixo do separador
+    mainLayout->insertLayout(3, menuLayout);
 
-    // Página inicial por padrão
     paginas->setCurrentIndex(0);
 }
 
@@ -230,14 +246,15 @@ void MainWindow::mostrarCarrinho() {
 
 void MainWindow::atualizarCarrinhoPagina() {
     auto* layout = qobject_cast<QVBoxLayout*>(carrinhoPage->layout());
-    // Remove widgets exceto o primeiro (título)
     while (layout->count() > 1) {
         QLayoutItem* item = layout->takeAt(1);
         if (auto w = item->widget()) w->deleteLater();
         delete item;
     }
     if (carrinho.isEmpty()) {
-        layout->addWidget(new QLabel("O seu carrinho está vazio."));
+        QLabel* vazioLbl = new QLabel("O seu carrinho está vazio.");
+        vazioLbl->setStyleSheet("color: #0E141C; font-size: 18px; font-weight: bold;");
+        layout->addWidget(vazioLbl);
     } else {
         double total = 0;
         for (const auto& p: carrinho) {
