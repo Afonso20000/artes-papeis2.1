@@ -7,16 +7,18 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QtCore/QEvent>
+#include <QEvent>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QFrame>
 #include <QScrollArea>
 #include <QStackedWidget>
-#include <QTextEdit>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QListWidget>
 #include <QDialog>
+#include <QFormLayout>
 #include <QFile>
 #include <QDir>
 #include <QJsonDocument>
@@ -49,15 +51,37 @@ MainWindow::MainWindow(QWidget* parent)
     QLabel* logo = new QLabel("<b>Loja Artesanatos</b>");
     logo->setStyleSheet("font-size: 24px; color: #4CAF50;");
 
-    carrinhoIconLabel = new QLabel("🛒 Carrinho (0)");
+    carrinhoIconLabel = new ClickableLabel(this, "🛒 Carrinho (0)");
     carrinhoIconLabel->setStyleSheet("color: #4CAF50; font-size: 15px; text-decoration: underline;");
     carrinhoIconLabel->setCursor(Qt::PointingHandCursor);
+    connect(carrinhoIconLabel, &ClickableLabel::clicked, this, &MainWindow::mostrarCarrinho);
+
+    // Criar botão de login
+    loginButton = new QPushButton("Log In", this);
+    loginButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #45a049;
+        }
+        QPushButton:pressed {
+            background-color: #3d8b40;
+        }
+    )");
+    connect(loginButton, &QPushButton::clicked, this, &MainWindow::abrirLogin);
 
     navLayout->addWidget(searchBar, 0);
     navLayout->addStretch(1);
     navLayout->addWidget(logo, 0, Qt::AlignCenter);
     navLayout->addStretch(1);
     navLayout->addWidget(carrinhoIconLabel, 0);
+    navLayout->addWidget(loginButton, 0);
 
     mainLayout->addLayout(navLayout);
 
@@ -128,18 +152,6 @@ MainWindow::MainWindow(QWidget* parent)
     carrinhoPage->setLayout(carrinhoLayout);
     carrinhoPage->setStyleSheet("QWidget { background-color: #2b2b2b; } QLabel { color: #ffffff; }");
 
-    // --------- Página BLOG -------------
-    blogPage = new QWidget;
-    QVBoxLayout* blogLayout = new QVBoxLayout(blogPage);
-    QLabel* blogTitle = new QLabel("Blog Artesanal");
-    blogTitle->setStyleSheet("font-size: 22px; font-weight: bold; color: #4CAF50; margin: 14px;");
-    blogLayout->addWidget(blogTitle);
-    QTextEdit* blogContent = new QTextEdit();
-    blogContent->setText("Bem-vindo ao nosso blog!\n\nAqui partilhamos novidades e dicas sobre artesanato.");
-    blogContent->setReadOnly(true);
-    blogContent->setStyleSheet("background-color: #363636; color: #ffffff; font-size: 15px; border: 1px solid #404040; border-radius: 4px; padding: 10px;");
-    blogLayout->addWidget(blogContent);
-
     // --------- Página SOBRE -------------
     sobrePage = new QWidget;
     QVBoxLayout* sobreLayout = new QVBoxLayout(sobrePage);
@@ -174,7 +186,6 @@ MainWindow::MainWindow(QWidget* parent)
     paginas->addWidget(inicioPage);
     paginas->addWidget(lojaPage);
     paginas->addWidget(carrinhoPage);
-    paginas->addWidget(blogPage);
     paginas->addWidget(sobrePage);
     paginas->addWidget(contatoPage);
 
@@ -199,7 +210,7 @@ MainWindow::MainWindow(QWidget* parent)
     resize(1200, 790);
 
     QHBoxLayout* menuLayout = new QHBoxLayout();
-    QStringList labels = {"Início", "Loja", "Carrinho", "Blog", "Sobre", "Contato"};
+    QStringList labels = {"Início", "Loja", "Carrinho", "Sobre", "Contato"};
     for (int i = 0; i < labels.size(); ++i) {
         QPushButton* btn = new QPushButton(labels[i]);
         btn->setStyleSheet(R"(
@@ -253,7 +264,6 @@ MainWindow::MainWindow(QWidget* parent)
     paginas->setCurrentIndex(0);
 }
 
-void MainWindow::abrirBlog()    { paginas->setCurrentWidget(blogPage);        }
 void MainWindow::abrirSobre()   { paginas->setCurrentWidget(sobrePage);       }
 void MainWindow::abrirLoja()    { paginas->setCurrentWidget(lojaPage);        }
 void MainWindow::abrirInicio()  { paginas->setCurrentWidget(inicioPage);      }
@@ -385,8 +395,8 @@ void MainWindow::atualizarCarrinhoPagina() {
             QHBoxLayout* quantLayout = new QHBoxLayout(quantWidget);
             quantWidget->setStyleSheet("border: none;");
             
-            QPushButton* minusBtn = new QPushButton("−", quantWidget); // Unicode minus sign
-            QPushButton* plusBtn = new QPushButton("＋", quantWidget); // Unicode full-width plus
+            QPushButton* minusBtn = new QPushButton("-", quantWidget);
+            QPushButton* plusBtn = new QPushButton("+", quantWidget);
             QLabel* quantLabel = new QLabel(QString::number(quantidade), quantWidget);
             
             minusBtn->setFixedSize(26, 26);
@@ -685,4 +695,240 @@ void MainWindow::logoutAdmin()
     isAdmin = false;
     updateAdminUI();
     QMessageBox::information(this, "Logout", "Sessão de admin terminada.");
+}
+
+void MainWindow::abrirLogin()
+{
+    // Criar a página de login na primeira vez que for chamada
+    if (!loginPage) {
+        loginPage = new QWidget;
+        loginPage->setStyleSheet("QWidget { background-color: #2b2b2b; color: #ffffff; }");
+        QVBoxLayout* layout = new QVBoxLayout(loginPage);
+
+        QLabel* title = new QLabel("Entrar na sua conta", loginPage);
+        title->setStyleSheet("font-size: 22px; font-weight: bold; color: #4CAF50; margin: 12px;");
+        title->setAlignment(Qt::AlignCenter);
+        layout->addWidget(title);
+
+        // Form container
+        QWidget* form = new QWidget(loginPage);
+        QVBoxLayout* formLayout = new QVBoxLayout(form);
+        formLayout->setContentsMargins(40, 10, 40, 10);
+
+        QLabel* userLbl = new QLabel("Username", form);
+        userLbl->setStyleSheet("color: #ffffff; font-size: 14px; margin-top: 8px;");
+        loginUsernameEdit = new QLineEdit(form);
+        loginUsernameEdit->setPlaceholderText("username");
+        loginUsernameEdit->setStyleSheet("QLineEdit { background-color: #3a3a3a; color: #ffffff; padding: 8px; border-radius: 6px; }");
+
+        QLabel* passLbl = new QLabel("Password", form);
+        passLbl->setStyleSheet("color: #ffffff; font-size: 14px; margin-top: 8px;");
+        loginPasswordEdit = new QLineEdit(form);
+        loginPasswordEdit->setPlaceholderText("password");
+        loginPasswordEdit->setEchoMode(QLineEdit::Password);
+        loginPasswordEdit->setStyleSheet("QLineEdit { background-color: #3a3a3a; color: #ffffff; padding: 8px; border-radius: 6px; }");
+
+        formLayout->addWidget(userLbl);
+        formLayout->addWidget(loginUsernameEdit);
+        formLayout->addWidget(passLbl);
+        formLayout->addWidget(loginPasswordEdit);
+        form->setLayout(formLayout);
+
+        layout->addWidget(form);
+
+        // Entrar button immediately below the password
+        QPushButton* signInBtn = new QPushButton("Entrar", loginPage);
+        signInBtn->setFixedWidth(160);
+        signInBtn->setStyleSheet(R"(
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 6px;
+                font-size: 15px;
+            }
+            QPushButton:hover { background-color: #45a049; }
+        )");
+        connect(signInBtn, &QPushButton::clicked, this, &MainWindow::handleLogin);
+        // Pressing Enter in password field triggers login
+        connect(loginPasswordEdit, &QLineEdit::returnPressed, signInBtn, &QPushButton::click);
+        QWidget* btnWrap = new QWidget(loginPage);
+        QHBoxLayout* btnRow = new QHBoxLayout(btnWrap);
+        btnRow->addStretch(1);
+        btnRow->addWidget(signInBtn);
+        btnRow->addStretch(1);
+        btnWrap->setLayout(btnRow);
+        layout->addWidget(btnWrap);
+
+        // Small "Criar Conta" button below Entrar
+        QPushButton* createBtn = new QPushButton("Criar Conta", loginPage);
+        createBtn->setFlat(true);
+        createBtn->setStyleSheet("QPushButton { color: #9e9e9e; text-decoration: underline; border: none; } QPushButton:hover { color: #ffffff; }");
+        connect(createBtn, &QPushButton::clicked, this, &MainWindow::criarConta);
+        QWidget* createWrap = new QWidget(loginPage);
+        QHBoxLayout* createRow = new QHBoxLayout(createWrap);
+        createRow->addStretch(1);
+        createRow->addWidget(createBtn);
+        createRow->addStretch(1);
+        createWrap->setLayout(createRow);
+        layout->addWidget(createWrap);
+
+        // Push other content to take space so the buttons remain near the form
+        layout->addStretch(1);
+        loginPage->setLayout(layout);
+        paginas->addWidget(loginPage);
+    }
+
+    paginas->setCurrentWidget(loginPage);
+}
+
+void MainWindow::handleLogin()
+{
+    QString user = loginUsernameEdit ? loginUsernameEdit->text().trimmed() : QString();
+    QString pass = loginPasswordEdit ? loginPasswordEdit->text() : QString();
+
+    if (user.isEmpty() || pass.isEmpty()) {
+        QMessageBox::warning(this, "Login", "Por favor preencha o username e a password.");
+        return;
+    }
+
+    if (validarCredenciais(user, pass)) {
+        loggedInUser = user;
+        // Update login button to act as logout
+        QObject::disconnect(loginButton, nullptr, nullptr, nullptr);
+        loginButton->setText("Logout");
+        connect(loginButton, &QPushButton::clicked, this, &MainWindow::logoutUser);
+        QMessageBox::information(this, "Login", "Login efetuado com sucesso.");
+        // Optionally redirect to loja
+        paginas->setCurrentWidget(lojaPage);
+    } else {
+        QMessageBox::warning(this, "Login", "Username ou password inválidos.");
+    }
+}
+
+void MainWindow::logoutUser()
+{
+    loggedInUser.clear();
+    QObject::disconnect(loginButton, nullptr, nullptr, nullptr);
+    loginButton->setText("Log In");
+    connect(loginButton, &QPushButton::clicked, this, &MainWindow::abrirLogin);
+    QMessageBox::information(this, "Logout", "Sessão terminada.");
+}
+
+void MainWindow::criarConta()
+{
+    QDialog dlg(this);
+    dlg.setWindowTitle("Criar Conta");
+    QVBoxLayout* main = new QVBoxLayout(&dlg);
+    QFormLayout* form = new QFormLayout();
+
+    QLineEdit* userEdit = new QLineEdit(&dlg);
+    QLineEdit* passEdit = new QLineEdit(&dlg);
+    QLineEdit* passConfirm = new QLineEdit(&dlg);
+    passEdit->setEchoMode(QLineEdit::Password);
+    passConfirm->setEchoMode(QLineEdit::Password);
+
+    form->addRow("Username:", userEdit);
+    form->addRow("Password:", passEdit);
+    form->addRow("Confirmar Password:", passConfirm);
+    main->addLayout(form);
+
+    QHBoxLayout* btns = new QHBoxLayout();
+    btns->addStretch(1);
+    QPushButton* ok = new QPushButton("Criar", &dlg);
+    QPushButton* cancel = new QPushButton("Cancelar", &dlg);
+    btns->addWidget(ok);
+    btns->addWidget(cancel);
+    main->addLayout(btns);
+
+    connect(cancel, &QPushButton::clicked, &dlg, &QDialog::reject);
+    connect(ok, &QPushButton::clicked, &dlg, [&]() {
+        QString u = userEdit->text().trimmed();
+        QString p = passEdit->text();
+        QString pc = passConfirm->text();
+        if (u.isEmpty() || p.isEmpty()) {
+            QMessageBox::warning(&dlg, "Criar Conta", "Username e password não podem estar vazios.");
+            return;
+        }
+        if (p != pc) {
+            QMessageBox::warning(&dlg, "Criar Conta", "Passwords não coincidem.");
+            return;
+        }
+        QString err;
+        if (!salvarUsuario(u, p, err)) {
+            QMessageBox::warning(&dlg, "Criar Conta", QString("Não foi possível criar conta: %1").arg(err));
+            return;
+        }
+        QMessageBox::information(&dlg, "Criar Conta", "Conta criada com sucesso. Pode agora entrar.");
+        dlg.accept();
+    });
+
+    dlg.exec();
+}
+
+bool MainWindow::salvarUsuario(const QString& username, const QString& password, QString& outError)
+{
+    outError.clear();
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
+    if (!dataDir.exists() && !dataDir.mkpath(".")) {
+        outError = "Não foi possível criar diretório de dados.";
+        return false;
+    }
+    QString usersPath = dataDir.filePath("users.json");
+
+    QJsonObject root;
+    if (QFile::exists(usersPath)) {
+        QFile f(usersPath);
+        if (f.open(QIODevice::ReadOnly)) {
+            QByteArray c = f.readAll();
+            f.close();
+            QJsonDocument jd = QJsonDocument::fromJson(c);
+            if (jd.isObject()) root = jd.object();
+        }
+    }
+
+    if (root.contains(username)) {
+        outError = "Username já existe.";
+        return false;
+    }
+
+    QString salt = QUuid::createUuid().toString();
+    QByteArray h = QCryptographicHash::hash((salt + password).toUtf8(), QCryptographicHash::Sha256);
+    QJsonObject userObj;
+    userObj["salt"] = salt;
+    userObj["hash"] = QString(h.toHex());
+    root[username] = userObj;
+
+    QJsonDocument outDoc(root);
+    QFile f(usersPath);
+    if (!f.open(QIODevice::WriteOnly)) {
+        outError = "Não foi possível escrever ficheiro de utilizadores.";
+        return false;
+    }
+    f.write(outDoc.toJson());
+    f.close();
+    return true;
+}
+
+bool MainWindow::validarCredenciais(const QString& username, const QString& password)
+{
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
+    QString usersPath = dataDir.filePath("users.json");
+    if (!QFile::exists(usersPath)) return false;
+    QFile f(usersPath);
+    if (!f.open(QIODevice::ReadOnly)) return false;
+    QByteArray c = f.readAll();
+    f.close();
+    QJsonDocument jd = QJsonDocument::fromJson(c);
+    if (!jd.isObject()) return false;
+    QJsonObject root = jd.object();
+    if (!root.contains(username)) return false;
+    QJsonObject userObj = root.value(username).toObject();
+    QString salt = userObj.value("salt").toString();
+    QString expected = userObj.value("hash").toString();
+    QByteArray h = QCryptographicHash::hash((salt + password).toUtf8(), QCryptographicHash::Sha256);
+    return (QString(h.toHex()) == expected);
 }

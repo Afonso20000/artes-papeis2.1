@@ -3,11 +3,13 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <QLineEdit>
+#include <QMap>
 #include "produto.h"
 #include "productmanager.h"
+#include "clickablelabel.h"
 
 class QStackedWidget;
-class QLabel;
 class QWidget;
 class QPushButton;
 class QHBoxLayout;
@@ -23,7 +25,6 @@ public:
     ~MainWindow();
 
 public slots:
-    void abrirBlog();
     void abrirSobre();
     void abrirLoja();
     void abrirInicio();
@@ -33,7 +34,11 @@ public slots:
     void atualizarQuantidadeCarrinho(const QString& id, int delta);
     void removerDoCarrinho(const QString& id);
 
-    // Admin
+    // Login/Admin
+    void handleLogin();
+    void abrirLogin();
+    void criarConta();
+    void logoutUser();
     void solicitarAdmin();
     void tentarLoginAdmin(const QString& senha);
     void logoutAdmin();
@@ -43,11 +48,14 @@ private:
     void atualizarCarrinhoPagina();
 
     QMap<QString, int> carrinho; // id -> quantidade
-    QLabel* carrinhoIconLabel;
+    ClickableLabel* carrinhoIconLabel;
+    QPushButton* loginButton;
     QStackedWidget* paginas;
     QWidget* lojaPage;
     QWidget* carrinhoPage;
-    QWidget* blogPage;
+    QWidget* loginPage = nullptr;
+    QLineEdit* loginUsernameEdit = nullptr;
+    QLineEdit* loginPasswordEdit = nullptr;
     QWidget* sobrePage;
     QWidget* inicioPage;
     QWidget* contatoPage;
@@ -63,6 +71,13 @@ private:
     void refreshLojaProducts();
     void showProductManager();
     void updateAdminUI();
+    
+        // helpers for user persistence
+        bool validarCredenciais(const QString& username, const QString& password);
+        bool salvarUsuario(const QString& username, const QString& password, QString& outError);
+
+    // User session
+    QString loggedInUser;
 
     // Admin page and state
     QWidget* adminPage;

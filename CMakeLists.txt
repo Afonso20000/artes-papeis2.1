@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
     main.cpp
     mainwindow.cpp
     mainwindow.h
+    clickablelabel.h
     productcard.cpp
     productcard.h
     productformdialog.cpp

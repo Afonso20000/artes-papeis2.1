@@ -382,6 +382,12 @@
 	"HEADERS" : 
 	[
 		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/clickablelabel.h",
+			"MU",
+			"EWIEGA46WW/moc_clickablelabel.cpp",
+			null
+		],
+		[
 			"/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
