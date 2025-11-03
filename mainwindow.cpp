@@ -34,6 +34,19 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
 {
+    // Create default admin account if it doesn't exist
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
+    if (!dataDir.exists()) dataDir.mkpath(".");
+    QString usersPath = dataDir.filePath("users.json");
+
+    if (!QFile::exists(usersPath)) {
+        QString adminUser = "admin";
+        QString adminPass = "admin123";
+        QString err;
+        salvarUsuario(adminUser, adminPass, "Administrator", "admin@artepapeis.com", "", "", err);
+    }
+
     QColor cBlack("#0E141C"), pBlue("#314B6E"), rackley("#607EA2"), weldon("#8197AC"), sPink("#BDB3A3");
 
     QWidget* central = new QWidget(this);
@@ -249,26 +262,6 @@ MainWindow::MainWindow(QWidget* parent)
         });
         menuLayout->addWidget(btn);
     }
-    // Botão de Admin (pede password)
-    QPushButton* adminBtn = new QPushButton("Admin");
-    adminBtn->setStyleSheet(R"(
-        QPushButton {
-            background: none;
-            border: 1px solid #ff5252;
-            color: #ff5252;
-            font-size: 14px;
-            padding: 6px 12px;
-            border-radius: 6px;
-        }
-        QPushButton:hover { 
-            background-color: #ff5252;
-            color: #ffffff;
-        }
-    )");
-    // store member pointer so updateAdminUI can toggle behavior
-    adminButton = adminBtn;
-    connect(adminBtn, &QPushButton::clicked, this, &MainWindow::solicitarAdmin);
-    menuLayout->addWidget(adminBtn);
     mainLayout->insertLayout(3, menuLayout);
 
     paginas->setCurrentIndex(0);
@@ -855,6 +848,13 @@ void MainWindow::handleLogin()
 
     if (validarCredenciais(user, pass)) {
         loggedInUser = user;
+        
+        // Check if this is the admin account
+        if (user == "admin") {
+            isAdmin = true;
+            updateAdminUI();
+        }
+        
         // Update login button to act as logout
         QObject::disconnect(loginButton, nullptr, nullptr, nullptr);
         loginButton->setText("Logout");
@@ -870,6 +870,13 @@ void MainWindow::handleLogin()
 void MainWindow::logoutUser()
 {
     loggedInUser.clear();
+    
+    // Handle admin logout if necessary
+    if (isAdmin) {
+        isAdmin = false;
+        updateAdminUI();
+    }
+    
     QObject::disconnect(loginButton, nullptr, nullptr, nullptr);
     loginButton->setText("Log In");
     connect(loginButton, &QPushButton::clicked, this, &MainWindow::abrirLogin);
