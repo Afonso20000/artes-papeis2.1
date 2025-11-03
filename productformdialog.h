@@ -29,6 +29,7 @@ private:
     QLineEdit* nomeEdit;
     QLineEdit* idEdit;
     QSpinBox* quantidadeEdit;
+    QSpinBox* lowThresholdEdit;
     QDoubleSpinBox* precoEdit;
     QLineEdit* categoriaEdit;
     QPushButton* imgBtn;

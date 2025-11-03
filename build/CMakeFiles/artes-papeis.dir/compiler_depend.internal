@@ -108,6 +108,7 @@ C:/Users/a25718/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/time
  C:/Program Files/CMake/share/cmake-4.2/Modules/Platform/Windows-windres.cmake
  C:/Program Files/CMake/share/cmake-4.2/Modules/Platform/Windows.cmake
  C:/Program Files/CMake/share/cmake-4.2/Modules/Platform/WindowsPaths.cmake
+ C:/Qt/6.10.0/mingw_64/include/QtCore/QDateTime
  C:/Qt/6.10.0/mingw_64/include/QtCore/QList
  C:/Qt/6.10.0/mingw_64/include/QtCore/QMap
  C:/Qt/6.10.0/mingw_64/include/QtCore/QObject
@@ -140,6 +141,7 @@ C:/Users/a25718/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/time
  C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearrayalgorithms.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearraylist.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearrayview.h
+ C:/Qt/6.10.0/mingw_64/include/QtCore/qcalendar.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qchar.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qcheckedint_impl.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qcompare.h
@@ -157,6 +159,7 @@ C:/Users/a25718/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/time
  C:/Qt/6.10.0/mingw_64/include/QtCore/qcoreevent.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qdarwinhelpers.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qdatastream.h
+ C:/Qt/6.10.0/mingw_64/include/QtCore/qdatetime.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qdeadlinetimer.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qdebug.h
  C:/Qt/6.10.0/mingw_64/include/QtCore/qendian.h

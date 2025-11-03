@@ -19,6 +19,7 @@ struct ProdutoFull {
     int quantidade = 1;
     QString imagePath;    // caminho relativo para imagem armazenada (opcional)
     QString categoria;
+    int lowThreshold = 2; // alerta de estoque baixo
 };
 
 #endif // PRODUTO_H

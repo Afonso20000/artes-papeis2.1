@@ -19,12 +19,16 @@ public:
 signals:
     void compraProduto(const QString& id);
 
+public:
+    void setAvailableStock(int available);
+
 private:
     QVBoxLayout* layout;
     QLabel* imageLabel;
     QLabel* titleLabel;
     QLabel* priceLabel;
     QPushButton* buyButton;
+    QLabel* stockBadge;
 };
 
 #endif // PRODUCTCARD_H

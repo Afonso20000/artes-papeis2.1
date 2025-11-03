@@ -86,6 +86,12 @@ private:
     QWidget* adminPage;
     bool isAdmin = false;
     QPushButton* adminButton = nullptr;
+    QTimer* reservationTimer = nullptr;
+
+    // stock / reservations
+    void checkReservations();
+    void showLowStockPanel();
+    void notifyAdminLowStock(const ProdutoFull& p);
 };
 
 #endif // MAINWINDOW_H

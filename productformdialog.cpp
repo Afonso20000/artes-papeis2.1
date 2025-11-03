@@ -25,6 +25,7 @@ ProductFormDialog::ProductFormDialog(QWidget* parent)
         QString("background-color: %1; border: 1px solid #999;").arg(chosenColor.name())
     );
     quantidadeEdit->setValue(1);
+    lowThresholdEdit->setValue(2);
     precoEdit->setValue(1.0);
     categoriaEdit->setText("Geral");
 }
@@ -39,6 +40,7 @@ ProductFormDialog::ProductFormDialog(const ProdutoFull& produto, QWidget* parent
     nomeEdit->setText(produto.nome);
     idEdit->setText(produto.id);
     quantidadeEdit->setValue(produto.quantidade);
+    lowThresholdEdit->setValue(produto.lowThreshold);
     precoEdit->setValue(produto.preco);
     categoriaEdit->setText(produto.categoria);
     savedImagePath = produto.imagePath;
@@ -60,6 +62,7 @@ void ProductFormDialog::setupUi()
     nomeEdit = new QLineEdit(this);
     idEdit = new QLineEdit(this);
     quantidadeEdit = new QSpinBox(this);
+    lowThresholdEdit = new QSpinBox(this);
     precoEdit = new QDoubleSpinBox(this);
     categoriaEdit = new QLineEdit(this);
     imgBtn = new QPushButton(tr("Escolher imagem..."), this);
@@ -69,6 +72,7 @@ void ProductFormDialog::setupUi()
     
     // Configurar campos
     quantidadeEdit->setRange(0, 100000);
+    lowThresholdEdit->setRange(0, 100000);
     precoEdit->setRange(0, 100000);
     precoEdit->setDecimals(2);
     imgPathLabel->setWordWrap(true);
@@ -79,6 +83,7 @@ void ProductFormDialog::setupUi()
     formLayout->addRow(tr("Nome:"), nomeEdit);
     formLayout->addRow(tr("ID:"), idEdit);
     formLayout->addRow(tr("Quantidade:"), quantidadeEdit);
+    formLayout->addRow(tr("Alerta estoque (<=):"), lowThresholdEdit);
     formLayout->addRow(tr("Preço:"), precoEdit);
     formLayout->addRow(tr("Categoria:"), categoriaEdit);
     formLayout->addRow(tr("Imagem:"), imgBtn);
@@ -160,6 +165,7 @@ ProdutoFull ProductFormDialog::getProduct() const
         idEdit->text(),
         quantidadeEdit->value(),
         savedImagePath,
-        categoriaEdit->text()
+        categoriaEdit->text(),
+        lowThresholdEdit->value()
     };
 }

@@ -35,6 +35,11 @@ ProductCard::ProductCard(const ProdutoFull& produto, QWidget* parent)
     priceLabel->setStyleSheet("font-size: 16px; color: #314B6E;");
     priceLabel->setAlignment(Qt::AlignHCenter);
 
+    stockBadge = new QLabel(this);
+    stockBadge->setStyleSheet("background: #fffb; color: #0E141C; border-radius: 8px; padding: 4px 8px; font-size: 12px;");
+    stockBadge->setAlignment(Qt::AlignCenter);
+    stockBadge->setFixedWidth(80);
+
     buyButton = new QPushButton("Comprar", this);
     buyButton->setStyleSheet(
         "background-color: #BDB3A3; color: #0E141C; "
@@ -47,6 +52,7 @@ ProductCard::ProductCard(const ProdutoFull& produto, QWidget* parent)
 
     layout->addWidget(imageLabel, 0, Qt::AlignHCenter);
     layout->addWidget(titleLabel);
+    layout->addWidget(stockBadge, 0, Qt::AlignHCenter);
     layout->addWidget(priceLabel);
     layout->addStretch(1);
     layout->addWidget(buyButton, 0, Qt::AlignHCenter);
@@ -57,3 +63,17 @@ ProductCard::ProductCard(const ProdutoFull& produto, QWidget* parent)
 
 ProductCard::~ProductCard()
 {}
+
+void ProductCard::setAvailableStock(int available) {
+    stockBadge->setText(QString("Stock: %1").arg(available));
+    if (available <= 0) {
+        buyButton->setEnabled(false);
+        stockBadge->setStyleSheet("background: #ff6666; color: #ffffff; border-radius: 8px; padding: 4px 8px; font-size: 12px;");
+    } else if (available <= 2) {
+        stockBadge->setStyleSheet("background: #ffcc66; color: #000000; border-radius: 8px; padding: 4px 8px; font-size: 12px;");
+        buyButton->setEnabled(true);
+    } else {
+        stockBadge->setStyleSheet("background: #bdf3b8; color: #000000; border-radius: 8px; padding: 4px 8px; font-size: 12px;");
+        buyButton->setEnabled(true);
+    }
+}

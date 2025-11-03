@@ -28,6 +28,8 @@
 #include <QCryptographicHash>
 #include <QUuid>
 #include <QRegularExpression>
+#include <QTimer>
+#include <QSystemTrayIcon>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
@@ -116,6 +118,13 @@ MainWindow::MainWindow(QWidget* parent)
     // Configurar o ProductManager para gerir nossos produtos
     productManager = new ProductManager(this);
     connect(productManager, &ProductManager::productsChanged, this, &MainWindow::refreshLojaProducts);
+
+    // Reserva timer: periodic check to release expired reservations
+    reservationTimer = new QTimer(this);
+    connect(reservationTimer, &QTimer::timeout, this, &MainWindow::checkReservations);
+    reservationTimer->start(60 * 1000); // checar a cada minuto
+    // Uma verificação imediata inicial
+    checkReservations();
 
     // Se não houver produtos, adicionar alguns padrão
     auto produtos = productManager->getAllProducts();
@@ -271,22 +280,70 @@ void MainWindow::abrirInicio()  { paginas->setCurrentWidget(inicioPage);      }
 void MainWindow::abrirContato() { paginas->setCurrentWidget(contatoPage);     }
 
 void MainWindow::adicionarAoCarrinho(const QString& id) {
+    // Try to reserve 1 unit for the user (reserve-at-add model)
+    ProdutoFull produto = productManager->getProduct(id);
+    if (produto.id.isEmpty()) {
+        QMessageBox::warning(this, "Produto inválido", "Produto não encontrado.");
+        return;
+    }
+
+    // Reserva por defeito 15 minutos
+    QDateTime expires = QDateTime::currentDateTime().addSecs(15 * 60);
+    bool ok = productManager->reserveProduct(id, 1, expires);
+    if (!ok) {
+        QMessageBox::warning(this, "Sem estoque", QString("%1 está esgotado ou não há unidades suficientes disponíveis.").arg(produto.nome));
+        return;
+    }
+
+    // Add to cart (reservation holds the unit)
     carrinho[id] = carrinho.value(id, 0) + 1;
     atualizarCarrinhoIcon();
+    atualizarCarrinhoPagina();
+
+    // Atualizar UI dos cards para refletir stock disponível
+    refreshLojaProducts();
 }
 
 void MainWindow::atualizarQuantidadeCarrinho(const QString& id, int delta) {
-    int novaQuant = carrinho[id] + delta;
-    if (novaQuant <= 0) {
-        carrinho.remove(id);
-    } else {
-        carrinho[id] = novaQuant;
+    int atual = carrinho.value(id, 0);
+    int novaQuant = atual + delta;
+    ProdutoFull produto = productManager->getProduct(id);
+    if (produto.id.isEmpty()) {
+        QMessageBox::warning(this, "Produto inválido", "Produto não encontrado.");
+        return;
     }
+
+    if (delta > 0) {
+        // try to reserve additional units
+        QDateTime expires = QDateTime::currentDateTime().addSecs(15 * 60);
+        bool ok = productManager->reserveProduct(id, delta, expires);
+        if (!ok) {
+            int avail = productManager->getAvailableStock(id);
+            QMessageBox::warning(this, "Sem estoque suficiente", QString("Só restam %1 unidades de %2.").arg(avail).arg(produto.nome));
+            return;
+        }
+        carrinho[id] = novaQuant;
+    } else if (delta < 0) {
+        // decreasing quantity in cart: return items to stock
+        int toReturn = -delta;
+        // release reservations we previously created
+        productManager->releaseReservation(id, toReturn);
+        if (novaQuant <= 0) carrinho.remove(id); else carrinho[id] = novaQuant;
+    }
+
     atualizarCarrinhoIcon();
     atualizarCarrinhoPagina();
 }
 
 void MainWindow::removerDoCarrinho(const QString& id) {
+    int quant = carrinho.value(id, 0);
+    if (quant > 0) {
+        ProdutoFull produto = productManager->getProduct(id);
+        if (!produto.id.isEmpty()) {
+            // release reservations for all units in cart
+            productManager->releaseReservation(id, quant);
+        }
+    }
     carrinho.remove(id);
     atualizarCarrinhoIcon();
     atualizarCarrinhoPagina();
@@ -575,6 +632,8 @@ void MainWindow::refreshLojaProducts()
     int idx = 0;
     for (const auto &pf : produtos) {
         ProductCard* card = new ProductCard(pf, this);
+        // update card with current available stock (takes reservations into account)
+        card->setAvailableStock(productManager->getAvailableStock(pf.id));
         connect(card, &ProductCard::compraProduto, this, &MainWindow::adicionarAoCarrinho);
         int row = idx / cols;
         int col = idx % cols;
@@ -966,4 +1025,51 @@ bool MainWindow::validarCredenciais(const QString& username, const QString& pass
     QString expected = userObj.value("hash").toString();
     QByteArray h = QCryptographicHash::hash((salt + password).toUtf8(), QCryptographicHash::Sha256);
     return (QString(h.toHex()) == expected);
+}
+
+void MainWindow::checkReservations()
+{
+    // Release expired reservations and refresh UI
+    productManager->releaseExpiredReservations();
+    refreshLojaProducts();
+    atualizarCarrinhoIcon();
+
+    // If admin logged in, optionally show low-stock alerts
+    if (isAdmin) {
+        auto low = productManager->getLowStockProducts();
+        for (const auto &p : low) notifyAdminLowStock(p);
+    }
+}
+
+void MainWindow::showLowStockPanel()
+{
+    QVector<ProdutoFull> low = productManager->getLowStockProducts();
+    QDialog dlg(this);
+    dlg.setWindowTitle("Produtos com estoque baixo");
+    QVBoxLayout* layout = new QVBoxLayout(&dlg);
+    for (const auto &p : low) {
+        QLabel* lbl = new QLabel(QString("%1 [id:%2] — Disponível: %3 — Limite: %4")
+                                 .arg(p.nome).arg(p.id).arg(productManager->getAvailableStock(p.id)).arg(p.lowThreshold));
+        layout->addWidget(lbl);
+    }
+    QPushButton* close = new QPushButton("Fechar", &dlg);
+    connect(close, &QPushButton::clicked, &dlg, &QDialog::accept);
+    layout->addWidget(close);
+    dlg.exec();
+}
+
+void MainWindow::notifyAdminLowStock(const ProdutoFull& p)
+{
+    QString msg = QString("Produto '%1' com baixo stock: %2 disponível (limite %3)")
+                  .arg(p.nome).arg(productManager->getAvailableStock(p.id)).arg(p.lowThreshold);
+    // Show an in-app message; if system tray available, use it
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        QSystemTrayIcon tray(this);
+        tray.show();
+        tray.showMessage("Alerta de Stock", msg, QSystemTrayIcon::Warning, 5000);
+        // tray will be destroyed at end of scope; message still shows on most platforms
+    } else {
+        // fallback to message box
+        QMessageBox::information(this, "Alerta de Stock", msg);
+    }
 }

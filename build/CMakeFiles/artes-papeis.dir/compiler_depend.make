@@ -107,6 +107,7 @@ artes-papeis_autogen/timestamp: C:/Program\ Files/CMake/bin/cmake.exe \
   C:/Program\ Files/CMake/share/cmake-4.2/Modules/Platform/Windows-windres.cmake \
   C:/Program\ Files/CMake/share/cmake-4.2/Modules/Platform/Windows.cmake \
   C:/Program\ Files/CMake/share/cmake-4.2/Modules/Platform/WindowsPaths.cmake \
+  C:/Qt/6.10.0/mingw_64/include/QtCore/QDateTime \
   C:/Qt/6.10.0/mingw_64/include/QtCore/QList \
   C:/Qt/6.10.0/mingw_64/include/QtCore/QMap \
   C:/Qt/6.10.0/mingw_64/include/QtCore/QObject \
@@ -139,6 +140,7 @@ artes-papeis_autogen/timestamp: C:/Program\ Files/CMake/bin/cmake.exe \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearrayalgorithms.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearraylist.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearrayview.h \
+  C:/Qt/6.10.0/mingw_64/include/QtCore/qcalendar.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qchar.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qcheckedint_impl.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qcompare.h \
@@ -156,6 +158,7 @@ artes-papeis_autogen/timestamp: C:/Program\ Files/CMake/bin/cmake.exe \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qcoreevent.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qdarwinhelpers.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qdatastream.h \
+  C:/Qt/6.10.0/mingw_64/include/QtCore/qdatetime.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qdeadlinetimer.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qdebug.h \
   C:/Qt/6.10.0/mingw_64/include/QtCore/qendian.h \
@@ -1095,6 +1098,10 @@ C:/Program\ Files/CMake/share/cmake-4.2/Modules/Platform/WindowsPaths.cmake:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qiterator.h:
 
+C:/Qt/6.10.0/mingw_64/include/QtCore/qstdlibdetection.h:
+
+C:/Qt/6.10.0/mingw_64/include/QtCore/QDateTime:
+
 C:/Qt/6.10.0/mingw_64/include/QtCore/QList:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/q20iterator.h:
@@ -1173,11 +1180,11 @@ C:/Qt/6.10.0/mingw_64/include/QtCore/qassert.h:
 
 C:/msys64/ucrt64/include/c++/14.2.0/tr1/riemann_zeta.tcc:
 
+C:/msys64/ucrt64/include/c++/14.2.0/bits/cpp_type_traits.h:
+
 C:/Qt/6.10.0/mingw_64/include/QtCore/qatomic_cxx11.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qcoreevent.h:
-
-C:/msys64/ucrt64/include/c++/14.2.0/bits/cpp_type_traits.h:
 
 C:/Qt/6.10.0/mingw_64/lib/cmake/Qt6Gui/Qt6GuiPlugins.cmake:
 
@@ -1204,6 +1211,8 @@ C:/Qt/6.10.0/mingw_64/include/QtCore/qbytearrayview.h:
 C:/msys64/ucrt64/include/c++/14.2.0/bits/chrono.h:
 
 C:/msys64/ucrt64/include/c++/14.2.0/bits/align.h:
+
+C:/Qt/6.10.0/mingw_64/include/QtCore/qcalendar.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qrefcount.h:
 
@@ -1265,6 +1274,10 @@ C:/Qt/6.10.0/mingw_64/include/QtCore/qcoreapplication_platform.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qdatastream.h:
 
+C:/Qt/6.10.0/mingw_64/include/QtCore/qdatetime.h:
+
+C:/Qt/6.10.0/mingw_64/include/QtCore/qlatin1stringview.h:
+
 C:/Qt/6.10.0/mingw_64/include/QtCore/qdeadlinetimer.h:
 
 C:/Qt/6.10.0/mingw_64/lib/cmake/Qt6WidgetsTools/Qt6WidgetsToolsConfigVersionImpl.cmake:
@@ -1318,8 +1331,6 @@ C:/msys64/ucrt64/include/c++/14.2.0/tr1/poly_hermite.tcc:
 C:/Qt/6.10.0/mingw_64/include/QtCore/qiodevicebase.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qiterable.h:
-
-C:/Qt/6.10.0/mingw_64/include/QtCore/qlatin1stringview.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qline.h:
 
@@ -1392,8 +1403,6 @@ C:/Qt/6.10.0/mingw_64/include/QtCore/qsharedpointer.h:
 C:/Qt/6.10.0/mingw_64/include/QtCore/qsharedpointer_impl.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qsize.h:
-
-C:/Qt/6.10.0/mingw_64/include/QtCore/qstdlibdetection.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtCore/qstringbuilder.h:
 
@@ -1557,9 +1566,9 @@ C:/Qt/6.10.0/mingw_64/include/QtGui/qscreen_platform.h:
 
 C:/Qt/6.10.0/mingw_64/include/QtGui/qtextcursor.h:
 
-C:/Qt/6.10.0/mingw_64/include/QtGui/qtextdocument.h:
-
 C:/msys64/ucrt64/include/c++/14.2.0/bits/cxxabi_forced.h:
+
+C:/Qt/6.10.0/mingw_64/include/QtGui/qtextdocument.h:
 
 CMakeFiles/4.2.0-rc1/CMakeCXXCompiler.cmake:
 
