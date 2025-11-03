@@ -9,12 +9,12 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "" "artes-papeis_autogen/timestamp" "custom" "artes-papeis_autogen/deps"
-  "/Users/valass/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/mocs_compilation.cpp" "CMakeFiles/artes-papeis.dir/artes-papeis_autogen/mocs_compilation.cpp.o" "gcc" "CMakeFiles/artes-papeis.dir/artes-papeis_autogen/mocs_compilation.cpp.o.d"
-  "/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp" "CMakeFiles/artes-papeis.dir/main.cpp.o" "gcc" "CMakeFiles/artes-papeis.dir/main.cpp.o.d"
-  "/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp" "CMakeFiles/artes-papeis.dir/mainwindow.cpp.o" "gcc" "CMakeFiles/artes-papeis.dir/mainwindow.cpp.o.d"
-  "/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp" "CMakeFiles/artes-papeis.dir/productcard.cpp.o" "gcc" "CMakeFiles/artes-papeis.dir/productcard.cpp.o.d"
-  "/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp" "CMakeFiles/artes-papeis.dir/productformdialog.cpp.o" "gcc" "CMakeFiles/artes-papeis.dir/productformdialog.cpp.o.d"
-  "/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp" "CMakeFiles/artes-papeis.dir/productmanager.cpp.o" "gcc" "CMakeFiles/artes-papeis.dir/productmanager.cpp.o.d"
+  "C:/Users/a25718/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/mocs_compilation.cpp" "CMakeFiles/artes-papeis.dir/artes-papeis_autogen/mocs_compilation.cpp.obj" "gcc" "CMakeFiles/artes-papeis.dir/artes-papeis_autogen/mocs_compilation.cpp.obj.d"
+  "C:/Users/a25718/Documents/GitHub/artes-papeis2.1/main.cpp" "CMakeFiles/artes-papeis.dir/main.cpp.obj" "gcc" "CMakeFiles/artes-papeis.dir/main.cpp.obj.d"
+  "C:/Users/a25718/Documents/GitHub/artes-papeis2.1/mainwindow.cpp" "CMakeFiles/artes-papeis.dir/mainwindow.cpp.obj" "gcc" "CMakeFiles/artes-papeis.dir/mainwindow.cpp.obj.d"
+  "C:/Users/a25718/Documents/GitHub/artes-papeis2.1/productcard.cpp" "CMakeFiles/artes-papeis.dir/productcard.cpp.obj" "gcc" "CMakeFiles/artes-papeis.dir/productcard.cpp.obj.d"
+  "C:/Users/a25718/Documents/GitHub/artes-papeis2.1/productformdialog.cpp" "CMakeFiles/artes-papeis.dir/productformdialog.cpp.obj" "gcc" "CMakeFiles/artes-papeis.dir/productformdialog.cpp.obj.d"
+  "C:/Users/a25718/Documents/GitHub/artes-papeis2.1/productmanager.cpp" "CMakeFiles/artes-papeis.dir/productmanager.cpp.obj" "gcc" "CMakeFiles/artes-papeis.dir/productmanager.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

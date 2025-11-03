@@ -27,6 +27,7 @@
 #include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QUuid>
+#include <QRegularExpression>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
@@ -832,6 +833,18 @@ void MainWindow::criarConta()
     form->addRow("Username:", userEdit);
     form->addRow("Password:", passEdit);
     form->addRow("Confirmar Password:", passConfirm);
+    
+    // Additional requested fields
+    QLineEdit* fullNameEdit = new QLineEdit(&dlg);
+    QLineEdit* emailEdit = new QLineEdit(&dlg);
+    QLineEdit* phoneEdit = new QLineEdit(&dlg);
+    QLineEdit* nifEdit = new QLineEdit(&dlg);
+    phoneEdit->setPlaceholderText("(opcional)");
+    nifEdit->setPlaceholderText("9 dígitos, sem espaços");
+    form->addRow("Nome completo:", fullNameEdit);
+    form->addRow("Email:", emailEdit);
+    form->addRow("Telemóvel:", phoneEdit);
+    form->addRow("NIF:", nifEdit);
     main->addLayout(form);
 
     QHBoxLayout* btns = new QHBoxLayout();
@@ -847,6 +860,10 @@ void MainWindow::criarConta()
         QString u = userEdit->text().trimmed();
         QString p = passEdit->text();
         QString pc = passConfirm->text();
+        QString full = fullNameEdit->text().trimmed();
+        QString email = emailEdit->text().trimmed();
+        QString phone = phoneEdit->text().trimmed();
+        QString nif = nifEdit->text().trimmed();
         if (u.isEmpty() || p.isEmpty()) {
             QMessageBox::warning(&dlg, "Criar Conta", "Username e password não podem estar vazios.");
             return;
@@ -855,8 +872,18 @@ void MainWindow::criarConta()
             QMessageBox::warning(&dlg, "Criar Conta", "Passwords não coincidem.");
             return;
         }
+        // Basic validations
+        if (email.isEmpty() || !email.contains('@') || !email.contains('.')) {
+            QMessageBox::warning(&dlg, "Criar Conta", "Por favor insira um email válido.");
+            return;
+        }
+        QRegularExpression nifRx("^\\d{9}$");
+        if (!nifRx.match(nif).hasMatch()) {
+            QMessageBox::warning(&dlg, "Criar Conta", "NIF inválido. Deve conter 9 dígitos.");
+            return;
+        }
         QString err;
-        if (!salvarUsuario(u, p, err)) {
+        if (!salvarUsuario(u, p, full, email, phone, nif, err)) {
             QMessageBox::warning(&dlg, "Criar Conta", QString("Não foi possível criar conta: %1").arg(err));
             return;
         }
@@ -867,7 +894,10 @@ void MainWindow::criarConta()
     dlg.exec();
 }
 
-bool MainWindow::salvarUsuario(const QString& username, const QString& password, QString& outError)
+bool MainWindow::salvarUsuario(const QString& username, const QString& password,
+                              const QString& fullName, const QString& email,
+                              const QString& phone, const QString& nif,
+                              QString& outError)
 {
     outError.clear();
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -899,6 +929,11 @@ bool MainWindow::salvarUsuario(const QString& username, const QString& password,
     QJsonObject userObj;
     userObj["salt"] = salt;
     userObj["hash"] = QString(h.toHex());
+    // Additional profile fields
+    userObj["fullName"] = fullName;
+    userObj["email"] = email;
+    userObj["phone"] = phone;
+    userObj["nif"] = nif;
     root[username] = userObj;
 
     QJsonDocument outDoc(root);

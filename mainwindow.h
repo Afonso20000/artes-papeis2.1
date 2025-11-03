@@ -37,7 +37,7 @@ public slots:
     // Login/Admin
     void handleLogin();
     void abrirLogin();
-    void criarConta();
+        void criarConta(); // New slot to open create-account dialog
     void logoutUser();
     void solicitarAdmin();
     void tentarLoginAdmin(const QString& senha);
@@ -73,8 +73,11 @@ private:
     void updateAdminUI();
     
         // helpers for user persistence
-        bool validarCredenciais(const QString& username, const QString& password);
-        bool salvarUsuario(const QString& username, const QString& password, QString& outError);
+    bool validarCredenciais(const QString& username, const QString& password);
+    bool salvarUsuario(const QString& username, const QString& password,
+              const QString& fullName, const QString& email,
+              const QString& phone, const QString& nif,
+              QString& outError);
 
     // User session
     QString loggedInUser;
