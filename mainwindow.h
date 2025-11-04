@@ -2,19 +2,47 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QVector>
+
+// Qt Widgets
+#include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QStackedWidget>
+#include <QTabWidget>
+
+// Qt Core
+#include <QDateTime>
 #include <QMap>
+#include <QTimer>
+#include <QVector>
+
+// Local includes
 #include "produto.h"
 #include "productmanager.h"
 #include "clickablelabel.h"
 
-class QStackedWidget;
-class QWidget;
-class QPushButton;
-class QHBoxLayout;
-class QGridLayout;
-class QScrollArea;
+// Estrutura para representar uma ordem
+struct OrderItem {
+    QString productId;
+    QString productName;
+    int quantity;
+    double price;
+};
+
+struct Order {
+    QString orderId;
+    QString userId;
+    QString userName;
+    QDateTime orderDate;
+    QVector<OrderItem> items;
+    double total;
+};
+
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
 
 class MainWindow : public QMainWindow
 {
@@ -23,6 +51,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 public slots:
     void abrirSobre();
@@ -59,6 +90,14 @@ private:
     QWidget* sobrePage;
     QWidget* inicioPage;
     QWidget* contatoPage;
+    QLabel* userNameLabel = nullptr;
+    QTabWidget* adminTabWidget = nullptr;
+    QListWidget* adminOrdersList = nullptr;
+    void mostrarEncomendas();
+    void setupUserMenu();
+    void setupAdminPage();
+    void setupAdminOrdersTab();
+    void atualizarListaEncomendas();
 
     // Loja: produtos geridos por código, mutáveis via admin
     ProductManager* productManager;
@@ -85,13 +124,23 @@ private:
     // Admin page and state
     QWidget* adminPage;
     bool isAdmin = false;
-    QPushButton* adminButton = nullptr;
+
     QTimer* reservationTimer = nullptr;
+    QVBoxLayout* mainLayout = nullptr; // Layout principal da janela
+    QList<QPushButton*> menuButtons; // Lista de botões do menu principal
 
     // stock / reservations
     void checkReservations();
     void showLowStockPanel();
     void notifyAdminLowStock(const ProdutoFull& p);
+
+    // Order management
+    void finalizarCompra();
+    void mostrarDetalhesEncomenda(const QString& orderId);
+    bool salvarEncomenda(const Order& order, QString& outError);
+    QString gerarOrderId();
+    QVector<Order> carregarEncomendas();
+    void limparCarrinho();
 };
 
 #endif // MAINWINDOW_H

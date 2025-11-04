@@ -7,6 +7,10 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QMenu>
+#include <QAction>
+#include <QGroupBox>
+#include <QTabWidget>
 #include <QtCore/QEvent>
 #include <QEvent>
 #include <QPushButton>
@@ -30,6 +34,7 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QSystemTrayIcon>
+#include <QRandomGenerator>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
@@ -41,16 +46,37 @@ MainWindow::MainWindow(QWidget* parent)
     QString usersPath = dataDir.filePath("users.json");
 
     if (!QFile::exists(usersPath)) {
-        QString adminUser = "admin";
-        QString adminPass = "admin123";
-        QString err;
-        salvarUsuario(adminUser, adminPass, "Administrator", "admin@artepapeis.com", "", "", err);
+        // Criar conta admin com privilégios
+        QJsonObject root;
+        QJsonObject adminObj;
+        
+        // Gerar salt e hash para a senha padrão
+        QString salt = QUuid::createUuid().toString();
+        QByteArray h = QCryptographicHash::hash((salt + "admin123").toUtf8(), QCryptographicHash::Sha256);
+        
+        adminObj["salt"] = salt;
+        adminObj["hash"] = QString(h.toHex());
+        adminObj["fullName"] = "Administrator";
+        adminObj["email"] = "admin@artepapeis.com";
+        adminObj["phone"] = "";
+        adminObj["nif"] = "";
+        adminObj["isAdmin"] = true;  // Explicitamente definir como admin
+        
+        root["admin"] = adminObj;
+
+        // Salvar no arquivo
+        QJsonDocument outDoc(root);
+        QFile f(usersPath);
+        if (f.open(QIODevice::WriteOnly)) {
+            f.write(outDoc.toJson());
+            f.close();
+        }
     }
 
     QColor cBlack("#0E141C"), pBlue("#314B6E"), rackley("#607EA2"), weldon("#8197AC"), sPink("#BDB3A3");
 
     QWidget* central = new QWidget(this);
-    QVBoxLayout* mainLayout = new QVBoxLayout(central);
+    mainLayout = new QVBoxLayout(central);
 
     QLabel* header = new QLabel("Frete grátis para todo o mundo em pedidos acima de 50€");
     header->setStyleSheet("background-color: #1e1e1e; color: #BDB3A3; padding: 7px; font-size: 14px; letter-spacing: 1.1px;");
@@ -96,7 +122,31 @@ MainWindow::MainWindow(QWidget* parent)
     navLayout->addStretch(1);
     navLayout->addWidget(logo, 0, Qt::AlignCenter);
     navLayout->addStretch(1);
-    navLayout->addWidget(carrinhoIconLabel, 0);
+    // Carrinho será adicionado apenas se não for admin
+    if (!isAdmin) {
+        navLayout->addWidget(carrinhoIconLabel, 0);
+    }
+    
+    // Add user name label (initially hidden)
+    userNameLabel = new QLabel(this);
+    userNameLabel->setStyleSheet(R"(
+        QLabel {
+            color: #4CAF50;
+            font-size: 15px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        QLabel:hover {
+            background-color: #45a049;
+            color: white;
+        }
+    )");
+    userNameLabel->hide();
+    userNameLabel->setCursor(Qt::PointingHandCursor);
+    userNameLabel->installEventFilter(this);
+    navLayout->addWidget(userNameLabel, 0);
+    
     navLayout->addWidget(loginButton, 0);
 
     mainLayout->addLayout(navLayout);
@@ -233,9 +283,11 @@ MainWindow::MainWindow(QWidget* parent)
     resize(1200, 790);
 
     QHBoxLayout* menuLayout = new QHBoxLayout();
-    QStringList labels = {"Início", "Loja", "Carrinho", "Sobre", "Contato"};
+    QStringList labels = {"Início", "Loja", "Sobre", "Contato"}; // Removido "Carrinho"
+    menuButtons.clear(); // Limpar a lista de botões
     for (int i = 0; i < labels.size(); ++i) {
         QPushButton* btn = new QPushButton(labels[i]);
+        menuButtons.append(btn); // Armazenar referência ao botão
         btn->setStyleSheet(R"(
             QPushButton {
                 background: none;
@@ -256,9 +308,12 @@ MainWindow::MainWindow(QWidget* parent)
                 color: #4CAF50;
             }
         )");
-        connect(btn, &QPushButton::clicked, this, [this, i]() {
-            paginas->setCurrentIndex(i);
-            if (i == 2) atualizarCarrinhoPagina();
+        
+        // Índice para o stacked widget
+        int pageIndex = (i >= 2) ? i + 1 : i; // Ajustar índice para pular a página do carrinho
+        
+        connect(btn, &QPushButton::clicked, this, [this, pageIndex]() {
+            paginas->setCurrentIndex(pageIndex);
         });
         menuLayout->addWidget(btn);
     }
@@ -505,6 +560,34 @@ void MainWindow::atualizarCarrinhoPagina() {
         totalLayout->addWidget(valorLabel);
         
         contentLayout->addWidget(totalWidget);
+
+        // Adicionar botão "Finalizar Compra"
+        QPushButton* finalizarBtn = new QPushButton("Finalizar Compra", content);
+        finalizarBtn->setStyleSheet(R"(
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                font-size: 16px;
+                font-weight: bold;
+                margin-top: 20px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #3d8b40;
+            }
+        )");
+        connect(finalizarBtn, &QPushButton::clicked, this, &MainWindow::finalizarCompra);
+
+        QHBoxLayout* btnLayout = new QHBoxLayout();
+        btnLayout->addStretch();
+        btnLayout->addWidget(finalizarBtn);
+        btnLayout->addStretch();
+        contentLayout->addLayout(btnLayout);
     }
 
     contentLayout->addStretch();
@@ -533,79 +616,76 @@ void MainWindow::solicitarAdmin()
 
 void MainWindow::tentarLoginAdmin(const QString& senha)
 {
-    // Autenticação por ficheiro (data/admin.json com salt+hash)
+    // Verificar credenciais no users.json
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dataDir(dataPath + "/artes-papeis");
-    if (!dataDir.exists()) dataDir.mkpath(".");
-    QString adminPath = dataDir.filePath("admin.json");
+    QString usersPath = dataDir.filePath("users.json");
 
-    // Se ficheiro não existir, cria com password por defeito 'admin123'
-    if (!QFile::exists(adminPath)) {
-        QString defaultPass = "admin123";
-        QString salt = QUuid::createUuid().toString();
-        QByteArray h = QCryptographicHash::hash((salt + defaultPass).toUtf8(), QCryptographicHash::Sha256);
-        QJsonObject obj;
-        obj["salt"] = salt;
-        obj["hash"] = QString(h.toHex());
-        QFile f(adminPath);
-        if (f.open(QIODevice::WriteOnly)) {
-            f.write(QJsonDocument(obj).toJson());
-            f.close();
+    bool isFirstUser = false;
+    if (!QFile::exists(usersPath)) {
+        isFirstUser = true;
+        if (!dataDir.exists()) {
+            dataDir.mkpath(".");
+        }
+        // Criar o primeiro usuário como admin
+        QString err;
+        if (!salvarUsuario("admin", "admin123", "Administrator", "admin@artepapeis.com", "", "", err)) {
+            QMessageBox::warning(this, "Erro", QString("Não foi possível criar usuário admin: %1").arg(err));
+            return;
         }
     }
 
-    // Ler credenciais
-    QFile f(adminPath);
-    if (!f.open(QIODevice::ReadOnly)) {
-        QMessageBox::warning(this, "Erro", "Não foi possível ler credenciais de admin.");
+    // Se acabamos de criar o usuário admin e a senha fornecida é a padrão
+    if (isFirstUser && senha == "admin123") {
+        isAdmin = true;
+        loggedInUser = "admin";
+        updateAdminUI();
+        QMessageBox::information(this, "Acesso Admin", "Login com senha padrão. Recomendamos alterar a senha.");
+        setupAdminPage();
+        paginas->setCurrentWidget(adminPage);
         return;
     }
-    QByteArray content = f.readAll();
-    f.close();
-    QJsonDocument jd = QJsonDocument::fromJson(content);
-    if (!jd.isObject()) {
-        QMessageBox::warning(this, "Erro", "Ficheiro de credenciais inválido.");
-        return;
-    }
-    QJsonObject jo = jd.object();
-    QString salt = jo.value("salt").toString();
-    QString expected = jo.value("hash").toString();
 
-    QByteArray hinput = QCryptographicHash::hash((salt + senha).toUtf8(), QCryptographicHash::Sha256);
-    QString hhex = QString(hinput.toHex());
-    if (hhex == expected) {
+    // Verificar credenciais nos usuários existentes
+    QFile file(usersPath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, "Erro", "Não foi possível ler os dados dos usuários.");
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    if (!doc.isObject()) {
+        QMessageBox::warning(this, "Erro", "Arquivo de usuários corrompido.");
+        return;
+    }
+
+    // Verificar todas as contas de admin
+    bool foundAdmin = false;
+    QJsonObject users = doc.object();
+    for (auto it = users.begin(); it != users.end(); ++it) {
+        QJsonObject userObj = it.value().toObject();
+        if (userObj["isAdmin"].toBool()) {
+            QString salt = userObj["salt"].toString();
+            QString expected = userObj["hash"].toString();
+            QByteArray h = QCryptographicHash::hash((salt + senha).toUtf8(), QCryptographicHash::Sha256);
+            if (QString(h.toHex()) == expected) {
+                foundAdmin = true;
+                loggedInUser = it.key();
+                break;
+            }
+        }
+    }
+
+    if (foundAdmin) {
         isAdmin = true;
         updateAdminUI();
-        QMessageBox::information(this, "Acesso Admin", "Password correta. Acesso concedido.");
-
-        // Criar a página de admin, se ainda não existir
-        if (!adminPage) {
-            adminPage = new QWidget;
-            QVBoxLayout* layout = new QVBoxLayout(adminPage);
-            QLabel* lbl = new QLabel("Área Administrativa — Acesso concedido", adminPage);
-            lbl->setStyleSheet("font-size: 20px; font-weight: bold; color: #C0392B;");
-            layout->addWidget(lbl, 0, Qt::AlignCenter);
-
-            // Exemplo de controlo admin (apenas demonstrativo)
-            QPushButton* demoBtn = new QPushButton("Adicionar produto demo ao carrinho", adminPage);
-            connect(demoBtn, &QPushButton::clicked, this, [this]() {
-                // Adiciona o primeiro produto disponível como demo
-                auto produtos = productManager->getAllProducts();
-                if (!produtos.isEmpty()) {
-                    adicionarAoCarrinho(produtos.first().id);
-                    QMessageBox::information(this, "Demo", "Produto demo adicionado ao carrinho.");
-                }
-            });
-            layout->addWidget(demoBtn, 0, Qt::AlignCenter);
-            layout->addStretch(1);
-            adminPage->setLayout(layout);
-        }
-
-        // Adiciona a página ao stacked widget (se ainda não estiver) e mostra
-        paginas->addWidget(adminPage);
+        QMessageBox::information(this, "Acesso Admin", "Login efetuado com sucesso.");
+        setupAdminPage();
         paginas->setCurrentWidget(adminPage);
     } else {
-        QMessageBox::warning(this, "Acesso Negado", "Password incorreta.");
+        QMessageBox::warning(this, "Acesso Negado", "Usuário não é administrador ou senha incorreta.");
     }
 }
 
@@ -725,18 +805,241 @@ void MainWindow::showProductManager()
 
 void MainWindow::updateAdminUI()
 {
-    if (editProductsButton) editProductsButton->setVisible(isAdmin);
-    // update admin button text/behavior
-    if (adminButton) {
-        QObject::disconnect(adminButton, nullptr, nullptr, nullptr);
-        if (isAdmin) {
-            adminButton->setText("Logout");
-            connect(adminButton, &QPushButton::clicked, this, &MainWindow::logoutAdmin);
-        } else {
-            adminButton->setText("Admin");
-            connect(adminButton, &QPushButton::clicked, this, &MainWindow::solicitarAdmin);
+    // Mostrar/esconder botão de editar produtos
+    if (editProductsButton) {
+        editProductsButton->setVisible(isAdmin);
+    }
+
+    // Atualizar visibilidade do carrinho
+    if (carrinhoIconLabel) {
+        carrinhoIconLabel->setVisible(!isAdmin);
+    }
+    
+    // Se for admin, configurar a página administrativa
+    if (isAdmin) {
+        if (!adminPage) {
+            setupAdminPage();
+            paginas->addWidget(adminPage);
+        }
+
+        // Procurar o layout do menu e verificar se já tem botão Admin
+        QHBoxLayout* menuLayout = nullptr;
+        bool hasAdminButton = false;
+        
+        // Procurar o layout do menu
+        for (int i = 0; i < mainLayout->count(); i++) {
+            QLayoutItem* item = mainLayout->itemAt(i);
+            if (QHBoxLayout* hLayout = qobject_cast<QHBoxLayout*>(item->layout())) {
+                // Verificar se é o layout do menu procurando pelos botões
+                QLayoutItem* firstItem = hLayout->itemAt(0);
+                if (firstItem && firstItem->widget()) {
+                    QPushButton* btn = qobject_cast<QPushButton*>(firstItem->widget());
+                    if (btn && btn->text() == "Início") {
+                        menuLayout = hLayout;
+                        // Verificar se já existe o botão Admin
+                        for (int j = 0; j < hLayout->count(); j++) {
+                            QLayoutItem* menuItem = hLayout->itemAt(j);
+                            if (QPushButton* menuBtn = qobject_cast<QPushButton*>(menuItem->widget())) {
+                                if (menuBtn->text() == "Admin") {
+                                    hasAdminButton = true;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (menuLayout && !hasAdminButton) {
+            QPushButton* adminBtn = new QPushButton("Admin");
+            adminBtn->setStyleSheet(R"(
+                QPushButton {
+                    background: none;
+                    border: none;
+                    color: #ffffff;
+                    font-size: 17px;
+                    font-weight: bold;
+                    padding: 8px 23px;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #4a4a4a;
+                    color: #4CAF50;
+                    cursor: pointer;
+                }
+                QPushButton:pressed {
+                    background-color: #363636;
+                    color: #4CAF50;
+                }
+            )");
+            connect(adminBtn, &QPushButton::clicked, this, [this]() {
+                if (adminPage) {
+                    paginas->setCurrentWidget(adminPage);
+                }
+            });
+            menuLayout->addWidget(adminBtn);
+        }
+        
+        // Forçar atualização da página administrativa
+        if (paginas->currentWidget() != adminPage) {
+            paginas->setCurrentWidget(adminPage);
+        }
+    } else {
+        // Se não for admin, remover o botão Admin se existir
+        for (int i = 0; i < mainLayout->count(); i++) {
+            QLayoutItem* item = mainLayout->itemAt(i);
+            if (QHBoxLayout* hLayout = qobject_cast<QHBoxLayout*>(item->layout())) {
+                for (int j = 0; j < hLayout->count(); j++) {
+                    QLayoutItem* menuItem = hLayout->itemAt(j);
+                    if (QPushButton* btn = qobject_cast<QPushButton*>(menuItem->widget())) {
+                        if (btn->text() == "Admin") {
+                            btn->deleteLater();
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
+}
+
+bool MainWindow::eventFilter(QObject* obj, QEvent* event)
+{
+    if (obj == userNameLabel) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            setupUserMenu();
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(obj, event);
+}
+
+void MainWindow::setupUserMenu()
+{
+    QMenu* menu = new QMenu(this);
+    menu->setStyleSheet(R"(
+        QMenu {
+            background-color: #2b2b2b;
+            border: 1px solid #404040;
+            padding: 5px;
+        }
+        QMenu::item {
+            color: #ffffff;
+            padding: 8px 20px;
+        }
+        QMenu::item:selected {
+            background-color: #4CAF50;
+        }
+    )");
+
+    if (!isAdmin) {
+        QAction* historicoAction = menu->addAction("Minhas Encomendas");
+        connect(historicoAction, &QAction::triggered, this, &MainWindow::mostrarEncomendas);
+    }
+    QAction* logoutAction = menu->addAction("Logout");
+    connect(logoutAction, &QAction::triggered, this, &MainWindow::logoutUser);
+
+    menu->popup(userNameLabel->mapToGlobal(QPoint(0, userNameLabel->height())));
+}
+
+void MainWindow::mostrarEncomendas()
+{
+    QDialog* dialog = new QDialog(this);
+    dialog->setWindowTitle("Minhas Encomendas");
+    dialog->resize(800, 600);
+    dialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
+
+    QVBoxLayout* layout = new QVBoxLayout(dialog);
+
+    // Carregar todas as encomendas
+    QVector<Order> orders = carregarEncomendas();
+
+    // Filtrar apenas as encomendas do usuário atual
+    QVector<Order> userOrders;
+    for (const Order& order : orders) {
+        if (order.userId == loggedInUser) {
+            userOrders.append(order);
+        }
+    }
+
+    if (userOrders.isEmpty()) {
+        QLabel* emptyLabel = new QLabel("Você ainda não tem encomendas.", dialog);
+        emptyLabel->setStyleSheet("color: #ffffff; font-size: 16px; padding: 20px;");
+        layout->addWidget(emptyLabel);
+    } else {
+        QScrollArea* scrollArea = new QScrollArea(dialog);
+        scrollArea->setWidgetResizable(true);
+        scrollArea->setStyleSheet("QScrollArea { border: none; }");
+
+        QWidget* contentWidget = new QWidget(scrollArea);
+        QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
+
+        // Ordenar encomendas por data (mais recente primeiro)
+        std::sort(userOrders.begin(), userOrders.end(), 
+                 [](const Order& a, const Order& b) { return a.orderDate > b.orderDate; });
+
+        for (const Order& order : userOrders) {
+            QWidget* orderWidget = new QWidget(contentWidget);
+            orderWidget->setStyleSheet(
+                "QWidget { background-color: #363636; border-radius: 8px; margin: 5px; padding: 15px; }"
+                "QLabel { color: #ffffff; }"
+            );
+            QVBoxLayout* orderLayout = new QVBoxLayout(orderWidget);
+
+            // Cabeçalho da encomenda
+            QLabel* headerLabel = new QLabel(QString("Encomenda: %1").arg(order.orderId));
+            headerLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #4CAF50;");
+            orderLayout->addWidget(headerLabel);
+
+            QLabel* dateLabel = new QLabel(QString("Data: %1")
+                .arg(order.orderDate.toString("dd/MM/yyyy HH:mm")));
+            dateLabel->setStyleSheet("color: #9e9e9e;");
+            orderLayout->addWidget(dateLabel);
+
+            // Lista de itens
+            for (const OrderItem& item : order.items) {
+                QLabel* itemLabel = new QLabel(QString("%1x %2 - %3€")
+                    .arg(item.quantity)
+                    .arg(item.productName)
+                    .arg(item.price * item.quantity, 0, 'f', 2));
+                orderLayout->addWidget(itemLabel);
+            }
+
+            // Total
+            QLabel* totalLabel = new QLabel(QString("Total: %1€")
+                .arg(order.total, 0, 'f', 2));
+            totalLabel->setStyleSheet("font-weight: bold; color: #4CAF50; margin-top: 10px;");
+            orderLayout->addWidget(totalLabel);
+
+            contentLayout->addWidget(orderWidget);
+        }
+
+        contentLayout->addStretch();
+        scrollArea->setWidget(contentWidget);
+        layout->addWidget(scrollArea);
+    }
+
+    QPushButton* closeButton = new QPushButton("Fechar", dialog);
+    closeButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #45a049;
+        }
+    )");
+    connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
+
+    layout->addWidget(closeButton, 0, Qt::AlignRight);
+    dialog->exec();
+    delete dialog;
 }
 
 MainWindow::~MainWindow(){}
@@ -846,22 +1149,102 @@ void MainWindow::handleLogin()
         return;
     }
 
+    // Verificar se é o admin com as credenciais padrão
+    if (user == "admin" && pass == "admin123") {
+        loggedInUser = user;
+        isAdmin = true;
+        
+        // Criar/atualizar usuário admin no arquivo se necessário
+        QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QDir dataDir(dataPath + "/artes-papeis");
+        QString usersPath = dataDir.filePath("users.json");
+        
+        if (!dataDir.exists()) {
+            dataDir.mkpath(".");
+        }
+        
+        QJsonObject root;
+        if (QFile::exists(usersPath)) {
+            QFile readFile(usersPath);
+            if (readFile.open(QIODevice::ReadOnly)) {
+                QJsonDocument doc = QJsonDocument::fromJson(readFile.readAll());
+                if (doc.isObject()) {
+                    root = doc.object();
+                }
+                readFile.close();
+            }
+        }
+        
+        // Criar ou atualizar usuário admin
+        QJsonObject adminObj;
+        QString salt = QUuid::createUuid().toString();
+        QByteArray h = QCryptographicHash::hash((salt + pass).toUtf8(), QCryptographicHash::Sha256);
+        
+        adminObj["salt"] = salt;
+        adminObj["hash"] = QString(h.toHex());
+        adminObj["fullName"] = "Administrator";
+        adminObj["email"] = "admin@artepapeis.com";
+        adminObj["phone"] = "";
+        adminObj["nif"] = "";
+        adminObj["isAdmin"] = true;
+        
+        root["admin"] = adminObj;
+        
+        QFile writeFile(usersPath);
+        if (writeFile.open(QIODevice::WriteOnly)) {
+            writeFile.write(QJsonDocument(root).toJson());
+            writeFile.close();
+        }
+        
+        // Configurar interface administrativa
+        if (!adminPage) {
+            setupAdminPage();
+        }
+        
+        // Atualizar UI
+        loginButton->hide();
+        userNameLabel->setText("Olá, Administrator");
+        userNameLabel->show();
+        updateAdminUI();
+        
+        // Mostrar página administrativa
+        paginas->setCurrentWidget(adminPage);
+        QMessageBox::information(this, "Login", "Login de administrador efetuado com sucesso.");
+        return;
+    }
+    
+    // Para outros usuários, verificar credenciais normalmente
     if (validarCredenciais(user, pass)) {
         loggedInUser = user;
         
-        // Check if this is the admin account
-        if (user == "admin") {
-            isAdmin = true;
-            updateAdminUI();
+        // Verificar se é uma conta de administrador no arquivo de usuários
+        QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QFile f(dataPath + "/artes-papeis/users.json");
+        if (f.open(QIODevice::ReadOnly)) {
+            QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+            if (doc.isObject()) {
+                QJsonObject userObj = doc.object().value(user).toObject();
+                isAdmin = userObj["isAdmin"].toBool();
+            }
+            f.close();
         }
         
-        // Update login button to act as logout
-        QObject::disconnect(loginButton, nullptr, nullptr, nullptr);
-        loginButton->setText("Logout");
-        connect(loginButton, &QPushButton::clicked, this, &MainWindow::logoutUser);
-        QMessageBox::information(this, "Login", "Login efetuado com sucesso.");
-        // Optionally redirect to loja
-        paginas->setCurrentWidget(lojaPage);
+        // Atualizar UI
+        loginButton->hide();
+        userNameLabel->setText("Olá, " + user);
+        userNameLabel->show();
+        updateAdminUI();
+        
+        if (isAdmin) {
+            if (!adminPage) {
+                setupAdminPage();
+            }
+            paginas->setCurrentWidget(adminPage);
+            QMessageBox::information(this, "Login", "Login de administrador efetuado com sucesso.");
+        } else {
+            paginas->setCurrentWidget(lojaPage);
+            QMessageBox::information(this, "Login", "Login efetuado com sucesso.");
+        }
     } else {
         QMessageBox::warning(this, "Login", "Username ou password inválidos.");
     }
@@ -877,6 +1260,11 @@ void MainWindow::logoutUser()
         updateAdminUI();
     }
     
+    // Hide username label and show login button
+    userNameLabel->hide();
+    loginButton->show();
+    
+    // Reset login button state
     QObject::disconnect(loginButton, nullptr, nullptr, nullptr);
     loginButton->setText("Log In");
     connect(loginButton, &QPushButton::clicked, this, &MainWindow::abrirLogin);
@@ -1000,6 +1388,9 @@ bool MainWindow::salvarUsuario(const QString& username, const QString& password,
     userObj["email"] = email;
     userObj["phone"] = phone;
     userObj["nif"] = nif;
+    // Definir como admin apenas se for o primeiro usuário (admin padrão)
+    bool isFirstUser = root.isEmpty();
+    userObj["isAdmin"] = isFirstUser;
     root[username] = userObj;
 
     QJsonDocument outDoc(root);
@@ -1018,19 +1409,32 @@ bool MainWindow::validarCredenciais(const QString& username, const QString& pass
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dataDir(dataPath + "/artes-papeis");
     QString usersPath = dataDir.filePath("users.json");
-    if (!QFile::exists(usersPath)) return false;
+    
+    // Se o arquivo não existe e as credenciais são do admin padrão
+    if (!QFile::exists(usersPath)) {
+        if (username == "admin" && password == "admin123") {
+            return true;
+        }
+        return false;
+    }
+    
     QFile f(usersPath);
     if (!f.open(QIODevice::ReadOnly)) return false;
     QByteArray c = f.readAll();
     f.close();
+    
     QJsonDocument jd = QJsonDocument::fromJson(c);
     if (!jd.isObject()) return false;
+    
     QJsonObject root = jd.object();
     if (!root.contains(username)) return false;
+    
     QJsonObject userObj = root.value(username).toObject();
     QString salt = userObj.value("salt").toString();
     QString expected = userObj.value("hash").toString();
     QByteArray h = QCryptographicHash::hash((salt + password).toUtf8(), QCryptographicHash::Sha256);
+    
+    // Verificar senha
     return (QString(h.toHex()) == expected);
 }
 
@@ -1078,5 +1482,472 @@ void MainWindow::notifyAdminLowStock(const ProdutoFull& p)
     } else {
         // fallback to message box
         QMessageBox::information(this, "Alerta de Stock", msg);
+    }
+}
+
+QString MainWindow::gerarOrderId() {
+    // Gerar um ID único baseado na data/hora e um número aleatório
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMddHHmmsszzz");
+    // Use o último dígito dos milissegundos como parte do ID
+    return QString("ORD-%1").arg(timestamp);
+}
+
+bool MainWindow::salvarEncomenda(const Order& order, QString& outError) {
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
+    if (!dataDir.exists() && !dataDir.mkpath(".")) {
+        outError = "Não foi possível criar diretório de dados.";
+        return false;
+    }
+    QString ordersPath = dataDir.filePath("orders.json");
+
+    // Carregar encomendas existentes
+    QJsonArray ordersArray;
+    if (QFile::exists(ordersPath)) {
+        QFile f(ordersPath);
+        if (f.open(QIODevice::ReadOnly)) {
+            QByteArray data = f.readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+            if (doc.isArray()) {
+                ordersArray = doc.array();
+            }
+            f.close();
+        }
+    }
+
+    // Criar objeto JSON para a nova encomenda
+    QJsonObject orderObj;
+    orderObj["orderId"] = order.orderId;
+    orderObj["userId"] = order.userId;
+    orderObj["userName"] = order.userName;
+    orderObj["orderDate"] = order.orderDate.toString(Qt::ISODate);
+    orderObj["total"] = order.total;
+
+    QJsonArray itemsArray;
+    for (const OrderItem& item : order.items) {
+        QJsonObject itemObj;
+        itemObj["productId"] = item.productId;
+        itemObj["productName"] = item.productName;
+        itemObj["quantity"] = item.quantity;
+        itemObj["price"] = item.price;
+        itemsArray.append(itemObj);
+    }
+    orderObj["items"] = itemsArray;
+
+    // Adicionar nova encomenda ao array
+    ordersArray.append(orderObj);
+
+    // Salvar arquivo atualizado
+    QFile f(ordersPath);
+    if (!f.open(QIODevice::WriteOnly)) {
+        outError = "Não foi possível salvar o arquivo de encomendas.";
+        return false;
+    }
+    QJsonDocument doc(ordersArray);
+    f.write(doc.toJson());
+    f.close();
+
+    return true;
+}
+
+QVector<Order> MainWindow::carregarEncomendas() {
+    QVector<Order> orders;
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString ordersPath = dataPath + "/artes-papeis/orders.json";
+
+    if (!QFile::exists(ordersPath)) return orders;
+
+    QFile f(ordersPath);
+    if (!f.open(QIODevice::ReadOnly)) return orders;
+
+    QByteArray data = f.readAll();
+    f.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isArray()) return orders;
+
+    QJsonArray ordersArray = doc.array();
+    for (const QJsonValue& val : ordersArray) {
+        if (!val.isObject()) continue;
+        QJsonObject obj = val.toObject();
+
+        Order order;
+        order.orderId = obj["orderId"].toString();
+        order.userId = obj["userId"].toString();
+        order.userName = obj["userName"].toString();
+        order.orderDate = QDateTime::fromString(obj["orderDate"].toString(), Qt::ISODate);
+        order.total = obj["total"].toDouble();
+
+        QJsonArray itemsArray = obj["items"].toArray();
+        for (const QJsonValue& itemVal : itemsArray) {
+            QJsonObject itemObj = itemVal.toObject();
+            OrderItem item;
+            item.productId = itemObj["productId"].toString();
+            item.productName = itemObj["productName"].toString();
+            item.quantity = itemObj["quantity"].toInt();
+            item.price = itemObj["price"].toDouble();
+            order.items.append(item);
+        }
+
+        orders.append(order);
+    }
+
+    return orders;
+}
+
+void MainWindow::limparCarrinho() {
+    carrinho.clear();
+    atualizarCarrinhoIcon();
+    atualizarCarrinhoPagina();
+}
+
+void MainWindow::setupAdminPage() {
+    if (!adminPage) {
+        adminPage = new QWidget;
+        QVBoxLayout* layout = new QVBoxLayout(adminPage);
+        
+        // Título da área administrativa
+        QLabel* lbl = new QLabel("Área Administrativa", adminPage);
+        lbl->setStyleSheet("font-size: 24px; font-weight: bold; color: #4CAF50; margin-bottom: 20px;");
+        layout->addWidget(lbl, 0, Qt::AlignCenter);
+
+        // Criar o widget de tabs
+        adminTabWidget = new QTabWidget(adminPage);
+        adminTabWidget->setStyleSheet(R"(
+            QTabWidget::pane {
+                border: 1px solid #404040;
+                background-color: #2b2b2b;
+                padding: 15px;
+            }
+            QTabWidget::tab-bar {
+                alignment: left;
+            }
+            QTabBar::tab {
+                background-color: #363636;
+                color: #ffffff;
+                padding: 8px 20px;
+                margin-right: 2px;
+            }
+            QTabBar::tab:hover {
+                background-color: #404040;
+            }
+            QTabBar::tab:selected {
+                background-color: #4CAF50;
+            }
+        )");
+
+        // Tab de Produtos
+        QWidget* produtosTab = new QWidget();
+        QVBoxLayout* produtosLayout = new QVBoxLayout(produtosTab);
+        QPushButton* editProdutosBtn = new QPushButton("Gerenciar Produtos", produtosTab);
+        editProdutosBtn->setStyleSheet(R"(
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        )");
+        connect(editProdutosBtn, &QPushButton::clicked, this, &MainWindow::showProductManager);
+        produtosLayout->addWidget(editProdutosBtn);
+        produtosLayout->addStretch();
+        
+        adminTabWidget->addTab(produtosTab, "Produtos");
+
+        // Inicializar a aba de encomendas
+        setupAdminOrdersTab();
+
+        // Adicionar widget de tabs ao layout e configurar a página
+        layout->addWidget(adminTabWidget);
+        adminPage->setLayout(layout);
+
+        // Adicionar ao stacked widget
+        paginas->addWidget(adminPage);
+    }
+}
+
+void MainWindow::setupAdminOrdersTab() {
+    QWidget* encomendasTab = new QWidget();
+    QVBoxLayout* encomendasLayout = new QVBoxLayout(encomendasTab);
+    
+    // Lista de encomendas
+    adminOrdersList = new QListWidget(encomendasTab);
+    adminOrdersList->setStyleSheet(R"(
+        QListWidget {
+            background-color: #363636;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            color: #ffffff;
+        }
+        QListWidget::item {
+            padding: 10px;
+            border-bottom: 1px solid #404040;
+        }
+        QListWidget::item:hover {
+            background-color: #404040;
+        }
+        QListWidget::item:selected {
+            background-color: #4CAF50;
+        }
+    )");
+
+    // Cabeçalho explicativo
+    QLabel* headerLabel = new QLabel("Duplo clique em uma encomenda para ver os detalhes", encomendasTab);
+    headerLabel->setStyleSheet("color: #9e9e9e; margin-bottom: 10px;");
+    encomendasLayout->addWidget(headerLabel);
+
+    encomendasLayout->addWidget(adminOrdersList);
+
+    // Botão de atualizar
+    QPushButton* refreshBtn = new QPushButton("Atualizar Lista", encomendasTab);
+    refreshBtn->setStyleSheet(R"(
+        QPushButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        QPushButton:hover {
+            background-color: #45a049;
+        }
+    )");
+    connect(refreshBtn, &QPushButton::clicked, this, &MainWindow::atualizarListaEncomendas);
+    encomendasLayout->addWidget(refreshBtn);
+
+    // Conectar o clique duplo para mostrar detalhes
+    connect(adminOrdersList, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
+        QString orderId = item->data(Qt::UserRole).toString();
+        mostrarDetalhesEncomenda(orderId);
+    });
+
+    adminTabWidget->addTab(encomendasTab, "Encomendas");
+    atualizarListaEncomendas();
+}
+
+void MainWindow::atualizarListaEncomendas() {
+    if (!adminOrdersList) return;
+
+    adminOrdersList->clear();
+    QVector<Order> orders = carregarEncomendas();
+    
+    // Ordenar por data mais recente primeiro
+    std::sort(orders.begin(), orders.end(), 
+             [](const Order& a, const Order& b) { return a.orderDate > b.orderDate; });
+
+    for (const Order& order : orders) {
+        // Carregar informações do usuário
+        QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QFile f(dataPath + "/artes-papeis/users.json");
+        QString userName = order.userId;
+        if (f.open(QIODevice::ReadOnly)) {
+            QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+            if (doc.isObject()) {
+                QJsonObject userObj = doc.object().value(order.userId).toObject();
+                userName = userObj["fullName"].toString();
+                if (userName.isEmpty()) userName = order.userId;
+            }
+            f.close();
+        }
+
+        QString itemText = QString("%1 - %2 - Cliente: %3 - Total: %4€")
+            .arg(order.orderDate.toString("dd/MM/yyyy HH:mm"))
+            .arg(order.orderId)
+            .arg(userName)
+            .arg(order.total, 0, 'f', 2);
+        
+        QListWidgetItem* item = new QListWidgetItem(itemText);
+        item->setData(Qt::UserRole, order.orderId);
+        adminOrdersList->addItem(item);
+    }
+}
+
+void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
+    // Carregar todas as encomendas
+    QVector<Order> orders = carregarEncomendas();
+    
+    // Encontrar a encomenda específica
+    Order* targetOrder = nullptr;
+    for (Order& order : orders) {
+        if (order.orderId == orderId) {
+            targetOrder = &order;
+            break;
+        }
+    }
+    
+    if (!targetOrder) {
+        QMessageBox::warning(this, "Erro", "Encomenda não encontrada.");
+        return;
+    }
+
+    // Criar janela de detalhes
+    QDialog* dialog = new QDialog(this);
+    dialog->setWindowTitle("Detalhes da Encomenda");
+    dialog->resize(600, 500);
+    dialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
+
+    QVBoxLayout* layout = new QVBoxLayout(dialog);
+
+    // Header com ID da encomenda
+    QLabel* headerLabel = new QLabel(QString("Encomenda: %1").arg(targetOrder->orderId));
+    headerLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 10px;");
+    layout->addWidget(headerLabel);
+
+    // Informações do cliente
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QFile f(dataPath + "/artes-papeis/users.json");
+    QJsonObject userData;
+    if (f.open(QIODevice::ReadOnly)) {
+        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+        if (doc.isObject()) {
+            userData = doc.object().value(targetOrder->userId).toObject();
+        }
+        f.close();
+    }
+
+    QGroupBox* clienteBox = new QGroupBox("Informações do Cliente");
+    clienteBox->setStyleSheet(R"(
+        QGroupBox {
+            color: #ffffff;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            margin-top: 1ex;
+            padding: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px;
+            color: #4CAF50;
+        }
+    )");
+    QVBoxLayout* clienteLayout = new QVBoxLayout(clienteBox);
+    
+    clienteLayout->addWidget(new QLabel(QString("Nome: %1").arg(userData["fullName"].toString())));
+    clienteLayout->addWidget(new QLabel(QString("Email: %1").arg(userData["email"].toString())));
+    clienteLayout->addWidget(new QLabel(QString("Telefone: %1").arg(userData["phone"].toString())));
+    clienteLayout->addWidget(new QLabel(QString("NIF: %1").arg(userData["nif"].toString())));
+    
+    layout->addWidget(clienteBox);
+
+    // Detalhes da encomenda
+    QGroupBox* detalhesBox = new QGroupBox("Detalhes da Encomenda");
+    detalhesBox->setStyleSheet(clienteBox->styleSheet());
+    QVBoxLayout* detalhesLayout = new QVBoxLayout(detalhesBox);
+    
+    detalhesLayout->addWidget(new QLabel(QString("Data: %1")
+        .arg(targetOrder->orderDate.toString("dd/MM/yyyy HH:mm"))));
+    
+    // Lista de produtos
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setStyleSheet("QScrollArea { border: none; }");
+    
+    QWidget* scrollContent = new QWidget();
+    QVBoxLayout* itemsLayout = new QVBoxLayout(scrollContent);
+    
+    for (const OrderItem& item : targetOrder->items) {
+        QWidget* itemWidget = new QWidget();
+        itemWidget->setStyleSheet("background-color: #363636; border-radius: 4px; padding: 8px; margin: 2px;");
+        QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
+        
+        itemLayout->addWidget(new QLabel(item.productName));
+        itemLayout->addWidget(new QLabel(QString("x%1").arg(item.quantity)));
+        itemLayout->addWidget(new QLabel(QString("%1€").arg(item.price * item.quantity, 0, 'f', 2)));
+        
+        itemsLayout->addWidget(itemWidget);
+    }
+    
+    scrollContent->setLayout(itemsLayout);
+    scrollArea->setWidget(scrollContent);
+    detalhesLayout->addWidget(scrollArea);
+    
+    // Total
+    QLabel* totalLabel = new QLabel(QString("Total: %1€").arg(targetOrder->total, 0, 'f', 2));
+    totalLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #4CAF50; margin-top: 10px;");
+    detalhesLayout->addWidget(totalLabel);
+    
+    layout->addWidget(detalhesBox);
+
+    // Botão fechar
+    QPushButton* closeButton = new QPushButton("Fechar", dialog);
+    closeButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #45a049;
+        }
+    )");
+    connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
+    layout->addWidget(closeButton, 0, Qt::AlignRight);
+
+    dialog->exec();
+    delete dialog;
+}
+
+void MainWindow::finalizarCompra() {
+    if (!loggedInUser.isEmpty()) {
+        if (carrinho.isEmpty()) {
+            QMessageBox::warning(this, "Carrinho Vazio", "Adicione produtos ao carrinho antes de finalizar a compra.");
+            return;
+        }
+
+        // Criar nova encomenda
+        Order order;
+        order.orderId = gerarOrderId();
+        order.userId = loggedInUser;
+        order.orderDate = QDateTime::currentDateTime();
+        order.total = 0.0;
+
+        // Adicionar itens do carrinho
+        for (auto it = carrinho.begin(); it != carrinho.end(); ++it) {
+            const QString& productId = it.key();
+            int quantity = it.value();
+            ProdutoFull produto = productManager->getProduct(productId);
+            
+            OrderItem item;
+            item.productId = productId;
+            item.productName = produto.nome;
+            item.quantity = quantity;
+            item.price = produto.preco;
+            order.items.append(item);
+            
+            order.total += produto.preco * quantity;
+
+            // Atualizar o stock após confirmar a compra
+            productManager->releaseReservation(productId, quantity);
+            productManager->commitProductSale(productId, quantity);
+        }
+
+        // Salvar a encomenda
+        QString error;
+        if (salvarEncomenda(order, error)) {
+            QMessageBox::information(this, "Compra Finalizada", 
+                QString("Encomenda %1 realizada com sucesso!\nTotal: %2€")
+                .arg(order.orderId)
+                .arg(QString::number(order.total, 'f', 2)));
+            
+            // Limpar o carrinho após compra bem-sucedida
+            limparCarrinho();
+        } else {
+            QMessageBox::warning(this, "Erro", 
+                QString("Não foi possível finalizar a compra: %1").arg(error));
+        }
+    } else {
+        QMessageBox::warning(this, "Login Necessário", 
+            "Por favor, faça login para finalizar a compra.");
     }
 }
