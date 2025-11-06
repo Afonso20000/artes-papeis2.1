@@ -728,9 +728,27 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/4.1.2/CMakeCXXCompiler.cmake \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/build/CMakeFiles/4.1.2/CMakeSystem.cmake \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/moc_predefs.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/clickablelabel.h \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp \
 	/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.h \
+	/Users/valass/Documents/GitHub/artes-papeis2.1/produto.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QDateTime \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QList \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QMap \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QObject \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QRect \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QSize \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QSizeF \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QString \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QTimer \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/QVector \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q17memory.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20functional.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20iterator.h \
@@ -738,6 +756,7 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20type_traits.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q20utility.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/q23utility.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qabstracteventdispatcher.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qabstractitemmodel.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qalgorithms.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qalloc.h \
@@ -749,11 +768,13 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qatomic.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qatomic_cxx11.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbasicatomic.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbasictimer.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbindingstorage.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbytearray.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbytearrayalgorithms.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbytearraylist.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qbytearrayview.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcalendar.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qchar.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcheckedint_impl.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcompare.h \
@@ -766,10 +787,16 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcontainerinfo.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcontainertools_impl.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcontiguouscache.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcoreapplication.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcoreapplication_platform.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qcoreevent.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qdarwinhelpers.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qdatastream.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qdatetime.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qdeadlinetimer.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qdebug.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qendian.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qeventloop.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qexceptionhandling.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qflags.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qfloat16.h \
@@ -799,6 +826,7 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qmetatype.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qminmax.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qnamespace.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qnativeinterface.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qnumeric.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qobject.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qobject_impl.h \
@@ -847,6 +875,7 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtenvironmentvariables.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtextstream.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtformat_impl.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtimer.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtmetamacros.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtnoop.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qtpreprocessorsupport.h \
@@ -861,62 +890,105 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qutf8stringview.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvariant.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvarlengtharray.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qvector.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qversiontagging.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qxptype_traits.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/Headers/qyieldcpu.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QColor \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QMouseEvent \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/QTransform \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qaction.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbitmap.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qbrush.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qcolor.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qcursor.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qevent.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qeventpoint.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qfont.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qfontinfo.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qfontmetrics.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qfontvariableaxis.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qguiapplication.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qguiapplication_platform.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qicon.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qimage.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qinputdevice.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qinputmethod.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qkeysequence.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpaintdevice.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpalette.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpen.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpicture.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpixelformat.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpixmap.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpointingdevice.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qpolygon.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qregion.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qrgb.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qrgba64.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qscreen.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qscreen_platform.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextcursor.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextdocument.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextformat.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtextoption.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtgui-config.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiexports.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtguiglobal.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qtransform.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvalidator.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvector2d.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvectornd.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QComboBox \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QDialog \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QGridLayout \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHBoxLayout \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHeaderView \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLabel \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLineEdit \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QListWidget \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QMainWindow \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QPushButton \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QScrollArea \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QStackedWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTabWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTableWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTextEdit \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QVBoxLayout \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractbutton.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemdelegate.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractitemview.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractscrollarea.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractslider.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractspinbox.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qboxlayout.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qcombobox.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qdialog.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qframe.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qgridlayout.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qheaderview.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlabel.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlayout.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlayoutitem.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlineedit.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistview.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlistwidget.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qmainwindow.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qpushbutton.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qrubberband.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qscrollarea.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qsizepolicy.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qslider.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstackedwidget.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstyle.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstyleoption.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabbar.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtableview.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtablewidget.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabwidget.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtextedit.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgets-config.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsexports.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsglobal.h \

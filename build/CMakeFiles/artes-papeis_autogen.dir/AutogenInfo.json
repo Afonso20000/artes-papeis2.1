@@ -382,9 +382,39 @@
 	"HEADERS" : 
 	[
 		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/clickablelabel.h",
+			"MU",
+			"EWIEGA46WW/moc_clickablelabel.cpp",
+			null
+		],
+		[
 			"/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.h",
+			"MU",
+			"EWIEGA46WW/moc_productcard.cpp",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.h",
+			"MU",
+			"EWIEGA46WW/moc_productformdialog.cpp",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.h",
+			"MU",
+			"EWIEGA46WW/moc_productmanager.cpp",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/produto.h",
+			"MU",
+			"EWIEGA46WW/moc_produto.cpp",
 			null
 		]
 	],
@@ -401,14 +431,19 @@
 	],
 	"MOC_INCLUDES" : 
 	[
+		"/Users/valass/Qt/6.10.0/macos/include/QtWidgets",
+		"/Users/valass/Qt/6.10.0/macos/include",
+		"/Users/valass/Qt/6.10.0/macos/include/QtWidgets",
+		"/Users/valass/Qt/6.10.0/macos/lib/QtDBus.framework/Headers",
+		"/Users/valass/Qt/6.10.0/macos/lib/QtDBus.framework",
+		"/Users/valass/Qt/6.10.0/macos/include",
+		"/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers",
 		"/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Headers",
 		"/Users/valass/Qt/6.10.0/macos/lib/QtCore.framework",
-		"/Users/valass/Qt/6.10.0/macos/mkspecs/macx-clang",
-		"/Users/valass/Qt/6.10.0/macos/include",
 		"/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Headers",
 		"/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework",
-		"/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers",
 		"/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework",
+		"/Users/valass/Qt/6.10.0/macos/mkspecs/macx-clang",
 		"/usr/local/include",
 		"/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1",
 		"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include",
@@ -451,6 +486,21 @@
 		[ "/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp", "MU", null ],
 		[
 			"/Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp",
+			"MU",
+			null
+		],
+		[
+			"/Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp",
 			"MU",
 			null
 		]
