@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include <QDateTime>
+#include <QMap>
 #include "produto.h"
 
 class ProductManager : public QObject
@@ -16,6 +17,12 @@ public:
     bool saveProducts(const QVector<ProdutoFull>& produtos);
     QVector<ProdutoFull> loadProducts();
     void addProduct(const ProdutoFull& produto);
+
+    // Order history
+    void saveOrder(const Order& order);
+    QVector<Order> loadOrders() const;
+    QVector<Order> getOrdersByClient(const QString& username) const;
+    QMap<QString, QPair<int, double>> getClientStats() const; // username -> (order count, total spent)
     void updateProduct(const QString& id, const ProdutoFull& produto);
     void removeProduct(const QString& id);
     ProdutoFull* findProductById(const QString& id);

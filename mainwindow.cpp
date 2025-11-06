@@ -28,6 +28,11 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+
+QT_BEGIN_NAMESPACE
+class QTableWidget;
+class QHeaderView;
+QT_END_NAMESPACE
 #include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QUuid>
@@ -35,6 +40,8 @@
 #include <QTimer>
 #include <QSystemTrayIcon>
 #include <QRandomGenerator>
+#include <QTableWidget>
+#include <QHeaderView>
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
 {
@@ -283,8 +290,16 @@ MainWindow::MainWindow(QWidget* parent)
     QStringList labels = {"Início", "Loja", "Carrinho", "Sobre", "Contato"};
     menuButtons.clear(); // Limpar a lista de botões
     for (int i = 0; i < labels.size(); ++i) {
-        if (labels[i] == "Carrinho" && isAdmin) {
-            continue; // Pular o botão do carrinho para admins
+        // If admin, hide some public-facing sections from the top menu
+        if (isAdmin) {
+            if (labels[i] == "Carrinho" || labels[i] == "Loja" || labels[i] == "Sobre" || labels[i] == "Contato") {
+                continue; // Pular estes botões para admins
+            }
+        } else {
+            // Non-admin users shouldn't see admin-only cart removal behavior; keep previous logic
+            if (labels[i] == "Carrinho" && isAdmin) {
+                continue; // legacy check (redundant)
+            }
         }
         QPushButton* btn = new QPushButton(labels[i]);
         menuButtons.append(btn); // Armazenar referência ao botão
@@ -826,9 +841,21 @@ void MainWindow::updateAdminUI()
 
     // Atualizar visibilidade dos botões do menu
     for (QPushButton* btn : menuButtons) {
-        if (btn->text() == "Carrinho") {
-            btn->setVisible(!isAdmin);
+        QString t = btn->text();
+        // Hide public-facing pages for admins
+        if (isAdmin) {
+            if (t == "Carrinho" || t == "Loja" || t == "Sobre" || t == "Contato") {
+                btn->setVisible(false);
+                continue;
+            }
+        } else {
+            // Non-admin: ensure public pages are visible
+            if (t == "Carrinho" || t == "Loja" || t == "Sobre" || t == "Contato") {
+                btn->setVisible(true);
+                continue;
+            }
         }
+        // leave other buttons unchanged
     }
     
     // Se for admin, configurar a página administrativa
@@ -1420,6 +1447,30 @@ bool MainWindow::salvarUsuario(const QString& username, const QString& password,
     return true;
 }
 
+bool MainWindow::getClientInfo(const QString& username, QString& outName, QString& outEmail) {
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString filePath = dataPath + "/artes-papeis/users.json";
+    
+    QFile file(filePath);
+    if (!file.exists() || !file.open(QIODevice::ReadOnly))
+        return false;
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+    
+    if (!doc.isObject())
+        return false;
+        
+    QJsonObject root = doc.object();
+    if (!root.contains(username))
+        return false;
+        
+    QJsonObject userObj = root[username].toObject();
+    outName = userObj["fullName"].toString();
+    outEmail = userObj["email"].toString();
+    return true;
+}
+
 bool MainWindow::validarCredenciais(const QString& username, const QString& password)
 {
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -1806,6 +1857,8 @@ void MainWindow::setupAdminPage() {
         lbl->setStyleSheet("font-size: 24px; font-weight: bold; color: #4CAF50; margin-bottom: 20px;");
         headerLayout->addWidget(lbl);
         
+        
+
         // Botão de atualizar
         QPushButton* refreshButton = new QPushButton("🔄 Atualizar", adminPage);
         refreshButton->setStyleSheet(R"(
@@ -2290,18 +2343,10 @@ void MainWindow::atualizarListaEncomendas() {
              [](const Order& a, const Order& b) { return a.orderDate > b.orderDate; });
 
     for (const Order& order : orders) {
-        // Carregar informações do usuário
-        QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        QFile f(dataPath + "/artes-papeis/users.json");
-        QString userName = order.userId;
-        if (f.open(QIODevice::ReadOnly)) {
-            QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
-            if (doc.isObject()) {
-                QJsonObject userObj = doc.object().value(order.userId).toObject();
-                userName = userObj["fullName"].toString();
-                if (userName.isEmpty()) userName = order.userId;
-            }
-            f.close();
+        // Usar o nome do cliente já salvo na ordem, com fallback para o ID se estiver vazio
+        QString userName = order.userName;
+        if (userName.isEmpty()) {
+            userName = order.userId;
         }
 
         QString itemText = QString("%1 - %2 - Cliente: %3 - Total: %4€")
@@ -2440,10 +2485,21 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     statusLayout->addWidget(statusLabel);
 
     // Botões de status (apenas para admin)
-    if (isAdmin) {
+        if (isAdmin) {
         QHBoxLayout* statusBtnsLayout = new QHBoxLayout();
         QPushButton* acceptBtn = new QPushButton("Aceitar Encomenda");
         QPushButton* rejectBtn = new QPushButton("Recusar Encomenda");
+        QPushButton* changeStatusBtn = new QPushButton("Alterar status da encomenda");
+        changeStatusBtn->setStyleSheet(R"(
+            QPushButton {
+                background-color: #888888;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover { background-color: #777777; }
+        )");
+        changeStatusBtn->setVisible(false);
         
         QString btnStyle = R"(
             QPushButton {
@@ -2460,20 +2516,33 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
         
         acceptBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #4CAF50; }");
         rejectBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #f44336; }");
-        
-        // Desabilitar botões se já houver decisão
-        if (currentStatus != "pending") {
-            acceptBtn->setEnabled(false);
-            rejectBtn->setEnabled(false);
+
+        // Initial visibility based on current status
+        if (currentStatus == "pending") {
+            acceptBtn->setVisible(true); acceptBtn->setEnabled(true);
+            rejectBtn->setVisible(true); rejectBtn->setEnabled(true);
+            changeStatusBtn->setVisible(false);
+        } else if (currentStatus == "accepted") {
+            acceptBtn->setVisible(true); acceptBtn->setEnabled(false);
+            rejectBtn->setVisible(false);
+            changeStatusBtn->setVisible(true);
+        } else if (currentStatus == "rejected") {
+            rejectBtn->setVisible(true); rejectBtn->setEnabled(false);
+            acceptBtn->setVisible(false);
+            changeStatusBtn->setVisible(true);
         }
-        
-        connect(acceptBtn, &QPushButton::clicked, this, [this, &targetOrder, &orders, orderIndex, statusLabel]() {
+
+        connect(acceptBtn, &QPushButton::clicked, this, [this, &targetOrder, &orders, orderIndex, statusLabel, acceptBtn, rejectBtn, changeStatusBtn]() {
             targetOrder.status = "accepted";
             targetOrder.lastUpdated = QDateTime::currentDateTime();
             QString error;
             if (atualizarEncomendas(orders, error)) {
                 statusLabel->setText("Status atual: Aceite");
                 QMessageBox::information(nullptr, "Status Atualizado", "Encomenda aceite com sucesso!");
+                // Update button visibility
+                acceptBtn->setEnabled(false);
+                rejectBtn->setVisible(false);
+                changeStatusBtn->setVisible(true);
                 // Atualizar interface administrativa
                 atualizarDashboard();
                 atualizarEstoque();
@@ -2481,8 +2550,8 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
                 atualizarListaEncomendas();
             }
         });
-        
-        connect(rejectBtn, &QPushButton::clicked, this, [this, dialog, &targetOrder, &orders, orderIndex, statusLabel]() {
+
+        connect(rejectBtn, &QPushButton::clicked, this, [this, dialog, &targetOrder, &orders, orderIndex, statusLabel, acceptBtn, rejectBtn, changeStatusBtn]() {
             // Criar diálogo para comentário de recusa
             QDialog* rejectDialog = new QDialog(dialog);
             rejectDialog->setWindowTitle("Recusar Encomenda");
@@ -2553,13 +2622,6 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
                 QString error;
                 if (atualizarEncomendas(orders, error)) {
                     statusLabel->setText("Status atual: Recusada");
-                    
-                    // Adicionar a mensagem à lista do chat
-                    QString formattedMsg = QString("[%1] %2: %3")
-                        .arg(msg.timestamp.toString("dd/MM HH:mm"))
-                        .arg(msg.userName)
-                        .arg(msg.message);
-                    // O chatList será atualizado após fechar o diálogo de rejeição
                     QMessageBox::information(rejectDialog, "Status Atualizado", "Encomenda recusada com sucesso.");
                     // Atualizar interface administrativa
                     atualizarDashboard();
@@ -2575,11 +2637,39 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
             rejectDialog->setModal(true);
             rejectDialog->exec();
             delete rejectDialog;
+
+            // After the dialog, update buttons visibility based on new status
+            if (targetOrder.status == "rejected") {
+                rejectBtn->setEnabled(false);
+                acceptBtn->setVisible(false);
+                changeStatusBtn->setVisible(true);
+            }
         });
         
+        // Change status button: allow reverting to pending to change decision
+        connect(changeStatusBtn, &QPushButton::clicked, this, [this, &targetOrder, &orders, orderIndex, statusLabel, acceptBtn, rejectBtn, changeStatusBtn]() {
+            // Revert to pending so admin can choose a new decision
+            targetOrder.status = "pending";
+            targetOrder.lastUpdated = QDateTime::currentDateTime();
+            QString error;
+            if (atualizarEncomendas(orders, error)) {
+                statusLabel->setText("Status atual: Pendente");
+                acceptBtn->setVisible(true); acceptBtn->setEnabled(true);
+                rejectBtn->setVisible(true); rejectBtn->setEnabled(true);
+                changeStatusBtn->setVisible(false);
+                atualizarDashboard();
+                atualizarEstoque();
+                atualizarRelatorios();
+                atualizarListaEncomendas();
+            } else {
+                QMessageBox::warning(nullptr, "Erro", "Não foi possível alterar o status.");
+            }
+        });
+
         statusBtnsLayout->addWidget(acceptBtn);
         statusBtnsLayout->addWidget(rejectBtn);
         statusLayout->addLayout(statusBtnsLayout);
+        statusLayout->addWidget(changeStatusBtn);
     }
     
     layout->addWidget(statusBox);
@@ -2705,63 +2795,78 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
 }
 
 void MainWindow::finalizarCompra() {
-    if (!loggedInUser.isEmpty()) {
-        if (carrinho.isEmpty()) {
-            QMessageBox::warning(this, "Carrinho Vazio", "Adicione produtos ao carrinho antes de finalizar a compra.");
-            return;
+    if (carrinho.isEmpty()) {
+        QMessageBox::warning(this, "Carrinho Vazio", "Adicione produtos ao carrinho antes de finalizar a compra.");
+        return;
+    }
+
+    // Ensure user is logged in
+    if (loggedInUser.isEmpty()) {
+        if (QMessageBox::question(this, "Login Necessário",
+            "É necessário estar logado para finalizar a compra. Deseja fazer login agora?",
+            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+            abrirLogin();
         }
+        return;
+    }
 
-        // Criar nova encomenda
-        Order order;
-        order.orderId = gerarOrderId();
-        order.userId = loggedInUser;
-        order.orderDate = QDateTime::currentDateTime();
-        order.total = 0.0;
+    // Get client info for the order
+    QString clientName, clientEmail;
+    if (!getClientInfo(loggedInUser, clientName, clientEmail)) {
+        QMessageBox::warning(this, "Erro", "Não foi possível obter informações do cliente.");
+        return;
+    }
 
-        // Adicionar itens do carrinho
-        for (auto it = carrinho.begin(); it != carrinho.end(); ++it) {
-            const QString& productId = it.key();
-            int quantity = it.value();
-            ProdutoFull produto = productManager->getProduct(productId);
-            
-            OrderItem item;
-            item.productId = productId;
-            item.productName = produto.nome;
-            item.quantity = quantity;
-            item.price = produto.preco;
-            order.items.append(item);
-            
-            order.total += produto.preco * quantity;
+    // Criar nova encomenda
+    Order order;
+    QRandomGenerator gen;
+    order.orderId = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss-") + 
+                   QString::number(gen.bounded(1000), 10);
+    order.userId = loggedInUser;
+    order.userName = clientName;
+    order.orderDate = QDateTime::currentDateTime();
+    order.total = 0.0;
+    order.status = "pending";
+    order.lastUpdated = QDateTime::currentDateTime();
 
-            // Atualizar o stock após confirmar a compra
-            productManager->releaseReservation(productId, quantity);
-            productManager->commitProductSale(productId, quantity);
-        }
+    // Build order items
+    for (auto it = carrinho.begin(); it != carrinho.end(); ++it) {
+        const QString& productId = it.key();
+        int quantity = it.value();
+        ProdutoFull produto = productManager->getProduct(productId);
+        
+        OrderItem item;
+        item.productId = productId;
+        item.productName = produto.nome;
+        item.quantity = quantity;
+        item.price = produto.preco;
+        order.items.append(item);
+        
+        order.total += item.total();
 
-        // Salvar a encomenda
-        QString error;
-        if (salvarEncomenda(order, error)) {
-            QMessageBox::information(this, "Compra Finalizada", 
-                QString("Encomenda %1 realizada com sucesso!\nTotal: %2€")
-                .arg(order.orderId)
-                .arg(QString::number(order.total, 'f', 2)));
-            
-            // Limpar o carrinho após compra bem-sucedida
-            limparCarrinho();
+        // Release reservations and commit sale
+        productManager->releaseReservation(productId, quantity);
+        productManager->commitProductSale(productId, quantity);
+    }
 
-            // Atualizar interface administrativa se necessário
-            if (isAdmin && adminTabWidget) {
-                atualizarDashboard();
-                atualizarEstoque();
-                atualizarRelatorios();
-            }
-        } else {
-            QMessageBox::warning(this, "Erro", 
-                QString("Não foi possível finalizar a compra: %1").arg(error));
-        }
-    } else {
-        QMessageBox::warning(this, "Login Necessário", 
-            "Por favor, faça login para finalizar a compra.");
+    // Save order to history
+    productManager->saveOrder(order);
+
+    QMessageBox::information(this, "Compra Finalizada", 
+        QString("Encomenda %1 realizada com sucesso!\nTotal: %2€")
+        .arg(order.orderId)
+        .arg(QString::number(order.total, 'f', 2)));
+    
+    // Clear cart after successful purchase
+    carrinho.clear();
+    atualizarCarrinhoIcon();
+    atualizarCarrinhoPagina();
+
+    // Atualizar interface administrativa se necessário
+    if (isAdmin && adminTabWidget) {
+        atualizarDashboard();
+        atualizarEstoque();
+        atualizarRelatorios();
     }
 }
 

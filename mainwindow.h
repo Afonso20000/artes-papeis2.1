@@ -27,33 +27,7 @@
 #include "productmanager.h"
 #include "clickablelabel.h"
 
-// Estrutura para mensagens do chat
-struct ChatMessage {
-    QString userId;
-    QString userName;
-    QString message;
-    QDateTime timestamp;
-};
-
-// Estrutura para representar uma ordem
-struct OrderItem {
-    QString productId;
-    QString productName;
-    int quantity;
-    double price;
-};
-
-struct Order {
-    QString orderId;
-    QString userId;
-    QString userName;
-    QDateTime orderDate;
-    QVector<OrderItem> items;
-    double total;
-    QString status; // "pending", "accepted", "rejected"
-    QVector<ChatMessage> chat; // Mensagens do chat
-    QDateTime lastUpdated;
-};
+// All structures are imported from produto.h
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -144,6 +118,7 @@ private:
               const QString& fullName, const QString& email,
               const QString& phone, const QString& nif,
               QString& outError);
+    bool getClientInfo(const QString& username, QString& outName, QString& outEmail);
 
     // User session
     QString loggedInUser;

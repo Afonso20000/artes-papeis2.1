@@ -24,6 +24,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Core
     Gui
     Widgets
+    Network
 )
 
 # Set include path explicitly

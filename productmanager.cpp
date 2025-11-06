@@ -13,6 +13,8 @@ ProductManager::ProductManager(QObject* parent)
     : QObject(parent)
 {
     produtos = loadProducts();
+    // Also load order history
+    loadOrders();
 }
 
 // Internal reservation map: product id -> list of (expireTime, qty)
@@ -129,6 +131,157 @@ void ProductManager::releaseExpiredReservations() {
     if (list.isEmpty()) it = reservations.erase(it); else ++it;
     }
     if (changed) emit productsChanged();
+}
+
+void ProductManager::saveOrder(const Order& order) {
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
+    if (!dataDir.exists()) dataDir.mkpath(".");
+    QString ordersPath = dataDir.filePath("orders.json");
+
+    // Load existing orders
+    QJsonArray ordersArray;
+    QFile file(ordersPath);
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        ordersArray = QJsonDocument::fromJson(file.readAll()).array();
+        file.close();
+    }
+
+    // Add new order
+    QJsonObject orderObj;
+    orderObj["orderId"] = order.orderId;
+    orderObj["userId"] = order.userId;
+    orderObj["userName"] = order.userName;
+    orderObj["orderDate"] = order.orderDate.toString(Qt::ISODate);
+    orderObj["total"] = order.total;
+    orderObj["status"] = order.status;
+    orderObj["lastUpdated"] = order.lastUpdated.toString(Qt::ISODate);
+
+    // Save items
+    QJsonArray itemsArray;
+    for (const OrderItem& item : order.items) {
+        QJsonObject itemObj;
+        itemObj["productId"] = item.productId;
+        itemObj["productName"] = item.productName;
+        itemObj["quantity"] = item.quantity;
+        itemObj["price"] = item.price;
+        itemsArray.append(itemObj);
+    }
+    orderObj["items"] = itemsArray;
+
+    // Save chat messages
+    QJsonArray chatArray;
+    for (const ChatMessage& msg : order.chat) {
+        QJsonObject msgObj;
+        msgObj["userId"] = msg.userId;
+        msgObj["userName"] = msg.userName;
+        msgObj["message"] = msg.message;
+        msgObj["timestamp"] = msg.timestamp.toString(Qt::ISODate);
+        chatArray.append(msgObj);
+    }
+    orderObj["chat"] = chatArray;
+
+    ordersArray.append(orderObj);
+
+    // Save updated orders
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(QJsonDocument(ordersArray).toJson());
+        file.close();
+    }
+}
+
+QVector<Order> ProductManager::loadOrders() const {
+    QVector<Order> orders;
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString ordersPath = dataPath + "/artes-papeis/orders.json";
+
+    QFile file(ordersPath);
+    if (!file.exists() || !file.open(QIODevice::ReadOnly))
+        return orders;
+
+    QJsonArray array = QJsonDocument::fromJson(file.readAll()).array();
+    file.close();
+
+    for (const QJsonValue& val : array) {
+        QJsonObject obj = val.toObject();
+        Order order;
+        order.orderId = obj["orderId"].toString();
+        order.userId = obj["userId"].toString();
+        order.userName = obj["userName"].toString();
+        // If the saved order lacks a userName (older orders), try to read it from users.json
+        if (order.userName.isEmpty()) {
+            QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+            QString usersPath = QDir(dataPath + "/artes-papeis").filePath("users.json");
+            QFile uf(usersPath);
+            if (uf.open(QIODevice::ReadOnly)) {
+                QJsonDocument udoc = QJsonDocument::fromJson(uf.readAll());
+                if (udoc.isObject()) {
+                    QJsonObject root = udoc.object();
+                    if (root.contains(order.userId)) {
+                        QJsonObject uobj = root.value(order.userId).toObject();
+                        order.userName = uobj.value("fullName").toString();
+                    }
+                }
+                uf.close();
+            }
+        }
+        order.orderDate = QDateTime::fromString(obj["orderDate"].toString(), Qt::ISODate);
+        order.total = obj["total"].toDouble();
+        order.status = obj["status"].toString();
+        if (order.status.isEmpty()) order.status = "pending";
+        order.lastUpdated = QDateTime::fromString(obj["lastUpdated"].toString(), Qt::ISODate);
+        if (!order.lastUpdated.isValid()) order.lastUpdated = order.orderDate;
+
+        // Load items
+        QJsonArray itemsArray = obj["items"].toArray();
+        for (const QJsonValue& itemVal : itemsArray) {
+            QJsonObject itemObj = itemVal.toObject();
+            OrderItem item;
+            item.productId = itemObj["productId"].toString();
+            item.productName = itemObj["productName"].toString();
+            item.quantity = itemObj["quantity"].toInt();
+            item.price = itemObj["price"].toDouble();
+            order.items.append(item);
+        }
+
+        // Load chat messages
+        QJsonArray chatArray = obj["chat"].toArray();
+        for (const QJsonValue& msgVal : chatArray) {
+            QJsonObject msgObj = msgVal.toObject();
+            ChatMessage msg;
+            msg.userId = msgObj["userId"].toString();
+            msg.userName = msgObj["userName"].toString();
+            msg.message = msgObj["message"].toString();
+            msg.timestamp = QDateTime::fromString(msgObj["timestamp"].toString(), Qt::ISODate);
+            order.chat.append(msg);
+        }
+
+        orders.append(order);
+    }
+    return orders;
+}
+
+QVector<Order> ProductManager::getOrdersByClient(const QString& username) const {
+    QVector<Order> allOrders = loadOrders();
+    QVector<Order> clientOrders;
+    for (const Order& order : allOrders) {
+        if (order.userId == username)
+            clientOrders.append(order);
+    }
+    return clientOrders;
+}
+
+QMap<QString, QPair<int, double>> ProductManager::getClientStats() const {
+    QMap<QString, QPair<int, double>> stats;
+    QVector<Order> allOrders = loadOrders();
+    for (const Order& order : allOrders) {
+        if (order.status == "accepted" || order.status == "pending") {
+            auto &stat = stats[order.userId];
+            stat.first++; // increment order count
+            stat.second += order.total; // add to total spent
+        }
+    }
+    return stats;
 }
 
 void ProductManager::commitProductSale(const QString& id, int qty) {
