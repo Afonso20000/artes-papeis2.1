@@ -940,9 +940,11 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvector2d.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qvectornd.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/Headers/qwindowdefs.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QComboBox \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QDialog \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QGridLayout \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHBoxLayout \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QHeaderView \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLabel \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QLineEdit \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QListWidget \
@@ -951,6 +953,8 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QScrollArea \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QStackedWidget \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTabWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTableWidget \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QTextEdit \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QVBoxLayout \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/QWidget \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractbutton.h \
@@ -960,9 +964,11 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractslider.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qabstractspinbox.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qboxlayout.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qcombobox.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qdialog.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qframe.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qgridlayout.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qheaderview.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlabel.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlayout.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qlayoutitem.h \
@@ -979,7 +985,10 @@ artes-papeis_autogen/timestamp: \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstyle.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qstyleoption.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabbar.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtableview.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtablewidget.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtabwidget.h \
+	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtextedit.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgets-config.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsexports.h \
 	/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/Headers/qtwidgetsglobal.h \

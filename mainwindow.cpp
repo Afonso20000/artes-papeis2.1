@@ -35,7 +35,6 @@
 #include <QTimer>
 #include <QSystemTrayIcon>
 #include <QRandomGenerator>
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
 {
@@ -78,7 +77,7 @@ MainWindow::MainWindow(QWidget* parent)
     QWidget* central = new QWidget(this);
     mainLayout = new QVBoxLayout(central);
 
-    QLabel* header = new QLabel("Frete grátis para todo o mundo em pedidos acima de 50€");
+    QLabel* header = new QLabel("Entrega grátis em pedidos acima de 50€");
     header->setStyleSheet("background-color: #1e1e1e; color: #BDB3A3; padding: 7px; font-size: 14px; letter-spacing: 1.1px;");
     header->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(header);
@@ -122,10 +121,8 @@ MainWindow::MainWindow(QWidget* parent)
     navLayout->addStretch(1);
     navLayout->addWidget(logo, 0, Qt::AlignCenter);
     navLayout->addStretch(1);
-    // Carrinho será adicionado apenas se não for admin
-    if (!isAdmin) {
-        navLayout->addWidget(carrinhoIconLabel, 0);
-    }
+    // Por padrão, adicionar o carrinho (será gerenciado posteriormente)
+    navLayout->addWidget(carrinhoIconLabel, 0);
     
     // Add user name label (initially hidden)
     userNameLabel = new QLabel(this);
@@ -283,9 +280,12 @@ MainWindow::MainWindow(QWidget* parent)
     resize(1200, 790);
 
     QHBoxLayout* menuLayout = new QHBoxLayout();
-    QStringList labels = {"Início", "Loja", "Sobre", "Contato"}; // Removido "Carrinho"
+    QStringList labels = {"Início", "Loja", "Carrinho", "Sobre", "Contato"};
     menuButtons.clear(); // Limpar a lista de botões
     for (int i = 0; i < labels.size(); ++i) {
+        if (labels[i] == "Carrinho" && isAdmin) {
+            continue; // Pular o botão do carrinho para admins
+        }
         QPushButton* btn = new QPushButton(labels[i]);
         menuButtons.append(btn); // Armazenar referência ao botão
         btn->setStyleSheet(R"(
@@ -309,11 +309,20 @@ MainWindow::MainWindow(QWidget* parent)
             }
         )");
         
-        // Índice para o stacked widget
-        int pageIndex = (i >= 2) ? i + 1 : i; // Ajustar índice para pular a página do carrinho
-        
-        connect(btn, &QPushButton::clicked, this, [this, pageIndex]() {
+        // Determinar o índice da página com base no texto do botão
+        int pageIndex;
+        if (btn->text() == "Início") pageIndex = 0;
+        else if (btn->text() == "Loja") pageIndex = 1;
+        else if (btn->text() == "Carrinho") pageIndex = 2;
+        else if (btn->text() == "Sobre") pageIndex = 3;
+        else if (btn->text() == "Contato") pageIndex = 4;
+        else pageIndex = 0;
+
+        connect(btn, &QPushButton::clicked, this, [this, pageIndex, btn]() {
             paginas->setCurrentIndex(pageIndex);
+            if (btn->text() == "Carrinho") {
+                atualizarCarrinhoPagina();
+            }
         });
         menuLayout->addWidget(btn);
     }
@@ -812,7 +821,14 @@ void MainWindow::updateAdminUI()
 
     // Atualizar visibilidade do carrinho
     if (carrinhoIconLabel) {
-        carrinhoIconLabel->setVisible(!isAdmin);
+        carrinhoIconLabel->setVisible(loggedInUser.isEmpty() || !isAdmin);
+    }
+
+    // Atualizar visibilidade dos botões do menu
+    for (QPushButton* btn : menuButtons) {
+        if (btn->text() == "Carrinho") {
+            btn->setVisible(!isAdmin);
+        }
     }
     
     // Se for admin, configurar a página administrativa
@@ -1492,6 +1508,62 @@ QString MainWindow::gerarOrderId() {
     return QString("ORD-%1").arg(timestamp);
 }
 
+bool MainWindow::atualizarEncomendas(const QVector<Order>& orders, QString& outError) {
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dataDir(dataPath + "/artes-papeis");
+    if (!dataDir.exists() && !dataDir.mkpath(".")) {
+        outError = "Não foi possível criar diretório de dados.";
+        return false;
+    }
+    QString ordersPath = dataDir.filePath("orders.json");
+
+    QJsonArray ordersArray;
+    for (const Order& order : orders) {
+        QJsonObject orderObj;
+        orderObj["orderId"] = order.orderId;
+        orderObj["userId"] = order.userId;
+        orderObj["userName"] = order.userName;
+        orderObj["orderDate"] = order.orderDate.toString(Qt::ISODate);
+        orderObj["status"] = order.status;
+        orderObj["lastUpdated"] = order.lastUpdated.toString(Qt::ISODate);
+        orderObj["total"] = order.total;
+
+        QJsonArray itemsArray;
+        for (const OrderItem& item : order.items) {
+            QJsonObject itemObj;
+            itemObj["productId"] = item.productId;
+            itemObj["productName"] = item.productName;
+            itemObj["quantity"] = item.quantity;
+            itemObj["price"] = item.price;
+            itemsArray.append(itemObj);
+        }
+        orderObj["items"] = itemsArray;
+
+        QJsonArray chatArray;
+        for (const ChatMessage& msg : order.chat) {
+            QJsonObject msgObj;
+            msgObj["userId"] = msg.userId;
+            msgObj["userName"] = msg.userName;
+            msgObj["message"] = msg.message;
+            msgObj["timestamp"] = msg.timestamp.toString(Qt::ISODate);
+            chatArray.append(msgObj);
+        }
+        orderObj["chat"] = chatArray;
+
+        ordersArray.append(orderObj);
+    }
+
+    QFile f(ordersPath);
+    if (!f.open(QIODevice::WriteOnly)) {
+        outError = "Não foi possível salvar o arquivo de encomendas.";
+        return false;
+    }
+    QJsonDocument doc(ordersArray);
+    f.write(doc.toJson());
+    f.close();
+    return true;
+}
+
 bool MainWindow::salvarEncomenda(const Order& order, QString& outError) {
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dataDir(dataPath + "/artes-papeis");
@@ -1577,6 +1649,13 @@ QVector<Order> MainWindow::carregarEncomendas() {
         order.userName = obj["userName"].toString();
         order.orderDate = QDateTime::fromString(obj["orderDate"].toString(), Qt::ISODate);
         order.total = obj["total"].toDouble();
+        order.status = obj["status"].toString();
+        if (order.status.isEmpty()) order.status = "pending";
+        
+        QString lastUpdatedStr = obj["lastUpdated"].toString();
+        order.lastUpdated = lastUpdatedStr.isEmpty() ? 
+                           order.orderDate : 
+                           QDateTime::fromString(lastUpdatedStr, Qt::ISODate);
 
         QJsonArray itemsArray = obj["items"].toArray();
         for (const QJsonValue& itemVal : itemsArray) {
@@ -1587,6 +1666,17 @@ QVector<Order> MainWindow::carregarEncomendas() {
             item.quantity = itemObj["quantity"].toInt();
             item.price = itemObj["price"].toDouble();
             order.items.append(item);
+        }
+
+        QJsonArray chatArray = obj["chat"].toArray();
+        for (const QJsonValue& chatVal : chatArray) {
+            QJsonObject msgObj = chatVal.toObject();
+            ChatMessage msg;
+            msg.userId = msgObj["userId"].toString();
+            msg.userName = msgObj["userName"].toString();
+            msg.message = msgObj["message"].toString();
+            msg.timestamp = QDateTime::fromString(msgObj["timestamp"].toString(), Qt::ISODate);
+            order.chat.append(msg);
         }
 
         orders.append(order);
@@ -1601,15 +1691,145 @@ void MainWindow::limparCarrinho() {
     atualizarCarrinhoPagina();
 }
 
+double MainWindow::calcularVendasTotais() {
+    double total = 0;
+    auto orders = carregarEncomendas();
+    for (const auto& order : orders) {
+        if (order.status == "accepted") {
+            total += order.total;
+        }
+    }
+    return total;
+}
+
+QMap<QString, int> MainWindow::obterProdutosMaisVendidos(int limite) {
+    QMap<QString, int> vendasPorProduto;
+    auto orders = carregarEncomendas();
+    
+    // Contar vendas por produto
+    for (const auto& order : orders) {
+        if (order.status == "accepted") {
+            for (const auto& item : order.items) {
+                vendasPorProduto[item.productName] += item.quantity;
+            }
+        }
+    }
+    
+    // Converter para lista para ordenar
+    QList<QPair<QString, int>> lista;
+    for (auto it = vendasPorProduto.begin(); it != vendasPorProduto.end(); ++it) {
+        lista.append({it.key(), it.value()});
+    }
+    
+    // Ordenar por quantidade vendida
+    std::sort(lista.begin(), lista.end(), 
+              [](const QPair<QString, int>& a, const QPair<QString, int>& b) {
+                  return a.second > b.second;
+              });
+    
+    // Retornar apenas os top N produtos
+    QMap<QString, int> resultado;
+    for (int i = 0; i < qMin(limite, lista.size()); ++i) {
+        resultado[lista[i].first] = lista[i].second;
+    }
+    
+    return resultado;
+}
+
+QMap<QString, int> MainWindow::obterClientesMaisAtivos(int limite) {
+    QMap<QString, int> comprasPorCliente;
+    auto orders = carregarEncomendas();
+    
+    // Contar compras por cliente
+    for (const auto& order : orders) {
+        if (order.status == "accepted") {
+            comprasPorCliente[order.userName]++;
+        }
+    }
+    
+    // Converter para lista para ordenar
+    QList<QPair<QString, int>> lista;
+    for (auto it = comprasPorCliente.begin(); it != comprasPorCliente.end(); ++it) {
+        lista.append({it.key(), it.value()});
+    }
+    
+    // Ordenar por número de compras
+    std::sort(lista.begin(), lista.end(), 
+              [](const QPair<QString, int>& a, const QPair<QString, int>& b) {
+                  return a.second > b.second;
+              });
+    
+    // Retornar apenas os top N clientes
+    QMap<QString, int> resultado;
+    for (int i = 0; i < qMin(limite, lista.size()); ++i) {
+        resultado[lista[i].first] = lista[i].second;
+    }
+    
+    return resultado;
+}
+
+QMap<QDate, double> MainWindow::obterVendasPorPeriodo(int dias) {
+    QMap<QDate, double> vendasPorDia;
+    auto orders = carregarEncomendas();
+    
+    QDate hoje = QDate::currentDate();
+    QDate inicio = hoje.addDays(-dias + 1);
+    
+    // Inicializar todas as datas com 0
+    for (int i = 0; i < dias; ++i) {
+        vendasPorDia[inicio.addDays(i)] = 0;
+    }
+    
+    // Somar vendas por dia
+    for (const auto& order : orders) {
+        if (order.status == "accepted") {
+            QDate data = order.orderDate.date();
+            if (data >= inicio && data <= hoje) {
+                vendasPorDia[data] += order.total;
+            }
+        }
+    }
+    
+    return vendasPorDia;
+}
+
 void MainWindow::setupAdminPage() {
     if (!adminPage) {
         adminPage = new QWidget;
         QVBoxLayout* layout = new QVBoxLayout(adminPage);
         
+        // Header com título e botão de atualizar
+        QHBoxLayout* headerLayout = new QHBoxLayout();
+        
         // Título da área administrativa
-        QLabel* lbl = new QLabel("Área Administrativa", adminPage);
+        QLabel* lbl = new QLabel("Painel de Gestão", adminPage);
         lbl->setStyleSheet("font-size: 24px; font-weight: bold; color: #4CAF50; margin-bottom: 20px;");
-        layout->addWidget(lbl, 0, Qt::AlignCenter);
+        headerLayout->addWidget(lbl);
+        
+        // Botão de atualizar
+        QPushButton* refreshButton = new QPushButton("🔄 Atualizar", adminPage);
+        refreshButton->setStyleSheet(R"(
+            QPushButton {
+                background-color: #4a4a4a;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+            }
+        )");
+        connect(refreshButton, &QPushButton::clicked, this, [this](){
+            atualizarDashboard();
+            atualizarEstoque();
+            atualizarRelatorios();
+            atualizarListaEncomendas();
+        });
+        headerLayout->addWidget(refreshButton);
+        
+        layout->addLayout(headerLayout);
 
         // Criar o widget de tabs
         adminTabWidget = new QTabWidget(adminPage);
@@ -1635,6 +1855,15 @@ void MainWindow::setupAdminPage() {
                 background-color: #4CAF50;
             }
         )");
+
+        // Adicionar Dashboard
+        setupDashboardTab();
+
+        // Adicionar aba de Estoque
+        setupInventoryTab();
+
+        // Adicionar aba de Relatórios
+        setupReportsTab();
 
         // Tab de Produtos
         QWidget* produtosTab = new QWidget();
@@ -1669,6 +1898,324 @@ void MainWindow::setupAdminPage() {
         // Adicionar ao stacked widget
         paginas->addWidget(adminPage);
     }
+}
+
+void MainWindow::setupDashboardTab() {
+    QWidget* dashboardTab = new QWidget();
+    QVBoxLayout* dashLayout = new QVBoxLayout(dashboardTab);
+
+    // Botão de atualizar
+    QPushButton* refreshButton = new QPushButton("🔄");
+    refreshButton->setFixedSize(32, 32);
+    refreshButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+        }
+        QPushButton:hover {
+            background-color: #5a5a5a;
+        }
+        QPushButton:pressed {
+            background-color: #404040;
+        }
+    )");
+    refreshButton->setToolTip("Atualizar Dashboard");
+    connect(refreshButton, &QPushButton::clicked, this, [this, refreshButton]() {
+        refreshButton->setEnabled(false);
+        atualizarDashboard();
+        atualizarEstoque();
+        atualizarRelatorios();
+        atualizarListaEncomendas();
+        refreshButton->setEnabled(true);
+    });
+    dashLayout->addWidget(refreshButton, 0, Qt::AlignRight);
+
+    // Estatísticas Gerais em Cards
+    QHBoxLayout* statsLayout = new QHBoxLayout();
+    
+    auto createCard = [](const QString& id, const QString& title, const QString& value, const QString& icon) {
+        QWidget* card = new QWidget();
+        card->setObjectName(id + "Card");
+        card->setStyleSheet("background-color: #363636; border-radius: 8px; padding: 15px; min-width: 200px;");
+        QVBoxLayout* layout = new QVBoxLayout(card);
+        
+        QLabel* iconLabel = new QLabel(icon);
+        iconLabel->setStyleSheet("font-size: 24px;");
+        QLabel* titleLabel = new QLabel(title);
+        titleLabel->setStyleSheet("color: #9e9e9e; font-size: 14px;");
+        QLabel* valueLabel = new QLabel(value);
+        valueLabel->setObjectName(id + "Value");
+        valueLabel->setStyleSheet("color: #4CAF50; font-size: 24px; font-weight: bold;");
+        
+        layout->addWidget(iconLabel);
+        layout->addWidget(titleLabel);
+        layout->addWidget(valueLabel);
+        
+        return card;
+    };
+
+    // Cards de estatísticas
+    QWidget* vendasTotaisCard = createCard("vendasTotais", 
+        "Vendas Totais", 
+        QString("%1€").arg(calcularVendasTotais(), 0, 'f', 2), 
+        "💶");
+    
+    QWidget* vendasHojeCard = createCard("vendasHoje", 
+        "Vendas Hoje", 
+        "0€", 
+            "📦");
+
+    QWidget* estoqueBaixoCard = createCard("estoqueBaixo", 
+        "Estoque Baixo", 
+        QString::number(productManager->getLowStockProducts().size()), 
+        "⚠️");
+    estoqueBaixoCard->findChild<QLabel*>("estoqueBaixoValue")->setStyleSheet(
+        "color: #f44336; font-size: 24px; font-weight: bold;");
+
+    QWidget* pedidosPendentesCard = createCard("pedidosPendentes", 
+        "Pedidos Pendentes", 
+        "0", 
+        "📋");
+    
+    statsLayout->addWidget(vendasTotaisCard);
+    statsLayout->addWidget(vendasHojeCard);
+    statsLayout->addWidget(estoqueBaixoCard);
+    statsLayout->addWidget(pedidosPendentesCard);
+    dashLayout->addLayout(statsLayout);
+
+    // Lista de Produtos Mais Vendidos
+    QGroupBox* topProdutosGroup = new QGroupBox("Produtos Mais Vendidos");
+    topProdutosGroup->setStyleSheet(R"(
+        QGroupBox {
+            color: #ffffff;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            margin-top: 1ex;
+            padding: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px;
+            color: #4CAF50;
+        }
+    )");
+    
+    QVBoxLayout* topProdutosLayout = new QVBoxLayout(topProdutosGroup);
+    auto produtosMaisVendidos = obterProdutosMaisVendidos();
+    for (auto it = produtosMaisVendidos.begin(); it != produtosMaisVendidos.end(); ++it) {
+        QLabel* prodLabel = new QLabel(QString("%1 - %2 unidades").arg(it.key()).arg(it.value()));
+        prodLabel->setStyleSheet("color: #ffffff; padding: 5px;");
+        topProdutosLayout->addWidget(prodLabel);
+    }
+    
+    // Lista de Clientes Mais Ativos
+    QGroupBox* topClientesGroup = new QGroupBox("Clientes Mais Ativos");
+    topClientesGroup->setStyleSheet(topProdutosGroup->styleSheet());
+    
+    QVBoxLayout* topClientesLayout = new QVBoxLayout(topClientesGroup);
+    auto clientesMaisAtivos = obterClientesMaisAtivos();
+    for (auto it = clientesMaisAtivos.begin(); it != clientesMaisAtivos.end(); ++it) {
+        QLabel* clienteLabel = new QLabel(QString("%1 - %2 compras").arg(it.key()).arg(it.value()));
+        clienteLabel->setStyleSheet("color: #ffffff; padding: 5px;");
+        topClientesLayout->addWidget(clienteLabel);
+    }
+    
+    QHBoxLayout* listsLayout = new QHBoxLayout();
+    listsLayout->addWidget(topProdutosGroup);
+    listsLayout->addWidget(topClientesGroup);
+    dashLayout->addLayout(listsLayout);
+    
+    adminTabWidget->addTab(dashboardTab, "Dashboard");
+}
+
+void MainWindow::setupInventoryTab() {
+    QWidget* inventoryTab = new QWidget();
+    QVBoxLayout* invLayout = new QVBoxLayout(inventoryTab);
+    
+    // Barra de pesquisa
+    QLineEdit* searchBox = new QLineEdit();
+    searchBox->setPlaceholderText("Pesquisar produtos...");
+    searchBox->setStyleSheet(R"(
+        QLineEdit {
+            background-color: #363636;
+            color: #ffffff;
+            padding: 8px;
+            border: 1px solid #404040;
+            border-radius: 4px;
+        }
+    )");
+    invLayout->addWidget(searchBox);
+    
+    // Tabela de produtos
+    QTableWidget* productTable = new QTableWidget();
+    productTable->setColumnCount(6);
+    productTable->setHorizontalHeaderLabels({"ID", "Nome", "Preço", "Estoque", "Vendidos", "Status"});
+    productTable->setStyleSheet(R"(
+        QTableWidget {
+            background-color: #363636;
+            color: #ffffff;
+            gridline-color: #404040;
+        }
+        QHeaderView::section {
+            background-color: #4a4a4a;
+            color: #ffffff;
+            padding: 5px;
+            border: none;
+        }
+        QTableWidget::item {
+            padding: 5px;
+        }
+    )");
+    
+    // Preencher tabela com produtos
+    auto produtos = productManager->getAllProducts();
+    productTable->setRowCount(produtos.size());
+    for (int i = 0; i < produtos.size(); ++i) {
+        const auto& p = produtos[i];
+        productTable->setItem(i, 0, new QTableWidgetItem(p.id));
+        productTable->setItem(i, 1, new QTableWidgetItem(p.nome));
+        productTable->setItem(i, 2, new QTableWidgetItem(QString::number(p.preco, 'f', 2) + "€"));
+        productTable->setItem(i, 3, new QTableWidgetItem(QString::number(p.quantidade)));
+        
+        int vendidos = 0; // TODO: Implementar contagem de vendas por produto
+        productTable->setItem(i, 4, new QTableWidgetItem(QString::number(vendidos)));
+        
+        QString status = p.quantidade <= p.lowThreshold ? "Baixo" : "Normal";
+        QTableWidgetItem* statusItem = new QTableWidgetItem(status);
+        statusItem->setForeground(status == "Baixo" ? QColor("#f44336") : QColor("#4CAF50"));
+        productTable->setItem(i, 5, statusItem);
+    }
+    
+    productTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    invLayout->addWidget(productTable);
+    
+    adminTabWidget->addTab(inventoryTab, "Estoque");
+}
+
+void MainWindow::setupReportsTab() {
+    QWidget* reportsTab = new QWidget();
+    QVBoxLayout* reportsLayout = new QVBoxLayout(reportsTab);
+    
+    // Seletor de período
+    QComboBox* periodoCombo = new QComboBox();
+    periodoCombo->addItems({"Últimos 7 dias", "Últimos 30 dias", "Este mês", "Este ano"});
+    periodoCombo->setStyleSheet(R"(
+        QComboBox {
+            background-color: #363636;
+            color: #ffffff;
+            padding: 8px;
+            border: 1px solid #404040;
+            border-radius: 4px;
+        }
+        QComboBox::drop-down {
+            border: none;
+        }
+        QComboBox::down-arrow {
+            image: none;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #ffffff;
+            width: 0;
+            height: 0;
+            margin-right: 5px;
+        }
+    )");
+    reportsLayout->addWidget(periodoCombo);
+    
+    // Cards de métricas financeiras
+    QHBoxLayout* metricsLayout = new QHBoxLayout();
+    
+    // Função helper para criar cards
+    auto createMetricCard = [](const QString& title, const QString& id, const QString& initialValue, const QString& color) {
+        QWidget* card = new QWidget();
+        card->setObjectName(id);
+        card->setStyleSheet(QString("background-color: #363636; border-radius: 8px; padding: 15px; min-width: 200px;"));
+        QVBoxLayout* cardLayout = new QVBoxLayout(card);
+        
+        QLabel* titleLabel = new QLabel(title);
+        titleLabel->setStyleSheet("color: #9e9e9e; font-size: 14px;");
+        QLabel* valueLabel = new QLabel(initialValue);
+        valueLabel->setObjectName(id + "_value");
+        valueLabel->setStyleSheet(QString("color: %1; font-size: 24px; font-weight: bold;").arg(color));
+        
+        cardLayout->addWidget(titleLabel);
+        cardLayout->addWidget(valueLabel);
+        return card;
+    };
+    
+    // Calcular valores iniciais
+    double faturamentoTotal = calcularVendasTotais();
+    QVector<Order> todasOrdens = carregarEncomendas();
+    int totalPedidos = todasOrdens.size();
+    double mediaDiaria = totalPedidos > 0 ? faturamentoTotal / totalPedidos : 0;
+    
+    metricsLayout->addWidget(createMetricCard("Faturamento", "faturamento", 
+        QString("%1€").arg(faturamentoTotal, 0, 'f', 2), "#4CAF50"));
+    metricsLayout->addWidget(createMetricCard("Média por Pedido", "media", 
+        QString("%1€").arg(mediaDiaria, 0, 'f', 2), "#2196F3"));
+    metricsLayout->addWidget(createMetricCard("Total Pedidos", "pedidos", 
+        QString::number(totalPedidos), "#FFC107"));
+    
+    reportsLayout->addLayout(metricsLayout);
+    
+    // Tabela de transações
+    QTableWidget* transactionTable = new QTableWidget();
+    transactionTable->setColumnCount(5);
+    transactionTable->setHorizontalHeaderLabels({"Data", "Cliente", "Produtos", "Total", "Status"});
+    transactionTable->setStyleSheet(R"(
+        QTableWidget {
+            background-color: #363636;
+            color: #ffffff;
+            gridline-color: #404040;
+        }
+        QHeaderView::section {
+            background-color: #4a4a4a;
+            color: #ffffff;
+            padding: 5px;
+            border: none;
+        }
+        QTableWidget::item {
+            padding: 5px;
+        }
+    )");
+    
+    // Preencher com algumas transações de exemplo
+    auto orders = carregarEncomendas();
+    transactionTable->setRowCount(orders.size());
+    for (int i = 0; i < orders.size(); ++i) {
+        const auto& order = orders[i];
+        transactionTable->setItem(i, 0, new QTableWidgetItem(order.orderDate.toString("dd/MM/yyyy")));
+        transactionTable->setItem(i, 1, new QTableWidgetItem(order.userName));
+        
+        QString produtos;
+        for (const auto& item : order.items) {
+            if (!produtos.isEmpty()) produtos += ", ";
+            produtos += QString("%1 (%2x)").arg(item.productName).arg(item.quantity);
+        }
+        transactionTable->setItem(i, 2, new QTableWidgetItem(produtos));
+        
+        transactionTable->setItem(i, 3, new QTableWidgetItem(QString::number(order.total, 'f', 2) + "€"));
+        
+        QString status = order.status.isEmpty() ? "Pendente" : 
+                        order.status == "accepted" ? "Aceite" : 
+                        order.status == "rejected" ? "Recusada" : "Desconhecido";
+        QTableWidgetItem* statusItem = new QTableWidgetItem(status);
+        statusItem->setForeground(
+            status == "Aceite" ? QColor("#4CAF50") :
+            status == "Recusada" ? QColor("#f44336") :
+            QColor("#FFC107")
+        );
+        transactionTable->setItem(i, 4, statusItem);
+    }
+    
+    transactionTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    reportsLayout->addWidget(transactionTable);
+    
+    adminTabWidget->addTab(reportsTab, "Relatórios");
 }
 
 void MainWindow::setupAdminOrdersTab() {
@@ -1774,29 +2321,31 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     QVector<Order> orders = carregarEncomendas();
     
     // Encontrar a encomenda específica
-    Order* targetOrder = nullptr;
-    for (Order& order : orders) {
-        if (order.orderId == orderId) {
-            targetOrder = &order;
+    int orderIndex = -1;
+    for (int i = 0; i < orders.size(); ++i) {
+        if (orders[i].orderId == orderId) {
+            orderIndex = i;
             break;
         }
     }
     
-    if (!targetOrder) {
+    if (orderIndex == -1) {
         QMessageBox::warning(this, "Erro", "Encomenda não encontrada.");
         return;
     }
 
+    Order& targetOrder = orders[orderIndex];
+
     // Criar janela de detalhes
     QDialog* dialog = new QDialog(this);
     dialog->setWindowTitle("Detalhes da Encomenda");
-    dialog->resize(600, 500);
+    dialog->resize(800, 600);
     dialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
 
     QVBoxLayout* layout = new QVBoxLayout(dialog);
 
     // Header com ID da encomenda
-    QLabel* headerLabel = new QLabel(QString("Encomenda: %1").arg(targetOrder->orderId));
+    QLabel* headerLabel = new QLabel(QString("Encomenda: %1").arg(targetOrder.orderId));
     headerLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 10px;");
     layout->addWidget(headerLabel);
 
@@ -1807,7 +2356,7 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     if (f.open(QIODevice::ReadOnly)) {
         QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
         if (doc.isObject()) {
-            userData = doc.object().value(targetOrder->userId).toObject();
+            userData = doc.object().value(targetOrder.userId).toObject();
         }
         f.close();
     }
@@ -1843,7 +2392,7 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     QVBoxLayout* detalhesLayout = new QVBoxLayout(detalhesBox);
     
     detalhesLayout->addWidget(new QLabel(QString("Data: %1")
-        .arg(targetOrder->orderDate.toString("dd/MM/yyyy HH:mm"))));
+        .arg(targetOrder.orderDate.toString("dd/MM/yyyy HH:mm"))));
     
     // Lista de produtos
     QScrollArea* scrollArea = new QScrollArea();
@@ -1853,7 +2402,7 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     QWidget* scrollContent = new QWidget();
     QVBoxLayout* itemsLayout = new QVBoxLayout(scrollContent);
     
-    for (const OrderItem& item : targetOrder->items) {
+    for (const OrderItem& item : targetOrder.items) {
         QWidget* itemWidget = new QWidget();
         itemWidget->setStyleSheet("background-color: #363636; border-radius: 4px; padding: 8px; margin: 2px;");
         QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
@@ -1870,12 +2419,266 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     detalhesLayout->addWidget(scrollArea);
     
     // Total
-    QLabel* totalLabel = new QLabel(QString("Total: %1€").arg(targetOrder->total, 0, 'f', 2));
+    QLabel* totalLabel = new QLabel(QString("Total: %1€").arg(targetOrder.total, 0, 'f', 2));
     totalLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #4CAF50; margin-top: 10px;");
     detalhesLayout->addWidget(totalLabel);
     
     layout->addWidget(detalhesBox);
 
+    // Área de Status
+    QGroupBox* statusBox = new QGroupBox("Status da Encomenda");
+    statusBox->setStyleSheet(clienteBox->styleSheet());
+    QVBoxLayout* statusLayout = new QVBoxLayout(statusBox);
+
+    QString currentStatus = targetOrder.status.isEmpty() ? "pending" : targetOrder.status;
+    QLabel* statusLabel = new QLabel(QString("Status atual: %1").arg(
+        currentStatus == "pending" ? "Pendente" :
+        currentStatus == "accepted" ? "Aceite" :
+        currentStatus == "rejected" ? "Recusada" : "Desconhecido"
+    ));
+    statusLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    statusLayout->addWidget(statusLabel);
+
+    // Botões de status (apenas para admin)
+    if (isAdmin) {
+        QHBoxLayout* statusBtnsLayout = new QHBoxLayout();
+        QPushButton* acceptBtn = new QPushButton("Aceitar Encomenda");
+        QPushButton* rejectBtn = new QPushButton("Recusar Encomenda");
+        
+        QString btnStyle = R"(
+            QPushButton {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+                color: white;
+            }
+            QPushButton:hover {
+                opacity: 0.9;
+            }
+        )";
+        
+        acceptBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #4CAF50; }");
+        rejectBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #f44336; }");
+        
+        // Desabilitar botões se já houver decisão
+        if (currentStatus != "pending") {
+            acceptBtn->setEnabled(false);
+            rejectBtn->setEnabled(false);
+        }
+        
+        connect(acceptBtn, &QPushButton::clicked, this, [this, &targetOrder, &orders, orderIndex, statusLabel]() {
+            targetOrder.status = "accepted";
+            targetOrder.lastUpdated = QDateTime::currentDateTime();
+            QString error;
+            if (atualizarEncomendas(orders, error)) {
+                statusLabel->setText("Status atual: Aceite");
+                QMessageBox::information(nullptr, "Status Atualizado", "Encomenda aceite com sucesso!");
+                // Atualizar interface administrativa
+                atualizarDashboard();
+                atualizarEstoque();
+                atualizarRelatorios();
+                atualizarListaEncomendas();
+            }
+        });
+        
+        connect(rejectBtn, &QPushButton::clicked, this, [this, dialog, &targetOrder, &orders, orderIndex, statusLabel]() {
+            // Criar diálogo para comentário de recusa
+            QDialog* rejectDialog = new QDialog(dialog);
+            rejectDialog->setWindowTitle("Recusar Encomenda");
+            rejectDialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
+            
+            QVBoxLayout* rejectLayout = new QVBoxLayout(rejectDialog);
+            QLabel* commentLabel = new QLabel("Por favor, insira um comentário explicando o motivo da recusa:");
+            commentLabel->setStyleSheet("color: #ffffff; font-size: 14px;");
+            
+            QTextEdit* commentEdit = new QTextEdit();
+            commentEdit->setStyleSheet(R"(
+                QTextEdit {
+                    background-color: #363636;
+                    color: #ffffff;
+                    border: 1px solid #404040;
+                    border-radius: 4px;
+                    padding: 8px;
+                    min-height: 100px;
+                }
+            )");
+            
+            QHBoxLayout* btnLayout = new QHBoxLayout();
+            QPushButton* confirmBtn = new QPushButton("Confirmar");
+            QPushButton* cancelBtn = new QPushButton("Cancelar");
+            
+            QString btnStyle = R"(
+                QPushButton {
+                    padding: 8px 16px;
+                    border: none;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    color: white;
+                }
+                QPushButton:hover {
+                    opacity: 0.9;
+                }
+            )";
+            
+            confirmBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #f44336; }");
+            cancelBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #666666; }");
+            
+            btnLayout->addWidget(confirmBtn);
+            btnLayout->addWidget(cancelBtn);
+            
+            rejectLayout->addWidget(commentLabel);
+            rejectLayout->addWidget(commentEdit);
+            rejectLayout->addLayout(btnLayout);
+            
+            connect(cancelBtn, &QPushButton::clicked, rejectDialog, &QDialog::reject);
+            connect(confirmBtn, &QPushButton::clicked, rejectDialog, [=, &targetOrder, &orders]() {
+                QString comment = commentEdit->toPlainText().trimmed();
+                if (comment.isEmpty()) {
+                    QMessageBox::warning(rejectDialog, "Erro", "Por favor, insira um motivo para a recusa.");
+                    return;
+                }
+                
+                // Atualizar status e adicionar comentário
+                targetOrder.status = "rejected";
+                targetOrder.lastUpdated = QDateTime::currentDateTime();
+                
+                ChatMessage msg;
+                msg.userId = "admin";
+                msg.userName = "Administrador";
+                msg.message = "Encomenda recusada: " + comment;
+                msg.timestamp = QDateTime::currentDateTime();
+                targetOrder.chat.append(msg);
+                
+                QString error;
+                if (atualizarEncomendas(orders, error)) {
+                    statusLabel->setText("Status atual: Recusada");
+                    
+                    // Adicionar a mensagem à lista do chat
+                    QString formattedMsg = QString("[%1] %2: %3")
+                        .arg(msg.timestamp.toString("dd/MM HH:mm"))
+                        .arg(msg.userName)
+                        .arg(msg.message);
+                    // O chatList será atualizado após fechar o diálogo de rejeição
+                    QMessageBox::information(rejectDialog, "Status Atualizado", "Encomenda recusada com sucesso.");
+                    // Atualizar interface administrativa
+                    atualizarDashboard();
+                    atualizarEstoque();
+                    atualizarRelatorios();
+                    atualizarListaEncomendas();
+                    rejectDialog->accept();
+                } else {
+                    QMessageBox::warning(rejectDialog, "Erro", "Não foi possível atualizar o status da encomenda.");
+                }
+            });
+            
+            rejectDialog->setModal(true);
+            rejectDialog->exec();
+            delete rejectDialog;
+        });
+        
+        statusBtnsLayout->addWidget(acceptBtn);
+        statusBtnsLayout->addWidget(rejectBtn);
+        statusLayout->addLayout(statusBtnsLayout);
+    }
+    
+    layout->addWidget(statusBox);
+
+    // Área de Chat
+    QGroupBox* chatBox = new QGroupBox("Chat");
+    chatBox->setStyleSheet(clienteBox->styleSheet());
+    QVBoxLayout* chatLayout = new QVBoxLayout(chatBox);
+
+    // Lista de mensagens
+    QListWidget* chatListWidget = new QListWidget();
+    chatListWidget->setStyleSheet(R"(
+        QListWidget {
+            background-color: #363636;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            color: #ffffff;
+        }
+        QListWidget::item {
+            padding: 8px;
+            border-bottom: 1px solid #404040;
+        }
+    )");
+
+    // Preencher mensagens existentes
+    for (const ChatMessage& msg : targetOrder.chat) {
+        QString formattedMsg = QString("[%1] %2: %3")
+            .arg(msg.timestamp.toString("dd/MM HH:mm"))
+            .arg(msg.userName)
+            .arg(msg.message);
+        QListWidgetItem* item = new QListWidgetItem(formattedMsg);
+        chatListWidget->addItem(item);
+    }
+
+    // Campo de entrada de mensagem
+    QWidget* inputWidget = new QWidget();
+    QHBoxLayout* inputLayout = new QHBoxLayout(inputWidget);
+    QLineEdit* messageInput = new QLineEdit();
+    messageInput->setStyleSheet(R"(
+        QLineEdit {
+            background-color: #404040;
+            color: #ffffff;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            padding: 8px;
+        }
+    )");
+    QPushButton* sendButton = new QPushButton("Enviar");
+    sendButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        QPushButton:hover {
+            background-color: #45a049;
+        }
+    )");
+
+    connect(sendButton, &QPushButton::clicked, this, [=, &targetOrder, &orders]() {
+        QString msg = messageInput->text().trimmed();
+        if (!msg.isEmpty()) {
+            ChatMessage chatMsg;
+            chatMsg.userId = loggedInUser;
+            chatMsg.userName = isAdmin ? "Admin" : targetOrder.userName;
+            chatMsg.message = msg;
+            chatMsg.timestamp = QDateTime::currentDateTime();
+            
+            targetOrder.chat.append(chatMsg);
+            targetOrder.lastUpdated = QDateTime::currentDateTime();
+            
+            QString error;
+            if (atualizarEncomendas(orders, error)) {
+                QString formattedMsg = QString("[%1] %2: %3")
+                    .arg(chatMsg.timestamp.toString("dd/MM HH:mm"))
+                    .arg(chatMsg.userName)
+                    .arg(chatMsg.message);
+                chatListWidget->addItem(formattedMsg);
+                messageInput->clear();
+            }
+        }
+    });
+    
+    // Também enviar quando pressionar Enter
+    connect(messageInput, &QLineEdit::returnPressed, sendButton, &QPushButton::click);
+
+    inputLayout->addWidget(messageInput);
+    inputLayout->addWidget(sendButton);
+
+    chatLayout->addWidget(chatListWidget);
+    chatLayout->addWidget(inputWidget);
+
+    layout->addWidget(chatBox);
+
+    // Botões de ação
+    QHBoxLayout* actionLayout = new QHBoxLayout();
+    
     // Botão fechar
     QPushButton* closeButton = new QPushButton("Fechar", dialog);
     closeButton->setStyleSheet(R"(
@@ -1892,7 +2695,10 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
         }
     )");
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
-    layout->addWidget(closeButton, 0, Qt::AlignRight);
+    
+    actionLayout->addStretch();
+    actionLayout->addWidget(closeButton);
+    layout->addLayout(actionLayout);
 
     dialog->exec();
     delete dialog;
@@ -1942,6 +2748,13 @@ void MainWindow::finalizarCompra() {
             
             // Limpar o carrinho após compra bem-sucedida
             limparCarrinho();
+
+            // Atualizar interface administrativa se necessário
+            if (isAdmin && adminTabWidget) {
+                atualizarDashboard();
+                atualizarEstoque();
+                atualizarRelatorios();
+            }
         } else {
             QMessageBox::warning(this, "Erro", 
                 QString("Não foi possível finalizar a compra: %1").arg(error));
@@ -1949,5 +2762,188 @@ void MainWindow::finalizarCompra() {
     } else {
         QMessageBox::warning(this, "Login Necessário", 
             "Por favor, faça login para finalizar a compra.");
+    }
+}
+
+void MainWindow::atualizarDashboard() {
+    if (!adminTabWidget) return;
+    
+    // Localizar a aba do Dashboard
+    for (int i = 0; i < adminTabWidget->count(); i++) {
+        if (adminTabWidget->tabText(i) == "Dashboard") {
+            QWidget* dashTab = adminTabWidget->widget(i);
+            
+            // Calcular métricas
+            double vendasTotais = calcularVendasTotais();
+            QVector<Order> orders = carregarEncomendas();
+            int totalPedidos = orders.size();
+            int encomendasPendentes = 0;
+            double vendasHoje = 0.0;
+            QDate hoje = QDate::currentDate();
+            
+            for (const Order& order : orders) {
+                if (order.status == "pending") {
+                    encomendasPendentes++;
+                }
+                if (order.orderDate.date() == hoje && order.status == "accepted") {
+                    vendasHoje += order.total;
+                }
+            }
+            
+            // Atualizar número de produtos com estoque baixo
+            int produtosBaixoEstoque = productManager->getLowStockProducts().size();
+            
+            // Atualizar os cards de estatísticas
+            auto updateCard = [](QWidget* parent, const QString& title, const QString& value, const QString& icon = "") {
+                QWidget* card = parent->findChild<QWidget*>(title + "Card");
+                if (card) {
+                    QLabel* valueLabel = card->findChild<QLabel*>(title + "Value");
+                    if (valueLabel) {
+                        valueLabel->setText(value);
+                    }
+                }
+            };
+            
+            updateCard(dashTab, "vendasTotais", QString("%1€").arg(vendasTotais, 0, 'f', 2), "💶");
+                updateCard(dashTab, "vendasHoje", QString("%1€").arg(vendasHoje, 0, 'f', 2), "📦");
+            updateCard(dashTab, "estoqueBaixo", QString::number(produtosBaixoEstoque), "⚠️");
+            updateCard(dashTab, "pedidosPendentes", QString::number(encomendasPendentes), "📋");
+            
+            // Atualizar listas de produtos mais vendidos e clientes mais ativos
+            auto updateList = [](QGroupBox* group, const QMap<QString, int>& data, const QString& format) {
+                if (!group) return;
+                QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(group->layout());
+                if (!layout) return;
+
+                // Limpar layout existente, mantendo o primeiro widget (título se houver)
+                while (layout->count() > 1) {
+                    QLayoutItem* item = layout->takeAt(1);
+                    if (item->widget()) delete item->widget();
+                    delete item;
+                }
+                
+                // Adicionar novos items
+                for (auto it = data.begin(); it != data.end(); ++it) {
+                    QLabel* label = new QLabel(format.arg(it.key()).arg(it.value()));
+                    label->setStyleSheet("color: #ffffff; padding: 5px;");
+                    layout->addWidget(label);
+                }
+                layout->addStretch();
+            };
+
+            QGroupBox* produtosGroup = dashTab->findChild<QGroupBox*>("produtosMaisVendidosGroup");
+            QGroupBox* clientesGroup = dashTab->findChild<QGroupBox*>("clientesMaisAtivosGroup");
+
+            updateList(produtosGroup, 
+                      obterProdutosMaisVendidos(5), 
+                      QString("%1 - %2 unidades"));
+            updateList(clientesGroup, 
+                      obterClientesMaisAtivos(5), 
+                      QString("%1 - %2 compras"));
+
+            break;
+        }
+    }
+}
+
+void MainWindow::atualizarEstoque() {
+    if (!adminTabWidget) return;
+    
+    // Localizar a aba de Estoque
+    for (int i = 0; i < adminTabWidget->count(); i++) {
+        if (adminTabWidget->tabText(i) == "Estoque") {
+            QWidget* stockTab = adminTabWidget->widget(i);
+            
+            // Encontrar a tabela de produtos
+            QTableWidget* table = stockTab->findChild<QTableWidget*>();
+            if (table) {
+                // Limpar tabela
+                table->setRowCount(0);
+                
+                // Preencher com dados atualizados
+                auto produtos = productManager->getAllProducts();
+                table->setRowCount(produtos.size());
+                for (int row = 0; row < produtos.size(); ++row) {
+                    const auto& p = produtos[row];
+                    table->setItem(row, 0, new QTableWidgetItem(p.id));
+                    table->setItem(row, 1, new QTableWidgetItem(p.nome));
+                    table->setItem(row, 2, new QTableWidgetItem(QString::number(p.preco, 'f', 2) + "€"));
+                    table->setItem(row, 3, new QTableWidgetItem(QString::number(p.quantidade)));
+                    
+                    int vendidos = 0; // TODO: Implementar contagem de vendas
+                    table->setItem(row, 4, new QTableWidgetItem(QString::number(vendidos)));
+                    
+                    QString status = p.quantidade <= p.lowThreshold ? "Baixo" : "Normal";
+                    QTableWidgetItem* statusItem = new QTableWidgetItem(status);
+                    statusItem->setForeground(status == "Baixo" ? QColor("#f44336") : QColor("#4CAF50"));
+                    table->setItem(row, 5, statusItem);
+                }
+            }
+            break;
+        }
+    }
+}
+
+void MainWindow::atualizarRelatorios() {
+    if (!adminTabWidget) return;
+    
+    // Localizar a aba de Relatórios
+    for (int i = 0; i < adminTabWidget->count(); i++) {
+        if (adminTabWidget->tabText(i) == "Relatórios") {
+            QWidget* reportsTab = adminTabWidget->widget(i);
+            
+            // Atualizar métricas financeiras
+            double faturamentoTotal = calcularVendasTotais();
+            QVector<Order> todasOrdens = carregarEncomendas();
+            int totalPedidos = todasOrdens.size();
+            double mediaDiaria = totalPedidos > 0 ? faturamentoTotal / totalPedidos : 0;
+
+            if (QLabel* faturamentoLabel = reportsTab->findChild<QLabel*>("faturamento_value")) {
+                faturamentoLabel->setText(QString("%1€").arg(faturamentoTotal, 0, 'f', 2));
+            }
+            if (QLabel* mediaLabel = reportsTab->findChild<QLabel*>("media_value")) {
+                mediaLabel->setText(QString("%1€").arg(mediaDiaria, 0, 'f', 2));
+            }
+            if (QLabel* pedidosLabel = reportsTab->findChild<QLabel*>("pedidos_value")) {
+                pedidosLabel->setText(QString::number(totalPedidos));
+            }
+            
+            // Atualizar tabela de transações
+            QTableWidget* table = reportsTab->findChild<QTableWidget*>();
+            if (table) {
+                // Limpar tabela
+                table->setRowCount(0);
+                
+                // Carregar transações atualizadas
+                auto orders = carregarEncomendas();
+                table->setRowCount(orders.size());
+                for (int row = 0; row < orders.size(); ++row) {
+                    const auto& order = orders[row];
+                    table->setItem(row, 0, new QTableWidgetItem(order.orderDate.toString("dd/MM/yyyy")));
+                    table->setItem(row, 1, new QTableWidgetItem(order.userName));
+                    
+                    QString produtos;
+                    for (const auto& item : order.items) {
+                        if (!produtos.isEmpty()) produtos += ", ";
+                        produtos += QString("%1 (%2x)").arg(item.productName).arg(item.quantity);
+                    }
+                    table->setItem(row, 2, new QTableWidgetItem(produtos));
+                    
+                    table->setItem(row, 3, new QTableWidgetItem(QString::number(order.total, 'f', 2) + "€"));
+                    
+                    QString status = order.status.isEmpty() ? "Pendente" : 
+                                   order.status == "accepted" ? "Aceite" : 
+                                   order.status == "rejected" ? "Recusada" : "Desconhecido";
+                    QTableWidgetItem* statusItem = new QTableWidgetItem(status);
+                    statusItem->setForeground(
+                        status == "Aceite" ? QColor("#4CAF50") :
+                        status == "Recusada" ? QColor("#f44336") :
+                        QColor("#FFC107")
+                    );
+                    table->setItem(row, 4, statusItem);
+                }
+            }
+            break;
+        }
     }
 }

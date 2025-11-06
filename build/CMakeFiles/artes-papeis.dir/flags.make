@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_WIDGETS_LIB
 
-CXX_INCLUDES = -I/Users/valass/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/include -I/Users/valass/Qt/6.10.0/macos/lib/QtDBus.framework/Headers -iframework /Users/valass/Qt/6.10.0/macos/lib -isystem /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Headers -isystem /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Headers -isystem /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers -isystem /Users/valass/Qt/6.10.0/macos/mkspecs/macx-clang -isystem /Users/valass/Qt/6.10.0/macos/include
+CXX_INCLUDES = -I/Users/valass/Documents/GitHub/artes-papeis2.1/build/artes-papeis_autogen/include -I/Users/valass/Qt/6.10.0/macos/include/QtWidgets -I/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/../../../include -I/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6/../../../include/QtWidgets -I/Users/valass/Qt/6.10.0/macos/lib/QtDBus.framework/Headers -iframework /Users/valass/Qt/6.10.0/macos/lib -isystem /Users/valass/Qt/6.10.0/macos/include -isystem /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers -isystem /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Headers -isystem /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Headers -isystem /Users/valass/Qt/6.10.0/macos/mkspecs/macx-clang
 
 CXX_FLAGSarm64 = -std=gnu++17 -arch arm64
 

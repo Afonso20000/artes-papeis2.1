@@ -9,18 +9,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+# Set Qt root dir
+set(QT_ROOT "/Users/valass/Qt/6.10.0/macos")
+
 # Allow Qt directory to be specified through command line or environment
 if(DEFINED ENV{Qt6_DIR} AND NOT Qt6_DIR)
     set(Qt6_DIR $ENV{Qt6_DIR})
-endif()
-
-# If Qt6_DIR is not set, try to find Qt in standard locations
-if(NOT Qt6_DIR)
-    if(EXISTS "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6")
-        set(Qt6_DIR "/Users/valass/Qt/6.10.0/macos/lib/cmake/Qt6")
-    elseif(EXISTS "/usr/local/opt/qt@6/lib/cmake/Qt6")
-        set(Qt6_DIR "/usr/local/opt/qt@6/lib/cmake/Qt6")
-    endif()
+else()
+    set(Qt6_DIR "${QT_ROOT}/lib/cmake/Qt6")
 endif()
 
 # Find Qt packages
@@ -30,7 +26,14 @@ find_package(Qt6 REQUIRED COMPONENTS
     Widgets
 )
 
+# Set include path explicitly
+include_directories("${QT_ROOT}/include")
+include_directories("${QT_ROOT}/include/QtWidgets")
+include_directories("${QT_ROOT}/lib/QtWidgets.framework/Headers")
+
 # Add Qt module include paths
+include_directories(${Qt6_DIR}/../../../include)
+include_directories(${Qt6_DIR}/../../../include/QtWidgets)
 include_directories(${Qt6Core_INCLUDE_DIRS})
 include_directories(${Qt6Gui_INCLUDE_DIRS})
 include_directories(${Qt6Widgets_INCLUDE_DIRS})
@@ -61,6 +64,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE ${Qt6Core_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${Qt6Gui_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${Qt6Widgets_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE ${Qt6_DIR}/../../../include/QtWidgets)
 
 # Install rules
 install(TARGETS ${PROJECT_NAME}
