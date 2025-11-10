@@ -18,6 +18,7 @@
 #include <QLineEdit>
 #include <QFrame>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -104,7 +105,7 @@ MainWindow::MainWindow(QWidget* parent)
     QWidget* central = new QWidget(this);
     mainLayout = new QVBoxLayout(central);
 
-    QLabel* header = new QLabel("🎨 Frete grátis em pedidos acima de 50€");
+    QLabel* header = new QLabel("🎨");
     header->setStyleSheet(QString("background-color: %1; color: %2; padding: 10px; font-size: 13px; font-weight: 500; border-bottom: 1px solid %3;")
         .arg(GitHubDark::BG_SECONDARY)
         .arg(GitHubDark::TEXT_SECONDARY)
@@ -250,8 +251,7 @@ MainWindow::MainWindow(QWidget* parent)
     )").arg(GitHubDark::BG_SECONDARY)
        .arg(GitHubDark::BORDER_DEFAULT));
     searchPreviewWidget->hide();
-    searchPreviewWidget->setMaximumHeight(250); // Reduzido para 250px
-    searchPreviewWidget->setMaximumWidth(400); // Limitar largura também
+    searchPreviewWidget->setMaximumHeight(400);
     mainLayout->addWidget(searchPreviewWidget);
 
     QFrame* line = new QFrame();
@@ -429,7 +429,7 @@ MainWindow::MainWindow(QWidget* parent)
     QLabel* contatoTitle = new QLabel("Contacte-nos");
     contatoTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #4CAF50;");
     contatoLayout->addWidget(contatoTitle);
-    QLabel* contatoContent = new QLabel("Email: artes@loja.com\nTelemóvel: 999-999-999");
+    QLabel* contatoContent = new QLabel("Email: artespapeis@gmail.com\nTelemóvel: 928052266");
     contatoContent->setStyleSheet("color: #ffffff; font-size: 16px;");
     contatoLayout->addWidget(contatoContent);
 
@@ -2753,12 +2753,84 @@ void MainWindow::setupAdminOrdersTab() {
     
     encomendasLayout->addWidget(searchOrdersEdit);
     
+    // Botões de filtro por status
+    QHBoxLayout* statusFilterLayout = new QHBoxLayout();
+    statusFilterLayout->setSpacing(8);
+    
+    QStringList statusList = {"Todos", "Pendente", "Aceite", "Processando", "Enviado", "Entregue", "Rejeitado", "Cancelado"};
+    QMap<QString, QString> statusMapping = {
+        {"Todos", ""},
+        {"Pendente", "pending"},
+        {"Aceite", "accepted"},
+        {"Processando", "processing"},
+        {"Enviado", "shipped"},
+        {"Entregue", "delivered"},
+        {"Rejeitado", "rejected"},
+        {"Cancelado", "cancelled"}
+    };
+    
+    for (const QString& statusName : statusList) {
+        QPushButton* filterBtn = new QPushButton(statusName);
+        filterBtn->setCheckable(true);
+        filterBtn->setChecked(statusName == "Todos");
+        
+        QString btnStyle = QString(R"(
+            QPushButton {
+                background-color: %1;
+                color: %2;
+                border: 1px solid %3;
+                padding: 6px 14px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: %4;
+                border-color: %5;
+            }
+            QPushButton:checked {
+                background-color: %5;
+                color: white;
+                border-color: %5;
+            }
+        )").arg(GitHubDark::BG_SECONDARY)
+           .arg(GitHubDark::TEXT_PRIMARY)
+           .arg(GitHubDark::BORDER_DEFAULT)
+           .arg(GitHubDark::BG_TERTIARY)
+           .arg(GitHubDark::ACCENT_PRIMARY);
+        
+        filterBtn->setStyleSheet(btnStyle);
+        
+        connect(filterBtn, &QPushButton::clicked, this, [this, statusName, statusMapping, statusFilterLayout]() {
+            currentOrderStatusFilter = statusMapping[statusName];
+            
+            // Desmarcar todos os outros botões
+            for (int i = 0; i < statusFilterLayout->count(); ++i) {
+                QLayoutItem* item = statusFilterLayout->itemAt(i);
+                if (QPushButton* btn = qobject_cast<QPushButton*>(item->widget())) {
+                    btn->setChecked(btn->text() == statusName);
+                }
+            }
+            
+            atualizarListaEncomendas();
+        });
+        
+        statusFilterLayout->addWidget(filterBtn);
+    }
+    
+    statusFilterLayout->addStretch();
+    encomendasLayout->addLayout(statusFilterLayout);
+    
     // Área de scroll para as encomendas
     QScrollArea* scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setStyleSheet(QString("QScrollArea { border: none; background: %1; }")
         .arg(GitHubDark::BG_PRIMARY));
+    
+    // Reduzir velocidade do scroll
+    scrollArea->verticalScrollBar()->setSingleStep(10); // Reduzir de 20 (padrão) para 10
+    scrollArea->verticalScrollBar()->setPageStep(50);   // Reduzir de 100 (padrão) para 50
     
     QWidget* scrollContent = new QWidget();
     adminOrdersList = new QListWidget(scrollContent);
@@ -2813,6 +2885,11 @@ void MainWindow::atualizarListaEncomendas() {
              [](const Order& a, const Order& b) { return a.orderDate > b.orderDate; });
 
     for (const Order& order : orders) {
+        // Filtrar por status se não for "Todos"
+        if (!currentOrderStatusFilter.isEmpty() && order.status != currentOrderStatusFilter) {
+            continue;
+        }
+        
         // Carregar informações do usuário
         QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         QFile f(dataPath + "/artes-papeis/users.json");
@@ -2946,7 +3023,7 @@ void MainWindow::atualizarListaEncomendas() {
         // Adicionar à lista
         QListWidgetItem* item = new QListWidgetItem();
         item->setData(Qt::UserRole, order.orderId);
-        item->setSizeHint(QSize(orderCard->sizeHint().width(), 110)); // Altura fixa para reduzir sensibilidade
+        item->setSizeHint(orderCard->sizeHint() + QSize(0, 20));
         adminOrdersList->addItem(item);
         adminOrdersList->setItemWidget(item, orderCard);
     }
@@ -3944,12 +4021,12 @@ void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
     }
     
     QVBoxLayout* previewLayout = new QVBoxLayout(searchPreviewWidget);
-    previewLayout->setContentsMargins(8, 8, 8, 8);
-    previewLayout->setSpacing(6);
+    previewLayout->setContentsMargins(12, 12, 12, 12);
+    previewLayout->setSpacing(8);
     
-    // Título (mais compacto)
-    QLabel* titleLabel = new QLabel("🔍 Resultados");
-    titleLabel->setStyleSheet(QString("color: %1; font-size: 12px; font-weight: 600; padding-bottom: 4px;")
+    // Título
+    QLabel* titleLabel = new QLabel("🔍 Resultados da Pesquisa");
+    titleLabel->setStyleSheet(QString("color: %1; font-size: 14px; font-weight: 600; padding-bottom: 8px;")
         .arg(GitHubDark::TEXT_PRIMARY));
     previewLayout->addWidget(titleLabel);
     
@@ -3961,14 +4038,14 @@ void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
     
     QWidget* scrollContent = new QWidget();
     QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContent);
-    scrollLayout->setSpacing(4); // Reduzido de 8 para 4
+    scrollLayout->setSpacing(8);
     scrollLayout->setContentsMargins(0, 0, 0, 0);
     
     // Buscar produtos que correspondem
     QString lowerSearch = searchText.toLower();
     QVector<ProdutoFull> produtos = productManager->getAllProducts();
     int resultCount = 0;
-    const int maxResults = 3; // Reduzido para 3 resultados
+    const int maxResults = 5; // Limitar a 5 resultados
     
     for (const auto& pf : produtos) {
         if (resultCount >= maxResults) break;
@@ -3983,28 +4060,29 @@ void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
                 QWidget {
                     background-color: %1;
                     border: 1px solid %2;
-                    border-radius: 4px;
-                    padding: 6px;
+                    border-radius: 6px;
+                    padding: 8px;
                 }
                 QWidget:hover {
                     border-color: %3;
+                    background-color: %4;
                 }
             )").arg(GitHubDark::BG_TERTIARY)
                .arg(GitHubDark::BORDER_DEFAULT)
-               .arg(GitHubDark::ACCENT_PRIMARY));
+               .arg(GitHubDark::ACCENT_PRIMARY)
+               .arg(GitHubDark::BG_OVERLAY));
             productPreview->setCursor(Qt::PointingHandCursor);
             
             QHBoxLayout* previewItemLayout = new QHBoxLayout(productPreview);
-            previewItemLayout->setSpacing(8);
-            previewItemLayout->setContentsMargins(4, 4, 4, 4);
+            previewItemLayout->setSpacing(12);
             
-            // Imagem do produto (mais pequena)
+            // Imagem do produto (pequena)
             QLabel* imgLabel = new QLabel();
-            imgLabel->setFixedSize(45, 45); // Reduzido de 60x60 para 45x45
+            imgLabel->setFixedSize(60, 60);
             if (!pf.imagePath.isEmpty()) {
                 QPixmap px(pf.imagePath);
                 if (!px.isNull()) {
-                    imgLabel->setPixmap(px.scaled(45, 45, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                    imgLabel->setPixmap(px.scaled(60, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation));
                 } else {
                     imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px;")
                         .arg(pf.cor.name()));
@@ -4012,7 +4090,7 @@ void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
                     imgLabel->setText("📷");
                 }
             } else {
-                imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px; font-size: 18px;")
+                imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px; font-size: 24px;")
                     .arg(GitHubDark::BG_OVERLAY));
                 imgLabel->setAlignment(Qt::AlignCenter);
                 imgLabel->setText("📷");
@@ -4021,19 +4099,19 @@ void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
             
             // Informações do produto
             QVBoxLayout* infoLayout = new QVBoxLayout();
-            infoLayout->setSpacing(2);
+            infoLayout->setSpacing(4);
             
             QLabel* nameLabel = new QLabel(pf.nome);
-            nameLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: 600;")
+            nameLabel->setStyleSheet(QString("color: %1; font-size: 14px; font-weight: 600;")
                 .arg(GitHubDark::TEXT_PRIMARY));
             
             QLabel* priceLabel = new QLabel(QString("%1€").arg(pf.preco, 0, 'f', 2));
-            priceLabel->setStyleSheet(QString("color: %1; font-size: 12px; font-weight: 500;")
+            priceLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: 500;")
                 .arg(GitHubDark::ACCENT_PRIMARY));
             
             int stock = productManager->getAvailableStock(pf.id);
             QLabel* stockLabel = new QLabel(QString("Stock: %1").arg(stock));
-            stockLabel->setStyleSheet(QString("color: %1; font-size: 11px;")
+            stockLabel->setStyleSheet(QString("color: %1; font-size: 12px;")
                 .arg(stock > 0 ? GitHubDark::TEXT_SECONDARY : GitHubDark::ACCENT_RED));
             
             infoLayout->addWidget(nameLabel);
@@ -4042,9 +4120,9 @@ void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
             
             previewItemLayout->addLayout(infoLayout, 1);
             
-            // Botão de adicionar ao carrinho (mais pequeno)
+            // Botão de adicionar ao carrinho
             QPushButton* addBtn = new QPushButton("🛒");
-            addBtn->setFixedSize(30, 30); // Reduzido de 36x36
+            addBtn->setFixedSize(36, 36);
             addBtn->setStyleSheet(QString(R"(
                 QPushButton {
                     background-color: %1;

@@ -4567,6 +4567,7 @@ CMakeFiles/artes-papeis.dir/mainwindow.cpp.o
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QMessageBox
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QPushButton
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QScrollArea
+ /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QScrollBar
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QStackedWidget
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QSystemTrayIcon
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QTabWidget
@@ -4609,6 +4610,7 @@ CMakeFiles/artes-papeis.dir/mainwindow.cpp.o
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qpushbutton.h
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qrubberband.h
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qscrollarea.h
+ /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qscrollbar.h
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qsizepolicy.h
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qslider.h
  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qstackedwidget.h

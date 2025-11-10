@@ -163,6 +163,7 @@ private:
     QLineEdit* searchBar = nullptr; // Barra de pesquisa
     QWidget* searchPreviewWidget = nullptr; // Widget para preview de produtos na pesquisa
     QString currentCategory = "Todos"; // Categoria atualmente selecionada
+    QString currentOrderStatusFilter = "Todos"; // Filtro de status de encomendas
     QWidget* categoryButtonsWidget = nullptr; // Widget com botões de categoria
 
         // Gerir produtos (apenas admin)

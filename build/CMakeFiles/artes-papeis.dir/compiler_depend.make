@@ -4563,6 +4563,7 @@ CMakeFiles/artes-papeis.dir/mainwindow.cpp.o: /Users/valass/Documents/GitHub/art
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QMessageBox \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QPushButton \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QScrollArea \
+  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QScrollBar \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QStackedWidget \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QSystemTrayIcon \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QTabWidget \
@@ -4605,6 +4606,7 @@ CMakeFiles/artes-papeis.dir/mainwindow.cpp.o: /Users/valass/Documents/GitHub/art
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qpushbutton.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qrubberband.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qscrollarea.h \
+  /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qscrollbar.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qsizepolicy.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qslider.h \
   /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qstackedwidget.h \
@@ -9377,6 +9379,8 @@ artes-papeis_autogen/EWIEGA46WW/moc_clickablelabel.cpp:
 
 /opt/homebrew/share/cmake/Modules/Platform/Apple-AppleClang-CXX.cmake:
 
+/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/QScrollBar:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/unique_temporary_buffer.h:
 
 /opt/homebrew/share/cmake/Modules/MacroAddFileDependencies.cmake:
@@ -9572,6 +9576,8 @@ artes-papeis_autogen/EWIEGA46WW/moc_productformdialog.cpp:
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/c++/v1/exception:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/equal.h:
+
+/Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Headers/qscrollbar.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX26.0.sdk/usr/include/c++/v1/__math/hypot.h:
 
