@@ -182,7 +182,10 @@ artes-papeis: CMakeFiles/artes-papeis.dir/productcard.cpp.o
 artes-papeis: CMakeFiles/artes-papeis.dir/productformdialog.cpp.o
 artes-papeis: CMakeFiles/artes-papeis.dir/productmanager.cpp.o
 artes-papeis: CMakeFiles/artes-papeis.dir/build.make
+artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtCharts.framework/Versions/A/QtCharts
+artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtOpenGLWidgets.framework/Versions/A/QtOpenGLWidgets
 artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtWidgets.framework/Versions/A/QtWidgets
+artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtOpenGL.framework/Versions/A/QtOpenGL
 artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtGui.framework/Versions/A/QtGui
 artes-papeis: /Users/valass/Qt/6.10.0/macos/lib/QtCore.framework/Versions/A/QtCore
 artes-papeis: CMakeFiles/artes-papeis.dir/link.txt

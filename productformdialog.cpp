@@ -72,6 +72,9 @@ void ProductFormDialog::setupUi()
     
     // Configurar campos
     quantidadeEdit->setRange(0, 100000);
+    quantidadeEdit->setReadOnly(true); // Impedir edição manual do stock
+    quantidadeEdit->setButtonSymbols(QAbstractSpinBox::NoButtons); // Remover setas
+    quantidadeEdit->setStyleSheet("QSpinBox { background-color: #3a3a3a; color: #888; }"); // Visual de desabilitado
     lowThresholdEdit->setRange(0, 100000);
     precoEdit->setRange(0, 100000);
     precoEdit->setDecimals(2);

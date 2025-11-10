@@ -2,6 +2,7 @@
 #include "productcard.h"
 #include "productmanager.h"
 #include "productformdialog.h"
+#include "githubdarktheme.h"
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -35,6 +36,32 @@
 #include <QTimer>
 #include <QSystemTrayIcon>
 #include <QRandomGenerator>
+#include <QShortcut>
+#include <QKeySequence>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QApplication>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QBarCategoryAxis>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QPieSlice>
+
+// Implementação do event filter para ClickableOrderWidget
+bool ClickableOrderWidget::eventFilter(QObject* obj, QEvent* event) {
+    if (event->type() == QEvent::MouseButtonPress) {
+        MainWindow* mainWin = qobject_cast<MainWindow*>(parent());
+        if (mainWin) {
+            mainWin->mostrarDetalhesEncomenda(m_orderId);
+        }
+        return true;
+    }
+    return QObject::eventFilter(obj, event);
+}
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), carrinhoIconLabel(nullptr), adminPage(nullptr), productManager(new ProductManager(this))
 {
@@ -77,76 +104,155 @@ MainWindow::MainWindow(QWidget* parent)
     QWidget* central = new QWidget(this);
     mainLayout = new QVBoxLayout(central);
 
-    QLabel* header = new QLabel("Entrega grátis em pedidos acima de 50€");
-    header->setStyleSheet("background-color: #1e1e1e; color: #BDB3A3; padding: 7px; font-size: 14px; letter-spacing: 1.1px;");
+    QLabel* header = new QLabel("🎨 Frete grátis em pedidos acima de 50€");
+    header->setStyleSheet(QString("background-color: %1; color: %2; padding: 10px; font-size: 13px; font-weight: 500; border-bottom: 1px solid %3;")
+        .arg(GitHubDark::BG_SECONDARY)
+        .arg(GitHubDark::TEXT_SECONDARY)
+        .arg(GitHubDark::BORDER_DEFAULT));
     header->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(header);
 
     QHBoxLayout* navLayout = new QHBoxLayout();
-    QLineEdit* searchBar = new QLineEdit();
-    searchBar->setPlaceholderText("Buscar");
-    searchBar->setFixedWidth(210);
-    searchBar->setStyleSheet("QLineEdit { background-color: #363636; color: #ffffff; border: 1px solid #404040; padding: 5px; border-radius: 4px; }"
-                           "QLineEdit:focus { border-color: #4CAF50; }");
+    searchBar = new QLineEdit();
+    searchBar->setPlaceholderText("🔍 Buscar produtos...");
+    searchBar->setFixedWidth(280);
+    searchBar->setStyleSheet(QString(R"(
+        QLineEdit {
+            background-color: %1;
+            color: %2;
+            border: 1px solid %3;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        QLineEdit:focus {
+            border-color: %4;
+            background-color: %5;
+        }
+    )").arg(GitHubDark::INPUT_BG)
+       .arg(GitHubDark::TEXT_PRIMARY)
+       .arg(GitHubDark::INPUT_BORDER)
+       .arg(GitHubDark::INPUT_FOCUS_BORDER)
+       .arg(GitHubDark::BG_PRIMARY));
+    connect(searchBar, &QLineEdit::textChanged, this, [this](const QString& text) {
+        filtrarProdutos(text);
+        
+        // Mostrar preview se não estiver na loja
+        if (paginas && paginas->currentWidget() != lojaPage) {
+            mostrarPreviewPesquisa(text);
+        } else {
+            esconderPreviewPesquisa();
+        }
+    });
 
-    QLabel* logo = new QLabel("<b>Loja Artesanatos</b>");
-    logo->setStyleSheet("font-size: 24px; color: #4CAF50;");
+    // Atalhos: Ctrl+F (pesquisar), / (focar pesquisa), Esc (limpar)
+    QShortcut* findShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(findShortcut, &QShortcut::activated, this, [this]() {
+        if (searchBar) { searchBar->setFocus(); searchBar->selectAll(); }
+    });
+    QShortcut* slashShortcut = new QShortcut(QKeySequence(Qt::Key_Slash), this);
+    connect(slashShortcut, &QShortcut::activated, this, [this]() {
+        if (searchBar) { searchBar->setFocus(); }
+    });
+    QShortcut* escShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(escShortcut, &QShortcut::activated, this, [this]() {
+        if (searchBar && !searchBar->text().isEmpty()) { searchBar->clear(); filtrarProdutos(""); }
+    });
+
+    QLabel* logo = new QLabel("<b>🎨 Artes & Papéis</b>");
+    logo->setStyleSheet(QString("font-size: 20px; color: %1; font-weight: 600;")
+        .arg(GitHubDark::TEXT_LINK));
+    logo->setAlignment(Qt::AlignCenter);
+    logo->setFixedWidth(200); // Largura fixa para não mover
 
     carrinhoIconLabel = new ClickableLabel(this, "🛒 Carrinho (0)");
-    carrinhoIconLabel->setStyleSheet("color: #4CAF50; font-size: 15px; text-decoration: underline;");
+    carrinhoIconLabel->setStyleSheet(QString("color: %1; font-size: 14px; font-weight: 500; padding: 8px 12px; border-radius: 6px;")
+        .arg(GitHubDark::TEXT_LINK));
     carrinhoIconLabel->setCursor(Qt::PointingHandCursor);
     connect(carrinhoIconLabel, &ClickableLabel::clicked, this, &MainWindow::mostrarCarrinho);
 
     // Criar botão de login
     loginButton = new QPushButton("Log In", this);
-    loginButton->setStyleSheet(R"(
+    loginButton->setStyleSheet(QString(R"(
         QPushButton {
-            background-color: #4CAF50;
+            background-color: %1;
             color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
+            border: 1px solid %2;
+            padding: 6px 16px;
+            border-radius: 6px;
             font-size: 14px;
+            font-weight: 500;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: %3;
+            border-color: %3;
         }
         QPushButton:pressed {
-            background-color: #3d8b40;
+            background-color: %4;
         }
-    )");
+    )").arg(GitHubDark::BUTTON_PRIMARY_BG)
+       .arg(GitHubDark::BUTTON_PRIMARY_BG)
+       .arg(GitHubDark::BUTTON_PRIMARY_HOVER)
+       .arg(GitHubDark::ACCENT_PRIMARY));
     connect(loginButton, &QPushButton::clicked, this, &MainWindow::abrirLogin);
 
-    navLayout->addWidget(searchBar, 0);
-    navLayout->addStretch(1);
-    navLayout->addWidget(logo, 0, Qt::AlignCenter);
-    navLayout->addStretch(1);
-    // Por padrão, adicionar o carrinho (será gerenciado posteriormente)
-    navLayout->addWidget(carrinhoIconLabel, 0);
+    // Layout esquerdo com search bar
+    navLayout->addWidget(searchBar, 1);
+    
+    // Layout central com logo (sempre centralizado)
+    QHBoxLayout* centerLayout = new QHBoxLayout();
+    centerLayout->addStretch(1);
+    centerLayout->addWidget(logo, 0, Qt::AlignCenter);
+    centerLayout->addStretch(1);
+    navLayout->addLayout(centerLayout, 2);
+    
+    // Layout direito com carrinho e login
+    QHBoxLayout* rightLayout = new QHBoxLayout();
+    rightLayout->addWidget(carrinhoIconLabel, 0);
+    rightLayout->addSpacing(8);
     
     // Add user name label (initially hidden)
     userNameLabel = new QLabel(this);
-    userNameLabel->setStyleSheet(R"(
+    userNameLabel->setStyleSheet(QString(R"(
         QLabel {
-            color: #4CAF50;
-            font-size: 15px;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
+            color: %1;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: transparent;
         }
         QLabel:hover {
-            background-color: #45a049;
-            color: white;
+            background-color: %2;
+            color: %3;
         }
-    )");
+    )").arg(GitHubDark::TEXT_PRIMARY)
+       .arg(GitHubDark::BG_TERTIARY)
+       .arg(GitHubDark::TEXT_LINK));
     userNameLabel->hide();
     userNameLabel->setCursor(Qt::PointingHandCursor);
     userNameLabel->installEventFilter(this);
-    navLayout->addWidget(userNameLabel, 0);
+    rightLayout->addWidget(userNameLabel, 0);
     
-    navLayout->addWidget(loginButton, 0);
+    rightLayout->addWidget(loginButton, 0);
+    navLayout->addLayout(rightLayout, 1);
 
     mainLayout->addLayout(navLayout);
+    
+    // Widget de preview de pesquisa (inicialmente escondido)
+    searchPreviewWidget = new QWidget(this);
+    searchPreviewWidget->setStyleSheet(QString(R"(
+        QWidget {
+            background-color: %1;
+            border: 1px solid %2;
+            border-radius: 6px;
+        }
+    )").arg(GitHubDark::BG_SECONDARY)
+       .arg(GitHubDark::BORDER_DEFAULT));
+    searchPreviewWidget->hide();
+    searchPreviewWidget->setMaximumHeight(250); // Reduzido para 250px
+    searchPreviewWidget->setMaximumWidth(400); // Limitar largura também
+    mainLayout->addWidget(searchPreviewWidget);
 
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);
@@ -158,14 +264,30 @@ MainWindow::MainWindow(QWidget* parent)
     // --------- Página LOJA -----------
     lojaPage = new QWidget;
     QVBoxLayout* lojaLayout = new QVBoxLayout(lojaPage);
-    QLabel* sectionTitle = new QLabel("Comprar coleções");
-    sectionTitle->setStyleSheet("font-size: 23px; margin: 23px 0 16px 0; font-weight: bold; color: #0E141C;");
-    sectionTitle->setAlignment(Qt::AlignCenter);
+    QLabel* sectionTitle = new QLabel("📦 Produtos");
+    sectionTitle->setStyleSheet(QString("font-size: 24px; margin: 24px 0 16px 0; font-weight: 600; color: %1;")
+        .arg(GitHubDark::TEXT_PRIMARY));
+    sectionTitle->setAlignment(Qt::AlignLeft);
 
     // Botão de editar produtos (aparece apenas para admin)
-    editProductsButton = new QPushButton("Editar Produtos");
+    editProductsButton = new QPushButton("⚙️ Gerir Produtos");
     editProductsButton->setVisible(false);
-    editProductsButton->setStyleSheet("background-color: #C0392B; color: white; padding: 6px 12px; border-radius: 6px;");
+    editProductsButton->setStyleSheet(QString(R"(
+        QPushButton {
+            background-color: %1;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid %2;
+        }
+        QPushButton:hover {
+            background-color: %3;
+        }
+    )").arg(GitHubDark::ACCENT_RED)
+       .arg(GitHubDark::ACCENT_RED)
+       .arg("#c5352d"));
     connect(editProductsButton, &QPushButton::clicked, this, &MainWindow::showProductManager);
 
     // header horizontal para título + edit button
@@ -175,8 +297,66 @@ MainWindow::MainWindow(QWidget* parent)
     titleRow->addWidget(editProductsButton, 0, Qt::AlignRight);
     lojaLayout->addLayout(titleRow);
 
-    // Configurar o ProductManager para gerir nossos produtos
-    productManager = new ProductManager(this);
+    // Botões de filtro por categoria
+    categoryButtonsWidget = new QWidget();
+    QHBoxLayout* categoryLayout = new QHBoxLayout(categoryButtonsWidget);
+    categoryLayout->setContentsMargins(0, 10, 0, 16);
+    categoryLayout->setSpacing(8);
+    
+    QStringList categories = {"Todos", "Batismo", "Casamento", "Aniversário", "Natal", "Geral"};
+    for (const QString& cat : categories) {
+        QPushButton* catBtn = new QPushButton(cat);
+        catBtn->setStyleSheet(QString(R"(
+            QPushButton {
+                background-color: %1;
+                color: %2;
+                border: 1px solid %3;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: %4;
+                border-color: %5;
+                color: %6;
+            }
+            QPushButton:checked {
+                background-color: %7;
+                border-color: %7;
+                color: white;
+                font-weight: 600;
+            }
+        )").arg(GitHubDark::BUTTON_SECONDARY_BG)
+           .arg(GitHubDark::TEXT_PRIMARY)
+           .arg(GitHubDark::BORDER_DEFAULT)
+           .arg(GitHubDark::BUTTON_SECONDARY_HOVER)
+           .arg(GitHubDark::INPUT_FOCUS_BORDER)
+           .arg(GitHubDark::TEXT_LINK)
+           .arg(GitHubDark::ACCENT_BLUE));
+        catBtn->setCheckable(true);
+        if (cat == "Todos") catBtn->setChecked(true);
+        
+        connect(catBtn, &QPushButton::clicked, this, [this, cat, categoryLayout]() {
+            // Desmarcar todos os outros botões
+            for (int i = 0; i < categoryLayout->count(); ++i) {
+                if (QPushButton* btn = qobject_cast<QPushButton*>(categoryLayout->itemAt(i)->widget())) {
+                    btn->setChecked(false);
+                }
+            }
+            // Marcar apenas o botão clicado
+            if (QPushButton* clickedBtn = qobject_cast<QPushButton*>(sender())) {
+                clickedBtn->setChecked(true);
+            }
+            filtrarPorCategoria(cat);
+        });
+        
+        categoryLayout->addWidget(catBtn);
+    }
+    categoryLayout->addStretch();
+    lojaLayout->addWidget(categoryButtonsWidget);
+
+    // Configurar o ProductManager para gerir nossos produtos (instância já criada no inicializador)
     connect(productManager, &ProductManager::productsChanged, this, &MainWindow::refreshLojaProducts);
 
     // Reserva timer: periodic check to release expired reservations
@@ -269,15 +449,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     central->setLayout(mainLayout);
     setCentralWidget(central);
-    setStyleSheet("QMainWindow { background-color: #2b2b2b; color: #ffffff; }"
-                "QLabel { color: #ffffff; }"
-                "QTextEdit { background-color: #363636; color: #ffffff; border: 1px solid #404040; border-radius: 4px; }"
-                "QScrollArea { background-color: #2b2b2b; border: none; }"
-                "QScrollBar:vertical { background-color: #363636; width: 12px; margin: 0; }"
-                "QScrollBar::handle:vertical { background-color: #4a4a4a; min-height: 20px; border-radius: 6px; }"
-                "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
-                "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical { height: 0; }");
-    resize(1200, 790);
+    setStyleSheet(GitHubDark::getGlobalStyleSheet());
+    resize(1280, 820);
 
     QHBoxLayout* menuLayout = new QHBoxLayout();
     QStringList labels = {"Início", "Loja", "Carrinho", "Sobre", "Contato"};
@@ -288,26 +461,27 @@ MainWindow::MainWindow(QWidget* parent)
         }
         QPushButton* btn = new QPushButton(labels[i]);
         menuButtons.append(btn); // Armazenar referência ao botão
-        btn->setStyleSheet(R"(
+        btn->setStyleSheet(QString(R"(
             QPushButton {
-                background: none;
+                background: transparent;
                 border: none;
-                color: #ffffff;
-                font-size: 17px;
-                font-weight: bold;
-                padding: 8px 23px;
-                border-radius: 5px;
+                color: %1;
+                font-size: 15px;
+                font-weight: 500;
+                padding: 8px 16px;
+                border-radius: 6px;
             }
             QPushButton:hover {
-                background-color: #4a4a4a;
-                color: #4CAF50;
-                cursor: pointer;
+                background-color: %2;
+                color: %3;
             }
             QPushButton:pressed {
-                background-color: #363636;
-                color: #4CAF50;
+                background-color: %4;
             }
-        )");
+        )").arg(GitHubDark::TEXT_PRIMARY)
+           .arg(GitHubDark::BG_TERTIARY)
+           .arg(GitHubDark::TEXT_LINK)
+           .arg(GitHubDark::BUTTON_SECONDARY_HOVER));
         
         // Determinar o índice da página com base no texto do botão
         int pageIndex;
@@ -331,10 +505,10 @@ MainWindow::MainWindow(QWidget* parent)
     paginas->setCurrentIndex(0);
 }
 
-void MainWindow::abrirSobre()   { paginas->setCurrentWidget(sobrePage);       }
-void MainWindow::abrirLoja()    { paginas->setCurrentWidget(lojaPage);        }
-void MainWindow::abrirInicio()  { paginas->setCurrentWidget(inicioPage);      }
-void MainWindow::abrirContato() { paginas->setCurrentWidget(contatoPage);     }
+void MainWindow::abrirSobre()   { paginas->setCurrentWidget(sobrePage); esconderPreviewPesquisa();      }
+void MainWindow::abrirLoja()    { paginas->setCurrentWidget(lojaPage); esconderPreviewPesquisa();       }
+void MainWindow::abrirInicio()  { paginas->setCurrentWidget(inicioPage); esconderPreviewPesquisa();     }
+void MainWindow::abrirContato() { paginas->setCurrentWidget(contatoPage); esconderPreviewPesquisa();    }
 
 void MainWindow::adicionarAoCarrinho(const QString& id) {
     // Try to reserve 1 unit for the user (reserve-at-add model)
@@ -412,6 +586,8 @@ void MainWindow::atualizarCarrinhoIcon() {
         total += quant;
     }
     carrinhoIconLabel->setText(QString("🛒 Carrinho (%1)").arg(total));
+    // atualizar tooltip preview sempre que muda
+    mostrarPreviewCarrinho();
 }
 
 void MainWindow::mostrarCarrinho() {
@@ -436,7 +612,7 @@ void MainWindow::atualizarCarrinhoPagina() {
 
     if (carrinho.isEmpty()) {
         QLabel* vazioLbl = new QLabel("O seu carrinho está vazio.");
-        vazioLbl->setStyleSheet("color: #ffffff; font-size: 18px; font-weight: bold; padding: 20px;");
+        vazioLbl->setStyleSheet("color: #8b949e; font-size: 16px; font-weight: 500; padding: 28px; background: #161b22; border: 1px solid #30363d; border-radius: 8px;");
         contentLayout->addWidget(vazioLbl);
     } else {
         double total = 0;
@@ -444,7 +620,7 @@ void MainWindow::atualizarCarrinhoPagina() {
         // Header
         QWidget* header = new QWidget(content);
         QHBoxLayout* headerLayout = new QHBoxLayout(header);
-        header->setStyleSheet("background-color: #363636; border-radius: 8px; padding: 10px; color: #ffffff;");
+    header->setStyleSheet("background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 10px; color: #c9d1d9;");
         
         QLabel* produtoLabel = new QLabel("Produto");
         QLabel* precoLabel = new QLabel("Preço");
@@ -473,7 +649,7 @@ void MainWindow::atualizarCarrinhoPagina() {
             
             QWidget* itemWidget = new QWidget(content);
             QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
-            itemWidget->setStyleSheet("background-color: #363636; border-radius: 8px; margin: 5px 0; padding: 10px; border: 1px solid #404040;");
+            itemWidget->setStyleSheet("background-color: #161b22; border-radius: 8px; margin: 6px 0; padding: 12px; border: 1px solid #30363d;");
 
             // Container para imagem e nome
             QWidget* produtoInfo = new QWidget(itemWidget);
@@ -495,7 +671,7 @@ void MainWindow::atualizarCarrinhoPagina() {
             }
             
             QLabel* nomeLabel = new QLabel(produto.nome, produtoInfo);
-            nomeLabel->setStyleSheet("font-weight: bold; color: #ffffff; font-size: 14px;");
+            nomeLabel->setStyleSheet("font-weight: 600; color: #c9d1d9; font-size: 14px;");
             
             produtoInfoLayout->addWidget(imgLabel);
             produtoInfoLayout->addWidget(nomeLabel);
@@ -503,7 +679,7 @@ void MainWindow::atualizarCarrinhoPagina() {
 
             // Preço unitário
             QLabel* precoLabel = new QLabel(QString::number(produto.preco, 'f', 2) + "€");
-            precoLabel->setStyleSheet("color: #9e9e9e; font-size: 14px;");
+            precoLabel->setStyleSheet("color: #8b949e; font-size: 13px;");
             
             // Controles de quantidade
             QWidget* quantWidget = new QWidget(itemWidget);
@@ -516,12 +692,12 @@ void MainWindow::atualizarCarrinhoPagina() {
             
             minusBtn->setFixedSize(26, 26);
             plusBtn->setFixedSize(26, 26);
-            QString btnStyle = "QPushButton { background-color: #4a4a4a; color: #ffffff; border: none; border-radius: 13px; font-size: 16px; font-weight: bold; } "
-                             "QPushButton:hover { background-color: #5a5a5a; } "
-                             "QPushButton:pressed { background-color: #666666; }";
+            QString btnStyle = "QPushButton { background-color: #21262d; color: #c9d1d9; border: 1px solid #30363d; border-radius: 13px; font-size: 16px; font-weight: 600; } "
+                               "QPushButton:hover { background-color: #30363d; } "
+                               "QPushButton:pressed { background-color: #1f6feb; border-color: #1f6feb; color: #ffffff; }";
             minusBtn->setStyleSheet(btnStyle);
             plusBtn->setStyleSheet(btnStyle);
-            quantLabel->setStyleSheet("color: #ffffff; font-size: 15px; font-weight: bold;");
+            quantLabel->setStyleSheet("color: #c9d1d9; font-size: 15px; font-weight: 600;");
             quantLabel->setAlignment(Qt::AlignCenter);
             quantLabel->setMinimumWidth(30);
             
@@ -535,12 +711,12 @@ void MainWindow::atualizarCarrinhoPagina() {
             // Total do item
             double totalItem = produto.preco * quantidade;
             QLabel* totalLabel = new QLabel(QString::number(totalItem, 'f', 2) + "€");
-            totalLabel->setStyleSheet("color: #4CAF50; font-weight: bold; font-size: 14px;");
+            totalLabel->setStyleSheet("color: #238636; font-weight: 600; font-size: 14px;");
             
             // Botão remover
             QPushButton* removerBtn = new QPushButton("🗑️", itemWidget);
-            removerBtn->setStyleSheet("QPushButton { background: none; border: none; color: #ff5252; font-size: 16px; } "
-                                    "QPushButton:hover { color: #ff8a80; }");
+            removerBtn->setStyleSheet("QPushButton { background: none; border: none; color: #da3633; font-size: 16px; } "
+                                    "QPushButton:hover { color: #f85149; }");
             connect(removerBtn, &QPushButton::clicked, this, [this, id](){ removerDoCarrinho(id); });
             
             itemLayout->addWidget(produtoInfo, 3);
@@ -557,12 +733,12 @@ void MainWindow::atualizarCarrinhoPagina() {
         // Total geral
         QWidget* totalWidget = new QWidget(content);
         QHBoxLayout* totalLayout = new QHBoxLayout(totalWidget);
-        totalWidget->setStyleSheet("background-color: #1e1e1e; border-radius: 8px; padding: 20px; margin-top: 20px; border: 1px solid #404040;");
+    totalWidget->setStyleSheet("background-color: #161b22; border-radius: 8px; padding: 20px; margin-top: 20px; border: 1px solid #30363d;");
         
         QLabel* totalLabel = new QLabel("Total:", totalWidget);
-        totalLabel->setStyleSheet("color: #9e9e9e; font-size: 16px;");
+    totalLabel->setStyleSheet("color: #8b949e; font-size: 15px; font-weight: 500;");
         QLabel* valorLabel = new QLabel(QString("%1€").arg(QString::number(total, 'f', 2)), totalWidget);
-        valorLabel->setStyleSheet("font-size: 20px; color: #4CAF50; font-weight: bold;");
+    valorLabel->setStyleSheet("font-size: 20px; color: #238636; font-weight: 600;");
         
         totalLayout->addWidget(totalLabel);
         totalLayout->addStretch();
@@ -574,20 +750,22 @@ void MainWindow::atualizarCarrinhoPagina() {
         QPushButton* finalizarBtn = new QPushButton("Finalizar Compra", content);
         finalizarBtn->setStyleSheet(R"(
             QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
+                background-color: #238636;
+                color: #ffffff;
+                border: 1px solid #238636;
                 padding: 12px 24px;
                 border-radius: 6px;
-                font-size: 16px;
-                font-weight: bold;
+                font-size: 15px;
+                font-weight: 600;
                 margin-top: 20px;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                background-color: #2ea043;
+                border-color: #2ea043;
             }
             QPushButton:pressed {
-                background-color: #3d8b40;
+                background-color: #238636;
+                border-color: #2ea043;
             }
         )");
         connect(finalizarBtn, &QPushButton::clicked, this, &MainWindow::finalizarCompra);
@@ -829,6 +1007,10 @@ void MainWindow::updateAdminUI()
         if (btn->text() == "Carrinho") {
             btn->setVisible(!isAdmin);
         }
+        // Ocultar abas desnecessárias para admin
+        if (btn->text() == "Sobre" || btn->text() == "Contato" || btn->text() == "Início") {
+            btn->setVisible(!isAdmin); // Mostrar quando NÃO é admin, esconder quando É admin
+        }
     }
     
     // Se for admin, configurar a página administrativa
@@ -869,8 +1051,8 @@ void MainWindow::updateAdminUI()
         }
         
         if (menuLayout && !hasAdminButton) {
-            QPushButton* adminBtn = new QPushButton("Admin");
-            adminBtn->setStyleSheet(R"(
+            adminMenuButton = new QPushButton("Admin");
+            adminMenuButton->setStyleSheet(R"(
                 QPushButton {
                     background: none;
                     border: none;
@@ -890,12 +1072,15 @@ void MainWindow::updateAdminUI()
                     color: #4CAF50;
                 }
             )");
-            connect(adminBtn, &QPushButton::clicked, this, [this]() {
+            connect(adminMenuButton, &QPushButton::clicked, this, [this]() {
                 if (adminPage) {
                     paginas->setCurrentWidget(adminPage);
                 }
             });
-            menuLayout->addWidget(adminBtn);
+            menuLayout->addWidget(adminMenuButton);
+            
+            // Atualizar badge de notificações
+            atualizarBadgeAdmin();
         }
         
         // Forçar atualização da página administrativa
@@ -904,19 +1089,15 @@ void MainWindow::updateAdminUI()
         }
     } else {
         // Se não for admin, remover o botão Admin se existir
-        for (int i = 0; i < mainLayout->count(); i++) {
-            QLayoutItem* item = mainLayout->itemAt(i);
-            if (QHBoxLayout* hLayout = qobject_cast<QHBoxLayout*>(item->layout())) {
-                for (int j = 0; j < hLayout->count(); j++) {
-                    QLayoutItem* menuItem = hLayout->itemAt(j);
-                    if (QPushButton* btn = qobject_cast<QPushButton*>(menuItem->widget())) {
-                        if (btn->text() == "Admin") {
-                            btn->deleteLater();
-                            break;
-                        }
-                    }
-                }
-            }
+        if (adminMenuButton) {
+            adminMenuButton->setVisible(false);
+            adminMenuButton->deleteLater();
+            adminMenuButton = nullptr;
+        }
+        
+        // Voltar para a página da loja
+        if (lojaPage) {
+            paginas->setCurrentWidget(lojaPage);
         }
     }
 }
@@ -964,10 +1145,16 @@ void MainWindow::mostrarEncomendas()
 {
     QDialog* dialog = new QDialog(this);
     dialog->setWindowTitle("Minhas Encomendas");
-    dialog->resize(800, 600);
-    dialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
+    dialog->resize(900, 650);
+    dialog->setStyleSheet("QDialog { background-color: #0d1117; color: #c9d1d9; }");
 
     QVBoxLayout* layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(20, 20, 20, 20);
+    
+    // Título
+    QLabel* titleLabel = new QLabel("📦 Minhas Encomendas");
+    titleLabel->setStyleSheet("font-size: 24px; font-weight: bold; color: #58a6ff; margin-bottom: 10px;");
+    layout->addWidget(titleLabel);
 
     // Carregar todas as encomendas
     QVector<Order> orders = carregarEncomendas();
@@ -981,53 +1168,128 @@ void MainWindow::mostrarEncomendas()
     }
 
     if (userOrders.isEmpty()) {
-        QLabel* emptyLabel = new QLabel("Você ainda não tem encomendas.", dialog);
-        emptyLabel->setStyleSheet("color: #ffffff; font-size: 16px; padding: 20px;");
+        QLabel* emptyLabel = new QLabel("📭 Você ainda não tem encomendas.");
+        emptyLabel->setStyleSheet("color: #8b949e; font-size: 18px; padding: 40px; background: #161b22; border-radius: 8px; border: 1px solid #30363d;");
+        emptyLabel->setAlignment(Qt::AlignCenter);
         layout->addWidget(emptyLabel);
     } else {
         QScrollArea* scrollArea = new QScrollArea(dialog);
         scrollArea->setWidgetResizable(true);
-        scrollArea->setStyleSheet("QScrollArea { border: none; }");
+        scrollArea->setStyleSheet("QScrollArea { border: none; background: transparent; }");
+        scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
         QWidget* contentWidget = new QWidget(scrollArea);
         QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
+        contentLayout->setSpacing(12);
 
         // Ordenar encomendas por data (mais recente primeiro)
         std::sort(userOrders.begin(), userOrders.end(), 
                  [](const Order& a, const Order& b) { return a.orderDate > b.orderDate; });
 
         for (const Order& order : userOrders) {
+            // Container clickable para cada encomenda
             QWidget* orderWidget = new QWidget(contentWidget);
-            orderWidget->setStyleSheet(
-                "QWidget { background-color: #363636; border-radius: 8px; margin: 5px; padding: 15px; }"
-                "QLabel { color: #ffffff; }"
-            );
-            QVBoxLayout* orderLayout = new QVBoxLayout(orderWidget);
+            orderWidget->setCursor(Qt::PointingHandCursor);
+            orderWidget->setStyleSheet(R"(
+                QWidget {
+                    background-color: #161b22;
+                    border-radius: 8px;
+                    border: 1px solid #30363d;
+                    padding: 0px;
+                }
+                QWidget:hover {
+                    background-color: #1c2128;
+                    border-color: #58a6ff;
+                }
+            )");
+            
+            QHBoxLayout* orderLayout = new QHBoxLayout(orderWidget);
+            orderLayout->setContentsMargins(16, 16, 16, 16);
+            orderLayout->setSpacing(16);
 
-            // Cabeçalho da encomenda
-            QLabel* headerLabel = new QLabel(QString("Encomenda: %1").arg(order.orderId));
-            headerLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #4CAF50;");
-            orderLayout->addWidget(headerLabel);
+            // Coluna esquerda: Info principal
+            QVBoxLayout* leftColumn = new QVBoxLayout();
+            leftColumn->setSpacing(8);
+            
+            // ID e Data
+            QHBoxLayout* headerRow = new QHBoxLayout();
+            QLabel* orderIdLabel = new QLabel(QString("🧾 <b>%1</b>").arg(order.orderId));
+            orderIdLabel->setStyleSheet("font-size: 15px; color: #58a6ff;");
+            
+            QLabel* dateLabel = new QLabel(order.orderDate.toString("dd/MM/yyyy HH:mm"));
+            dateLabel->setStyleSheet("color: #8b949e; font-size: 13px;");
+            
+            headerRow->addWidget(orderIdLabel);
+            headerRow->addStretch();
+            headerRow->addWidget(dateLabel);
+            leftColumn->addLayout(headerRow);
 
-            QLabel* dateLabel = new QLabel(QString("Data: %1")
-                .arg(order.orderDate.toString("dd/MM/yyyy HH:mm")));
-            dateLabel->setStyleSheet("color: #9e9e9e;");
-            orderLayout->addWidget(dateLabel);
-
-            // Lista de itens
+            // Resumo dos itens
+            QString itemsSummary;
+            int totalItems = 0;
             for (const OrderItem& item : order.items) {
-                QLabel* itemLabel = new QLabel(QString("%1x %2 - %3€")
-                    .arg(item.quantity)
-                    .arg(item.productName)
-                    .arg(item.price * item.quantity, 0, 'f', 2));
-                orderLayout->addWidget(itemLabel);
+                totalItems += item.quantity;
             }
-
+            if (order.items.size() == 1) {
+                itemsSummary = QString("%1x %2").arg(order.items[0].quantity).arg(order.items[0].productName);
+            } else {
+                itemsSummary = QString("%1 produtos (%2 itens)").arg(order.items.size()).arg(totalItems);
+            }
+            
+            QLabel* itemsLabel = new QLabel(itemsSummary);
+            itemsLabel->setStyleSheet("color: #c9d1d9; font-size: 14px;");
+            leftColumn->addWidget(itemsLabel);
+            
             // Total
-            QLabel* totalLabel = new QLabel(QString("Total: %1€")
+            QLabel* totalLabel = new QLabel(QString("Total: <b>%1€</b>")
                 .arg(order.total, 0, 'f', 2));
-            totalLabel->setStyleSheet("font-weight: bold; color: #4CAF50; margin-top: 10px;");
-            orderLayout->addWidget(totalLabel);
+            totalLabel->setStyleSheet("font-size: 16px; color: #3fb950; margin-top: 4px;");
+            leftColumn->addWidget(totalLabel);
+            
+            orderLayout->addLayout(leftColumn, 3);
+
+            // Coluna direita: Status badge
+            QVBoxLayout* rightColumn = new QVBoxLayout();
+            rightColumn->setAlignment(Qt::AlignCenter);
+            
+            QString currentStatus = order.status.isEmpty() ? "pending" : order.status;
+            QString statusText = obterTextoEstadoEncomenda(currentStatus);
+            QColor statusColor = obterCorEstadoEncomenda(currentStatus);
+            
+            // Badge de status
+            QLabel* statusBadge = new QLabel(statusText);
+            statusBadge->setAlignment(Qt::AlignCenter);
+            statusBadge->setStyleSheet(QString(R"(
+                background-color: %1;
+                color: %2;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 600;
+            )").arg(statusColor.name())
+               .arg(statusColor.lightness() > 128 ? "#000000" : "#ffffff"));
+            
+            rightColumn->addWidget(statusBadge);
+            
+            // Indicador de mensagens não lidas (se houver)
+            if (!order.chat.isEmpty()) {
+                QLabel* chatIndicator = new QLabel(QString("💬 %1 mensagem%2")
+                    .arg(order.chat.size())
+                    .arg(order.chat.size() > 1 ? "ns" : ""));
+                chatIndicator->setStyleSheet("color: #8b949e; font-size: 12px; margin-top: 8px;");
+                chatIndicator->setAlignment(Qt::AlignCenter);
+                rightColumn->addWidget(chatIndicator);
+            }
+            
+            orderLayout->addLayout(rightColumn, 1);
+            
+            // Seta indicadora
+            QLabel* arrowLabel = new QLabel("›");
+            arrowLabel->setStyleSheet("color: #8b949e; font-size: 24px; font-weight: bold;");
+            orderLayout->addWidget(arrowLabel, 0, Qt::AlignCenter);
+
+            // Tornar o widget clicável
+            orderWidget->installEventFilter(new ClickableOrderWidget(this, order.orderId));
 
             contentLayout->addWidget(orderWidget);
         }
@@ -1037,18 +1299,21 @@ void MainWindow::mostrarEncomendas()
         layout->addWidget(scrollArea);
     }
 
+    // Botão fechar
     QPushButton* closeButton = new QPushButton("Fechar", dialog);
     closeButton->setStyleSheet(R"(
         QPushButton {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 10px 24px;
+            border-radius: 6px;
             font-size: 14px;
+            font-weight: 500;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: #30363d;
+            border-color: #58a6ff;
         }
     )");
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
@@ -1695,7 +1960,9 @@ double MainWindow::calcularVendasTotais() {
     double total = 0;
     auto orders = carregarEncomendas();
     for (const auto& order : orders) {
-        if (order.status == "accepted") {
+        // Contar vendas aceites, processadas, enviadas e entregues
+        if (order.status == "accepted" || order.status == "processing" || 
+            order.status == "shipped" || order.status == "delivered") {
             total += order.total;
         }
     }
@@ -1708,7 +1975,9 @@ QMap<QString, int> MainWindow::obterProdutosMaisVendidos(int limite) {
     
     // Contar vendas por produto
     for (const auto& order : orders) {
-        if (order.status == "accepted") {
+        // Contar vendas confirmadas (accepted ou estados posteriores)
+        if (order.status == "accepted" || order.status == "processing" || 
+            order.status == "shipped" || order.status == "delivered") {
             for (const auto& item : order.items) {
                 vendasPorProduto[item.productName] += item.quantity;
             }
@@ -1742,7 +2011,9 @@ QMap<QString, int> MainWindow::obterClientesMaisAtivos(int limite) {
     
     // Contar compras por cliente
     for (const auto& order : orders) {
-        if (order.status == "accepted") {
+        // Contar compras confirmadas
+        if (order.status == "accepted" || order.status == "processing" || 
+            order.status == "shipped" || order.status == "delivered") {
             comprasPorCliente[order.userName]++;
         }
     }
@@ -1903,6 +2174,17 @@ void MainWindow::setupAdminPage() {
 void MainWindow::setupDashboardTab() {
     QWidget* dashboardTab = new QWidget();
     QVBoxLayout* dashLayout = new QVBoxLayout(dashboardTab);
+    
+    // Scroll area para todo o conteúdo do dashboard
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setStyleSheet("QScrollArea { border: none; background: transparent; }");
+    
+    QWidget* scrollContent = new QWidget();
+    QVBoxLayout* contentLayout = new QVBoxLayout(scrollContent);
+    contentLayout->setSpacing(20);
+    contentLayout->setContentsMargins(10, 10, 10, 10);
 
     // Botão de atualizar
     QPushButton* refreshButton = new QPushButton("🔄");
@@ -1931,7 +2213,7 @@ void MainWindow::setupDashboardTab() {
         atualizarListaEncomendas();
         refreshButton->setEnabled(true);
     });
-    dashLayout->addWidget(refreshButton, 0, Qt::AlignRight);
+    contentLayout->addWidget(refreshButton, 0, Qt::AlignRight);
 
     // Estatísticas Gerais em Cards
     QHBoxLayout* statsLayout = new QHBoxLayout();
@@ -1984,7 +2266,7 @@ void MainWindow::setupDashboardTab() {
     statsLayout->addWidget(vendasHojeCard);
     statsLayout->addWidget(estoqueBaixoCard);
     statsLayout->addWidget(pedidosPendentesCard);
-    dashLayout->addLayout(statsLayout);
+    contentLayout->addLayout(statsLayout);
 
     // Lista de Produtos Mais Vendidos
     QGroupBox* topProdutosGroup = new QGroupBox("Produtos Mais Vendidos");
@@ -2027,7 +2309,197 @@ void MainWindow::setupDashboardTab() {
     QHBoxLayout* listsLayout = new QHBoxLayout();
     listsLayout->addWidget(topProdutosGroup);
     listsLayout->addWidget(topClientesGroup);
-    dashLayout->addLayout(listsLayout);
+    contentLayout->addLayout(listsLayout);
+
+    // Gráfico simples de vendas dos últimos 7 dias
+    QGroupBox* chartGroup = new QGroupBox("Vendas dos Últimos 7 Dias");
+    chartGroup->setStyleSheet(R"(
+        QGroupBox {
+            color: #ffffff;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            margin-top: 1ex;
+            padding: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px;
+            color: #4CAF50;
+        }
+    )");
+    QVBoxLayout* chartLayout = new QVBoxLayout(chartGroup);
+    
+    auto vendasPeriodo = obterVendasPorPeriodo(7);
+    QLineSeries* series = new QLineSeries();
+    int dayIndex = 0;
+    for (auto it = vendasPeriodo.begin(); it != vendasPeriodo.end(); ++it) {
+        series->append(dayIndex, it.value());
+        dayIndex++;
+    }
+    QChart* chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("");
+    chart->legend()->hide();
+    chart->setBackgroundBrush(QBrush(QColor("#363636")));
+    chart->setTitleBrush(QBrush(Qt::white));
+    
+    QValueAxis* axisX = new QValueAxis();
+    axisX->setTitleText("Dia");
+    axisX->setLabelFormat("%d");
+    axisX->setTickCount(qMax(2, vendasPeriodo.size()));
+    axisX->setLabelsColor(Qt::white);
+    axisX->setTitleBrush(QBrush(Qt::white));
+    
+    QValueAxis* axisY = new QValueAxis();
+    axisY->setTitleText("Total €");
+    axisY->setLabelFormat("%.2f");
+    axisY->setLabelsColor(Qt::white);
+    axisY->setTitleBrush(QBrush(Qt::white));
+    
+    chart->addAxis(axisX, Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisX);
+    series->attachAxis(axisY);
+    
+    QChartView* chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setMinimumHeight(300);
+    chartView->setStyleSheet("background: #363636; border-radius: 4px;");
+    
+    chartLayout->addWidget(chartView);
+    contentLayout->addWidget(chartGroup);
+    
+    // Novo Layout: Gráficos lado a lado
+    QHBoxLayout* chartsRowLayout = new QHBoxLayout();
+    
+    // Gráfico de Barras: Top 5 Produtos Mais Vendidos
+    QGroupBox* barChartGroup = new QGroupBox("Top 5 Produtos");
+    barChartGroup->setStyleSheet(R"(
+        QGroupBox {
+            color: #ffffff;
+            border: 1px solid #404040;
+            border-radius: 4px;
+            margin-top: 1ex;
+            padding: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px;
+            color: #4CAF50;
+        }
+    )");
+    QVBoxLayout* barChartLayout = new QVBoxLayout(barChartGroup);
+    
+    QBarSeries* barSeries = new QBarSeries();
+    QBarSet* barSet = new QBarSet("Unidades");
+    barSet->setColor(QColor("#58a6ff"));
+    
+    QStringList productNames;
+    auto topProducts = obterProdutosMaisVendidos(5);
+    for (auto it = topProducts.begin(); it != topProducts.end(); ++it) {
+        *barSet << it.value();
+        productNames << it.key().left(15); // Limitar tamanho do nome
+    }
+    
+    barSeries->append(barSet);
+    
+    QChart* barChart = new QChart();
+    barChart->addSeries(barSeries);
+    barChart->setTitle("");
+    barChart->legend()->setVisible(false);
+    barChart->setBackgroundBrush(QBrush(QColor("#363636")));
+    barChart->setAnimationOptions(QChart::SeriesAnimations);
+    
+    QBarCategoryAxis* barAxisX = new QBarCategoryAxis();
+    barAxisX->append(productNames);
+    barAxisX->setLabelsColor(Qt::white);
+    barAxisX->setLabelsAngle(-45);
+    
+    QValueAxis* barAxisY = new QValueAxis();
+    barAxisY->setLabelsColor(Qt::white);
+    barAxisY->setLabelFormat("%d");
+    
+    barChart->addAxis(barAxisX, Qt::AlignBottom);
+    barChart->addAxis(barAxisY, Qt::AlignLeft);
+    barSeries->attachAxis(barAxisX);
+    barSeries->attachAxis(barAxisY);
+    
+    QChartView* barChartView = new QChartView(barChart);
+    barChartView->setRenderHint(QPainter::Antialiasing);
+    barChartView->setMinimumHeight(250);
+    barChartView->setStyleSheet("background: #363636; border-radius: 4px;");
+    
+    barChartLayout->addWidget(barChartView);
+    chartsRowLayout->addWidget(barChartGroup);
+    
+    // Gráfico de Pizza: Status das Encomendas
+    QGroupBox* pieChartGroup = new QGroupBox("Status das Encomendas");
+    pieChartGroup->setStyleSheet(barChartGroup->styleSheet());
+    QVBoxLayout* pieChartLayout = new QVBoxLayout(pieChartGroup);
+    
+    QPieSeries* pieSeries = new QPieSeries();
+    
+    // Contar encomendas por status
+    QVector<Order> allOrders = carregarEncomendas();
+    QMap<QString, int> statusCount;
+    for (const Order& order : allOrders) {
+        statusCount[order.status]++;
+    }
+    
+    // Cores para cada status
+    QMap<QString, QColor> statusColors = {
+        {"pending", QColor("#e3b341")},
+        {"accepted", QColor("#58a6ff")},
+        {"processing", QColor("#6e5494")},
+        {"shipped", QColor("#0969da")},
+        {"delivered", QColor("#3fb950")},
+        {"rejected", QColor("#f85149")},
+        {"cancelled", QColor("#6e7681")}
+    };
+    
+    for (auto it = statusCount.begin(); it != statusCount.end(); ++it) {
+        QString statusLabel = obterTextoEstadoEncomenda(it.key());
+        QPieSlice* slice = pieSeries->append(statusLabel, it.value());
+        slice->setColor(statusColors.value(it.key(), QColor("#6e7681")));
+        slice->setLabelVisible(true);
+        slice->setLabelColor(Qt::white);
+        slice->setLabelPosition(QPieSlice::LabelOutside);
+        
+        // Destacar ao passar o mouse
+        connect(slice, &QPieSlice::hovered, [slice](bool hovered) {
+            slice->setExploded(hovered);
+            if (hovered) {
+                slice->setLabelFont(QFont("Arial", 10, QFont::Bold));
+            } else {
+                slice->setLabelFont(QFont("Arial", 9));
+            }
+        });
+    }
+    
+    QChart* pieChart = new QChart();
+    pieChart->addSeries(pieSeries);
+    pieChart->setTitle("");
+    pieChart->legend()->setAlignment(Qt::AlignRight);
+    pieChart->legend()->setLabelColor(Qt::white);
+    pieChart->setBackgroundBrush(QBrush(QColor("#363636")));
+    pieChart->setAnimationOptions(QChart::SeriesAnimations);
+    
+    QChartView* pieChartView = new QChartView(pieChart);
+    pieChartView->setRenderHint(QPainter::Antialiasing);
+    pieChartView->setMinimumHeight(250);
+    pieChartView->setStyleSheet("background: #363636; border-radius: 4px;");
+    
+    pieChartLayout->addWidget(pieChartView);
+    chartsRowLayout->addWidget(pieChartGroup);
+    
+    contentLayout->addLayout(chartsRowLayout);
+    
+    // Finalizar scroll area
+    scrollContent->setLayout(contentLayout);
+    scrollArea->setWidget(scrollContent);
+    dashLayout->addWidget(scrollArea);
     
     adminTabWidget->addTab(dashboardTab, "Dashboard");
 }
@@ -2124,7 +2596,15 @@ void MainWindow::setupReportsTab() {
             margin-right: 5px;
         }
     )");
-    reportsLayout->addWidget(periodoCombo);
+    // Linha superior: período + export CSV
+    QHBoxLayout* topRow = new QHBoxLayout();
+    topRow->addWidget(periodoCombo);
+    topRow->addStretch();
+    QPushButton* exportBtn = new QPushButton("Exportar CSV");
+    exportBtn->setStyleSheet("QPushButton { background-color: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 8px 16px; border-radius: 6px; } QPushButton:hover { background-color: #30363d; }");
+    connect(exportBtn, &QPushButton::clicked, this, &MainWindow::exportarRelatoriosCSV);
+    topRow->addWidget(exportBtn);
+    reportsLayout->addLayout(topRow);
     
     // Cards de métricas financeiras
     QHBoxLayout* metricsLayout = new QHBoxLayout();
@@ -2200,15 +2680,9 @@ void MainWindow::setupReportsTab() {
         
         transactionTable->setItem(i, 3, new QTableWidgetItem(QString::number(order.total, 'f', 2) + "€"));
         
-        QString status = order.status.isEmpty() ? "Pendente" : 
-                        order.status == "accepted" ? "Aceite" : 
-                        order.status == "rejected" ? "Recusada" : "Desconhecido";
+        QString status = obterTextoEstadoEncomenda(order.status);
         QTableWidgetItem* statusItem = new QTableWidgetItem(status);
-        statusItem->setForeground(
-            status == "Aceite" ? QColor("#4CAF50") :
-            status == "Recusada" ? QColor("#f44336") :
-            QColor("#FFC107")
-        );
+        statusItem->setForeground(obterCorEstadoEncomenda(order.status));
         transactionTable->setItem(i, 4, statusItem);
     }
     
@@ -2221,53 +2695,102 @@ void MainWindow::setupReportsTab() {
 void MainWindow::setupAdminOrdersTab() {
     QWidget* encomendasTab = new QWidget();
     QVBoxLayout* encomendasLayout = new QVBoxLayout(encomendasTab);
+    encomendasLayout->setSpacing(15);
+    encomendasLayout->setContentsMargins(15, 15, 15, 15);
     
-    // Lista de encomendas
-    adminOrdersList = new QListWidget(encomendasTab);
-    adminOrdersList->setStyleSheet(R"(
-        QListWidget {
-            background-color: #363636;
-            border: 1px solid #404040;
-            border-radius: 4px;
-            color: #ffffff;
-        }
-        QListWidget::item {
-            padding: 10px;
-            border-bottom: 1px solid #404040;
-        }
-        QListWidget::item:hover {
-            background-color: #404040;
-        }
-        QListWidget::item:selected {
-            background-color: #4CAF50;
-        }
-    )");
-
-    // Cabeçalho explicativo
-    QLabel* headerLabel = new QLabel("Duplo clique em uma encomenda para ver os detalhes", encomendasTab);
-    headerLabel->setStyleSheet("color: #9e9e9e; margin-bottom: 10px;");
-    encomendasLayout->addWidget(headerLabel);
-
-    encomendasLayout->addWidget(adminOrdersList);
-
-    // Botão de atualizar
-    QPushButton* refreshBtn = new QPushButton("Atualizar Lista", encomendasTab);
-    refreshBtn->setStyleSheet(R"(
+    // Cabeçalho com título e botão de atualizar
+    QHBoxLayout* headerLayout = new QHBoxLayout();
+    QLabel* titleLabel = new QLabel("📦 Gestão de Encomendas");
+    titleLabel->setStyleSheet(QString("font-size: 20px; font-weight: 600; color: %1;")
+        .arg(GitHubDark::TEXT_PRIMARY));
+    headerLayout->addWidget(titleLabel);
+    headerLayout->addStretch();
+    
+    QPushButton* refreshBtn = new QPushButton("🔄 Atualizar");
+    refreshBtn->setStyleSheet(QString(R"(
         QPushButton {
-            background-color: #4CAF50;
+            background-color: %1;
             color: white;
             padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
+            border: 1px solid %1;
+            border-radius: 6px;
             font-size: 14px;
-            margin-top: 10px;
+            font-weight: 500;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: %2;
         }
-    )");
+    )").arg(GitHubDark::ACCENT_PRIMARY)
+       .arg(GitHubDark::BUTTON_PRIMARY_HOVER));
     connect(refreshBtn, &QPushButton::clicked, this, &MainWindow::atualizarListaEncomendas);
-    encomendasLayout->addWidget(refreshBtn);
+    headerLayout->addWidget(refreshBtn);
+    
+    encomendasLayout->addLayout(headerLayout);
+    
+    // Barra de pesquisa
+    QLineEdit* searchOrdersEdit = new QLineEdit();
+    searchOrdersEdit->setPlaceholderText("🔍 Pesquisar por nome do cliente...");
+    searchOrdersEdit->setStyleSheet(QString(R"(
+        QLineEdit {
+            background-color: %1;
+            border: 1px solid %2;
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: %3;
+            font-size: 14px;
+        }
+        QLineEdit:focus {
+            border-color: %4;
+        }
+    )").arg(GitHubDark::BG_SECONDARY)
+       .arg(GitHubDark::BORDER_DEFAULT)
+       .arg(GitHubDark::TEXT_PRIMARY)
+       .arg(GitHubDark::ACCENT_PRIMARY));
+    
+    connect(searchOrdersEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
+        filtrarEncomendas(text);
+    });
+    
+    encomendasLayout->addWidget(searchOrdersEdit);
+    
+    // Área de scroll para as encomendas
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setStyleSheet(QString("QScrollArea { border: none; background: %1; }")
+        .arg(GitHubDark::BG_PRIMARY));
+    
+    QWidget* scrollContent = new QWidget();
+    adminOrdersList = new QListWidget(scrollContent);
+    adminOrdersList->setStyleSheet(QString(R"(
+        QListWidget {
+            background-color: %1;
+            border: 1px solid %2;
+            border-radius: 6px;
+            color: %3;
+        }
+        QListWidget::item {
+            padding: 0px;
+            margin: 8px;
+            border: none;
+            background: transparent;
+        }
+        QListWidget::item:hover {
+            background: transparent;
+        }
+        QListWidget::item:selected {
+            background: transparent;
+        }
+    )").arg(GitHubDark::BG_PRIMARY)
+       .arg(GitHubDark::BORDER_DEFAULT)
+       .arg(GitHubDark::TEXT_PRIMARY));
+    
+    QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContent);
+    scrollLayout->addWidget(adminOrdersList);
+    scrollLayout->setContentsMargins(0, 0, 0, 0);
+    
+    scrollArea->setWidget(scrollContent);
+    encomendasLayout->addWidget(scrollArea);
 
     // Conectar o clique duplo para mostrar detalhes
     connect(adminOrdersList, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
@@ -2294,25 +2817,191 @@ void MainWindow::atualizarListaEncomendas() {
         QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         QFile f(dataPath + "/artes-papeis/users.json");
         QString userName = order.userId;
+        QString userEmail = "";
         if (f.open(QIODevice::ReadOnly)) {
             QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
             if (doc.isObject()) {
                 QJsonObject userObj = doc.object().value(order.userId).toObject();
                 userName = userObj["fullName"].toString();
+                userEmail = userObj["email"].toString();
                 if (userName.isEmpty()) userName = order.userId;
             }
             f.close();
         }
 
-        QString itemText = QString("%1 - %2 - Cliente: %3 - Total: %4€")
-            .arg(order.orderDate.toString("dd/MM/yyyy HH:mm"))
-            .arg(order.orderId)
-            .arg(userName)
-            .arg(order.total, 0, 'f', 2);
+        // Criar widget personalizado para o card
+        QWidget* orderCard = new QWidget();
+        orderCard->setStyleSheet(QString(R"(
+            QWidget {
+                background-color: %1;
+                border: 1px solid %2;
+                border-radius: 8px;
+                padding: 16px;
+            }
+        )").arg(GitHubDark::BG_SECONDARY)
+           .arg(GitHubDark::BORDER_DEFAULT));
         
-        QListWidgetItem* item = new QListWidgetItem(itemText);
+        QHBoxLayout* cardLayout = new QHBoxLayout(orderCard);
+        cardLayout->setSpacing(16);
+        
+        // Coluna esquerda - Informações principais
+        QVBoxLayout* leftColumn = new QVBoxLayout();
+        leftColumn->setSpacing(8);
+        
+        QLabel* orderIdLabel = new QLabel(QString("🔖 <b>%1</b>").arg(order.orderId));
+        orderIdLabel->setStyleSheet(QString("color: %1; font-size: 14px; font-weight: 600;")
+            .arg(GitHubDark::TEXT_LINK));
+        
+        QLabel* dateLabel = new QLabel(QString("📅 %1").arg(order.orderDate.toString("dd/MM/yyyy HH:mm")));
+        dateLabel->setStyleSheet(QString("color: %1; font-size: 13px;")
+            .arg(GitHubDark::TEXT_SECONDARY));
+        
+        QLabel* clientLabel = new QLabel(QString("👤 <b>%1</b>").arg(userName));
+        clientLabel->setStyleSheet(QString("color: %1; font-size: 13px;")
+            .arg(GitHubDark::TEXT_PRIMARY));
+        
+        if (!userEmail.isEmpty()) {
+            QLabel* emailLabel = new QLabel(QString("✉️ %1").arg(userEmail));
+            emailLabel->setStyleSheet(QString("color: %1; font-size: 12px;")
+                .arg(GitHubDark::TEXT_MUTED));
+            leftColumn->addWidget(emailLabel);
+        }
+        
+        leftColumn->addWidget(orderIdLabel);
+        leftColumn->addWidget(dateLabel);
+        leftColumn->addWidget(clientLabel);
+        
+        // Coluna direita - Status e total
+        QVBoxLayout* rightColumn = new QVBoxLayout();
+        rightColumn->setSpacing(8);
+        rightColumn->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        
+        // Badge de status
+        QString statusText;
+        QString statusColor;
+        QString statusBg;
+        
+        if (order.status == "pending") {
+            statusText = "⏳ Pendente";
+            statusColor = "#000";
+            statusBg = GitHubDark::ACCENT_YELLOW;
+        } else if (order.status == "accepted") {
+            statusText = "✓ Aceite";
+            statusColor = "white";
+            statusBg = GitHubDark::ACCENT_PRIMARY;
+        } else if (order.status == "processing") {
+            statusText = "⚙️ Processando";
+            statusColor = "white";
+            statusBg = "#6e5494";
+        } else if (order.status == "shipped") {
+            statusText = "🚚 Enviado";
+            statusColor = "white";
+            statusBg = "#0969da";
+        } else if (order.status == "delivered") {
+            statusText = "✅ Entregue";
+            statusColor = "white";
+            statusBg = GitHubDark::ACCENT_PRIMARY;
+        } else if (order.status == "rejected") {
+            statusText = "❌ Rejeitado";
+            statusColor = "white";
+            statusBg = GitHubDark::ACCENT_RED;
+        } else if (order.status == "cancelled") {
+            statusText = "🚫 Cancelado";
+            statusColor = "white";
+            statusBg = "#6e7681";
+        } else {
+            statusText = order.status;
+            statusColor = "white";
+            statusBg = "#6e7681";
+        }
+        
+        QLabel* statusBadge = new QLabel(statusText);
+        statusBadge->setStyleSheet(QString(R"(
+            background-color: %1;
+            color: %2;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        )").arg(statusBg).arg(statusColor));
+        statusBadge->setAlignment(Qt::AlignCenter);
+        
+        QLabel* totalLabel = new QLabel(QString("<b>%1€</b>").arg(order.total, 0, 'f', 2));
+        totalLabel->setStyleSheet(QString("color: %1; font-size: 20px; font-weight: 700;")
+            .arg(GitHubDark::ACCENT_PRIMARY));
+        totalLabel->setAlignment(Qt::AlignRight);
+        
+        QLabel* itemsCount = new QLabel(QString("%1 item(s)").arg(order.items.size()));
+        itemsCount->setStyleSheet(QString("color: %1; font-size: 11px;")
+            .arg(GitHubDark::TEXT_MUTED));
+        itemsCount->setAlignment(Qt::AlignRight);
+        
+        rightColumn->addWidget(statusBadge);
+        rightColumn->addWidget(totalLabel);
+        rightColumn->addWidget(itemsCount);
+        
+        cardLayout->addLayout(leftColumn, 3);
+        cardLayout->addLayout(rightColumn, 1);
+        
+        // Adicionar à lista
+        QListWidgetItem* item = new QListWidgetItem();
         item->setData(Qt::UserRole, order.orderId);
+        item->setSizeHint(QSize(orderCard->sizeHint().width(), 110)); // Altura fixa para reduzir sensibilidade
         adminOrdersList->addItem(item);
+        adminOrdersList->setItemWidget(item, orderCard);
+    }
+}
+
+void MainWindow::filtrarEncomendas(const QString& searchText) {
+    if (!adminOrdersList) return;
+    
+    QString lowerSearch = searchText.toLower();
+    
+    for (int i = 0; i < adminOrdersList->count(); ++i) {
+        QListWidgetItem* item = adminOrdersList->item(i);
+        QWidget* widget = adminOrdersList->itemWidget(item);
+        
+        if (lowerSearch.isEmpty()) {
+            item->setHidden(false);
+            continue;
+        }
+        
+        // Obter o ID da encomenda
+        QString orderId = item->data(Qt::UserRole).toString();
+        
+        // Carregar informação do cliente
+        QVector<Order> orders = carregarEncomendas();
+        bool found = false;
+        
+        for (const Order& order : orders) {
+            if (order.orderId == orderId) {
+                QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+                QFile f(dataPath + "/artes-papeis/users.json");
+                QString userName = order.userId;
+                QString userEmail = "";
+                
+                if (f.open(QIODevice::ReadOnly)) {
+                    QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+                    if (doc.isObject()) {
+                        QJsonObject userObj = doc.object().value(order.userId).toObject();
+                        userName = userObj["fullName"].toString();
+                        userEmail = userObj["email"].toString();
+                        if (userName.isEmpty()) userName = order.userId;
+                    }
+                    f.close();
+                }
+                
+                // Verificar se o texto de pesquisa está no nome, email ou ID
+                if (userName.toLower().contains(lowerSearch) ||
+                    userEmail.toLower().contains(lowerSearch) ||
+                    orderId.toLower().contains(lowerSearch)) {
+                    found = true;
+                }
+                break;
+            }
+        }
+        
+        item->setHidden(!found);
     }
 }
 
@@ -2335,112 +3024,321 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     }
 
     Order& targetOrder = orders[orderIndex];
+    
+    // Verificar se o usuário tem permissão para ver esta encomenda
+    if (!isAdmin && targetOrder.userId != loggedInUser) {
+        QMessageBox::warning(this, "Acesso Negado", "Você não tem permissão para ver esta encomenda.");
+        return;
+    }
 
     // Criar janela de detalhes
     QDialog* dialog = new QDialog(this);
     dialog->setWindowTitle("Detalhes da Encomenda");
     dialog->resize(800, 600);
-    dialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
+    dialog->setStyleSheet("QDialog { background-color: #0d1117; color: #c9d1d9; }");
 
     QVBoxLayout* layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(20, 20, 20, 20);
+    layout->setSpacing(16);
 
     // Header com ID da encomenda
-    QLabel* headerLabel = new QLabel(QString("Encomenda: %1").arg(targetOrder.orderId));
-    headerLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 10px;");
+    QLabel* headerLabel = new QLabel(QString("🧾 Encomenda: %1").arg(targetOrder.orderId));
+    headerLabel->setStyleSheet("font-size: 20px; font-weight: bold; color: #58a6ff; margin-bottom: 10px;");
     layout->addWidget(headerLabel);
 
-    // Informações do cliente
-    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QFile f(dataPath + "/artes-papeis/users.json");
-    QJsonObject userData;
-    if (f.open(QIODevice::ReadOnly)) {
-        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
-        if (doc.isObject()) {
-            userData = doc.object().value(targetOrder.userId).toObject();
-        }
-        f.close();
-    }
+    // Scroll area para todo o conteúdo
+    QScrollArea* mainScrollArea = new QScrollArea();
+    mainScrollArea->setWidgetResizable(true);
+    mainScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mainScrollArea->setStyleSheet("QScrollArea { border: none; background: transparent; }");
+    
+    QWidget* scrollContent = new QWidget();
+    QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContent);
+    scrollLayout->setSpacing(16);
 
-    QGroupBox* clienteBox = new QGroupBox("Informações do Cliente");
-    clienteBox->setStyleSheet(R"(
+    // Se for admin, mostrar informações do cliente
+    if (isAdmin) {
+        QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QFile f(dataPath + "/artes-papeis/users.json");
+        QJsonObject userData;
+        if (f.open(QIODevice::ReadOnly)) {
+            QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+            if (doc.isObject()) {
+                userData = doc.object().value(targetOrder.userId).toObject();
+            }
+            f.close();
+        }
+
+        QGroupBox* clienteBox = new QGroupBox("👤 Informações do Cliente");
+        clienteBox->setStyleSheet(R"(
+            QGroupBox {
+                color: #c9d1d9;
+                border: 1px solid #30363d;
+                border-radius: 6px;
+                margin-top: 1ex;
+                padding: 16px;
+                background: #161b22;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+                color: #58a6ff;
+                font-weight: 600;
+            }
+        )");
+        QVBoxLayout* clienteLayout = new QVBoxLayout(clienteBox);
+        
+        clienteLayout->addWidget(new QLabel(QString("Nome: %1").arg(userData["fullName"].toString())));
+        clienteLayout->addWidget(new QLabel(QString("Email: %1").arg(userData["email"].toString())));
+        clienteLayout->addWidget(new QLabel(QString("Telefone: %1").arg(userData["phone"].toString())));
+        clienteLayout->addWidget(new QLabel(QString("NIF: %1").arg(userData["nif"].toString())));
+        
+        scrollLayout->addWidget(clienteBox);
+    }
+    
+    // Detalhes da encomenda
+    QGroupBox* detalhesBox = new QGroupBox("📋 Detalhes da Encomenda");
+    QString groupBoxStyle = R"(
         QGroupBox {
-            color: #ffffff;
-            border: 1px solid #404040;
-            border-radius: 4px;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
             margin-top: 1ex;
-            padding: 10px;
+            padding: 16px;
+            background: #161b22;
         }
         QGroupBox::title {
             subcontrol-origin: margin;
             left: 10px;
             padding: 0 5px;
-            color: #4CAF50;
+            color: #58a6ff;
+            font-weight: 600;
         }
-    )");
-    QVBoxLayout* clienteLayout = new QVBoxLayout(clienteBox);
-    
-    clienteLayout->addWidget(new QLabel(QString("Nome: %1").arg(userData["fullName"].toString())));
-    clienteLayout->addWidget(new QLabel(QString("Email: %1").arg(userData["email"].toString())));
-    clienteLayout->addWidget(new QLabel(QString("Telefone: %1").arg(userData["phone"].toString())));
-    clienteLayout->addWidget(new QLabel(QString("NIF: %1").arg(userData["nif"].toString())));
-    
-    layout->addWidget(clienteBox);
-
-    // Detalhes da encomenda
-    QGroupBox* detalhesBox = new QGroupBox("Detalhes da Encomenda");
-    detalhesBox->setStyleSheet(clienteBox->styleSheet());
+    )";
+    detalhesBox->setStyleSheet(groupBoxStyle);
     QVBoxLayout* detalhesLayout = new QVBoxLayout(detalhesBox);
     
-    detalhesLayout->addWidget(new QLabel(QString("Data: %1")
+    detalhesLayout->addWidget(new QLabel(QString("📅 Data: %1")
         .arg(targetOrder.orderDate.toString("dd/MM/yyyy HH:mm"))));
     
     // Lista de produtos
-    QScrollArea* scrollArea = new QScrollArea();
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setStyleSheet("QScrollArea { border: none; }");
-    
-    QWidget* scrollContent = new QWidget();
-    QVBoxLayout* itemsLayout = new QVBoxLayout(scrollContent);
+    QWidget* itemsContainer = new QWidget();
+    QVBoxLayout* itemsLayout = new QVBoxLayout(itemsContainer);
+    itemsLayout->setSpacing(8);
+    itemsLayout->setContentsMargins(0, 8, 0, 8);
     
     for (const OrderItem& item : targetOrder.items) {
         QWidget* itemWidget = new QWidget();
-        itemWidget->setStyleSheet("background-color: #363636; border-radius: 4px; padding: 8px; margin: 2px;");
+        itemWidget->setStyleSheet("background-color: #21262d; border-radius: 6px; padding: 10px; border: 1px solid #30363d;");
         QHBoxLayout* itemLayout = new QHBoxLayout(itemWidget);
         
-        itemLayout->addWidget(new QLabel(item.productName));
-        itemLayout->addWidget(new QLabel(QString("x%1").arg(item.quantity)));
-        itemLayout->addWidget(new QLabel(QString("%1€").arg(item.price * item.quantity, 0, 'f', 2)));
+        QLabel* nameLabel = new QLabel(item.productName);
+        nameLabel->setStyleSheet("color: #c9d1d9; font-weight: 500;");
+        QLabel* qtyLabel = new QLabel(QString("×%1").arg(item.quantity));
+        qtyLabel->setStyleSheet("color: #8b949e;");
+        QLabel* priceLabel = new QLabel(QString("%1€").arg(item.price * item.quantity, 0, 'f', 2));
+        priceLabel->setStyleSheet("color: #3fb950; font-weight: 600;");
+        
+        itemLayout->addWidget(nameLabel, 3);
+        itemLayout->addWidget(qtyLabel, 1);
+        itemLayout->addWidget(priceLabel, 1, Qt::AlignRight);
         
         itemsLayout->addWidget(itemWidget);
     }
-    
-    scrollContent->setLayout(itemsLayout);
-    scrollArea->setWidget(scrollContent);
-    detalhesLayout->addWidget(scrollArea);
+    itemsContainer->setLayout(itemsLayout);
+    detalhesLayout->addWidget(itemsContainer);
     
     // Total
-    QLabel* totalLabel = new QLabel(QString("Total: %1€").arg(targetOrder.total, 0, 'f', 2));
-    totalLabel->setStyleSheet("font-size: 16px; font-weight: bold; color: #4CAF50; margin-top: 10px;");
+    QLabel* totalLabel = new QLabel(QString("💰 Total: <b>%1€</b>").arg(targetOrder.total, 0, 'f', 2));
+    totalLabel->setStyleSheet("font-size: 18px; color: #3fb950; margin-top: 12px; padding: 12px; background: #21262d; border-radius: 6px; border: 1px solid #30363d;");
     detalhesLayout->addWidget(totalLabel);
     
-    layout->addWidget(detalhesBox);
+    scrollLayout->addWidget(detalhesBox);
 
     // Área de Status
-    QGroupBox* statusBox = new QGroupBox("Status da Encomenda");
-    statusBox->setStyleSheet(clienteBox->styleSheet());
+    QGroupBox* statusBox = new QGroupBox("📊 Status da Encomenda");
+    statusBox->setStyleSheet(groupBoxStyle);
     QVBoxLayout* statusLayout = new QVBoxLayout(statusBox);
 
     QString currentStatus = targetOrder.status.isEmpty() ? "pending" : targetOrder.status;
-    QLabel* statusLabel = new QLabel(QString("Status atual: %1").arg(
-        currentStatus == "pending" ? "Pendente" :
-        currentStatus == "accepted" ? "Aceite" :
-        currentStatus == "rejected" ? "Recusada" : "Desconhecido"
-    ));
-    statusLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
+    QString statusText = obterTextoEstadoEncomenda(currentStatus);
+    QColor statusColor = obterCorEstadoEncomenda(currentStatus);
+    
+    QLabel* statusLabel = new QLabel(QString("Status: <b>%1</b>").arg(statusText));
+    statusLabel->setStyleSheet(QString("font-size: 16px; font-weight: bold; color: %1; padding: 10px; background: %2; border-radius: 6px;")
+        .arg(statusColor.lightness() > 128 ? "#000000" : "#ffffff")
+        .arg(statusColor.name()));
     statusLayout->addWidget(statusLabel);
 
-    // Botões de status (apenas para admin)
+    // Dropdown de estados e botões (apenas para admin)
     if (isAdmin) {
+        QComboBox* statusCombo = new QComboBox();
+        statusCombo->addItem("Pendente", "pending");
+        statusCombo->addItem("Aceite", "accepted");
+        statusCombo->addItem("Em Processamento", "processing");
+        statusCombo->addItem("Enviada", "shipped");
+        statusCombo->addItem("Entregue", "delivered");
+        statusCombo->addItem("Recusada", "rejected");
+        statusCombo->addItem("Cancelada", "cancelled");
+        
+        // Selecionar o estado atual
+        int currentIndex = statusCombo->findData(currentStatus);
+        if (currentIndex >= 0) statusCombo->setCurrentIndex(currentIndex);
+        
+        statusCombo->setStyleSheet(R"(
+            QComboBox {
+                background-color: #363636;
+                color: #ffffff;
+                padding: 8px;
+                border: 1px solid #404040;
+                border-radius: 4px;
+                min-width: 200px;
+            }
+            QComboBox::drop-down {
+                border: none;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid #ffffff;
+            }
+        )");
+        
+        QPushButton* updateStatusBtn = new QPushButton("Atualizar Status");
+        updateStatusBtn->setStyleSheet(R"(
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        )");
+        
+        connect(updateStatusBtn, &QPushButton::clicked, this, [this, &targetOrder, &orders, statusCombo, statusLabel, dialog]() {
+            QString newStatus = statusCombo->currentData().toString();
+            
+            // Se for recusa ou cancelamento, pedir motivo
+            if (newStatus == "rejected" || newStatus == "cancelled") {
+                QDialog* reasonDialog = new QDialog(dialog);
+                reasonDialog->setWindowTitle(newStatus == "rejected" ? "Recusar Encomenda" : "Cancelar Encomenda");
+                reasonDialog->setStyleSheet("QDialog { background-color: #2b2b2b; color: #ffffff; }");
+                
+                QVBoxLayout* reasonLayout = new QVBoxLayout(reasonDialog);
+                QLabel* reasonLabel = new QLabel("Por favor, insira o motivo:");
+                reasonLabel->setStyleSheet("color: #ffffff; font-size: 14px;");
+                
+                QTextEdit* reasonEdit = new QTextEdit();
+                reasonEdit->setStyleSheet(R"(
+                    QTextEdit {
+                        background-color: #363636;
+                        color: #ffffff;
+                        border: 1px solid #404040;
+                        border-radius: 4px;
+                        padding: 8px;
+                        min-height: 100px;
+                    }
+                )");
+                
+                QHBoxLayout* btnLayout = new QHBoxLayout();
+                QPushButton* confirmBtn = new QPushButton("Confirmar");
+                QPushButton* cancelBtn = new QPushButton("Cancelar");
+                
+                QString btnStyle = R"(
+                    QPushButton {
+                        padding: 8px 16px;
+                        border: none;
+                        border-radius: 4px;
+                        font-size: 14px;
+                        color: white;
+                    }
+                )";
+                
+                confirmBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #f44336; }");
+                cancelBtn->setStyleSheet(btnStyle + "QPushButton { background-color: #666666; }");
+                
+                btnLayout->addWidget(confirmBtn);
+                btnLayout->addWidget(cancelBtn);
+                
+                reasonLayout->addWidget(reasonLabel);
+                reasonLayout->addWidget(reasonEdit);
+                reasonLayout->addLayout(btnLayout);
+                
+                connect(cancelBtn, &QPushButton::clicked, reasonDialog, &QDialog::reject);
+                connect(confirmBtn, &QPushButton::clicked, reasonDialog, [=, &targetOrder, &orders]() {
+                    QString reason = reasonEdit->toPlainText().trimmed();
+                    if (reason.isEmpty()) {
+                        QMessageBox::warning(reasonDialog, "Erro", "Por favor, insira um motivo.");
+                        return;
+                    }
+                    
+                    targetOrder.status = newStatus;
+                    targetOrder.lastUpdated = QDateTime::currentDateTime();
+                    
+                    ChatMessage msg;
+                    msg.userId = "admin";
+                    msg.userName = "Administrador";
+                    msg.message = QString("Encomenda %1: %2").arg(obterTextoEstadoEncomenda(newStatus)).arg(reason);
+                    msg.timestamp = QDateTime::currentDateTime();
+                    targetOrder.chat.append(msg);
+                    
+                    QString error;
+                    if (atualizarEncomendas(orders, error)) {
+                        statusLabel->setText(QString("Status atual: %1").arg(obterTextoEstadoEncomenda(newStatus)));
+                        statusLabel->setStyleSheet(QString("font-size: 16px; font-weight: bold; color: %1;")
+                            .arg(obterCorEstadoEncomenda(newStatus).name()));
+                        QMessageBox::information(reasonDialog, "Status Atualizado", "Status atualizado com sucesso.");
+                        atualizarDashboard();
+                        atualizarEstoque();
+                        atualizarRelatorios();
+                        atualizarListaEncomendas();
+                        atualizarBadgeAdmin();
+                        reasonDialog->accept();
+                    }
+                });
+                
+                reasonDialog->exec();
+                delete reasonDialog;
+            } else {
+                // Atualização normal de status
+                targetOrder.status = newStatus;
+                targetOrder.lastUpdated = QDateTime::currentDateTime();
+                
+                ChatMessage msg;
+                msg.userId = "admin";
+                msg.userName = "Administrador";
+                msg.message = QString("Status alterado para: %1").arg(obterTextoEstadoEncomenda(newStatus));
+                msg.timestamp = QDateTime::currentDateTime();
+                targetOrder.chat.append(msg);
+                
+                QString error;
+                if (atualizarEncomendas(orders, error)) {
+                    statusLabel->setText(QString("Status atual: %1").arg(obterTextoEstadoEncomenda(newStatus)));
+                    statusLabel->setStyleSheet(QString("font-size: 16px; font-weight: bold; color: %1;")
+                        .arg(obterCorEstadoEncomenda(newStatus).name()));
+                    QMessageBox::information(dialog, "Status Atualizado", "Status atualizado com sucesso.");
+                    atualizarDashboard();
+                    atualizarEstoque();
+                    atualizarRelatorios();
+                    atualizarListaEncomendas();
+                    atualizarBadgeAdmin();
+                }
+            }
+        });
+        
+        QHBoxLayout* statusControlLayout = new QHBoxLayout();
+        statusControlLayout->addWidget(statusCombo);
+        statusControlLayout->addWidget(updateStatusBtn);
+        statusLayout->addLayout(statusControlLayout);
+        
+    // Manter botões antigos para compatibilidade mas ocultos
+    if (false) {
         QHBoxLayout* statusBtnsLayout = new QHBoxLayout();
         QPushButton* acceptBtn = new QPushButton("Aceitar Encomenda");
         QPushButton* rejectBtn = new QPushButton("Recusar Encomenda");
@@ -2581,12 +3479,13 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
         statusBtnsLayout->addWidget(rejectBtn);
         statusLayout->addLayout(statusBtnsLayout);
     }
+    } // Fim do if(false) - código legacy
     
-    layout->addWidget(statusBox);
+    scrollLayout->addWidget(statusBox);
 
     // Área de Chat
-    QGroupBox* chatBox = new QGroupBox("Chat");
-    chatBox->setStyleSheet(clienteBox->styleSheet());
+    QGroupBox* chatBox = new QGroupBox("💬 Chat");
+    chatBox->setStyleSheet(groupBoxStyle);
     QVBoxLayout* chatLayout = new QVBoxLayout(chatBox);
 
     // Lista de mensagens
@@ -2674,7 +3573,12 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     chatLayout->addWidget(chatListWidget);
     chatLayout->addWidget(inputWidget);
 
-    layout->addWidget(chatBox);
+    scrollLayout->addWidget(chatBox);
+    
+    // Finalizar scroll area
+    scrollContent->setLayout(scrollLayout);
+    mainScrollArea->setWidget(scrollContent);
+    layout->addWidget(mainScrollArea);
 
     // Botões de ação
     QHBoxLayout* actionLayout = new QHBoxLayout();
@@ -2683,15 +3587,17 @@ void MainWindow::mostrarDetalhesEncomenda(const QString& orderId) {
     QPushButton* closeButton = new QPushButton("Fechar", dialog);
     closeButton->setStyleSheet(R"(
         QPushButton {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 4px;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 10px 24px;
+            border-radius: 6px;
             font-size: 14px;
+            font-weight: 500;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: #30363d;
+            border-color: #58a6ff;
         }
     )");
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
@@ -2717,6 +3623,23 @@ void MainWindow::finalizarCompra() {
         order.userId = loggedInUser;
         order.orderDate = QDateTime::currentDateTime();
         order.total = 0.0;
+
+        // Obter o nome completo do utilizador
+        QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QFile userFile(dataPath + "/artes-papeis/users.json");
+        if (userFile.open(QIODevice::ReadOnly)) {
+            QJsonDocument doc = QJsonDocument::fromJson(userFile.readAll());
+            if (doc.isObject()) {
+                QJsonObject userObj = doc.object().value(loggedInUser).toObject();
+                order.userName = userObj["fullName"].toString();
+                if (order.userName.isEmpty()) {
+                    order.userName = loggedInUser; // Fallback para username se não houver nome completo
+                }
+            }
+            userFile.close();
+        } else {
+            order.userName = loggedInUser; // Fallback para username se o arquivo não existir
+        }
 
         // Adicionar itens do carrinho
         for (auto it = carrinho.begin(); it != carrinho.end(); ++it) {
@@ -2745,6 +3668,8 @@ void MainWindow::finalizarCompra() {
                 QString("Encomenda %1 realizada com sucesso!\nTotal: %2€")
                 .arg(order.orderId)
                 .arg(QString::number(order.total, 'f', 2)));
+            // som de notificação
+            QApplication::beep();
             
             // Limpar o carrinho após compra bem-sucedida
             limparCarrinho();
@@ -2755,6 +3680,9 @@ void MainWindow::finalizarCompra() {
                 atualizarEstoque();
                 atualizarRelatorios();
             }
+            
+            // Atualizar badge de notificações do admin
+            atualizarBadgeAdmin();
         } else {
             QMessageBox::warning(this, "Erro", 
                 QString("Não foi possível finalizar a compra: %1").arg(error));
@@ -2782,10 +3710,12 @@ void MainWindow::atualizarDashboard() {
             QDate hoje = QDate::currentDate();
             
             for (const Order& order : orders) {
-                if (order.status == "pending") {
+                if (order.status.isEmpty() || order.status == "pending") {
                     encomendasPendentes++;
                 }
-                if (order.orderDate.date() == hoje && order.status == "accepted") {
+                // Contar vendas finalizadas (delivered ou accepted)
+                if (order.orderDate.date() == hoje && 
+                    (order.status == "delivered" || order.status == "accepted")) {
                     vendasHoje += order.total;
                 }
             }
@@ -2931,19 +3861,374 @@ void MainWindow::atualizarRelatorios() {
                     
                     table->setItem(row, 3, new QTableWidgetItem(QString::number(order.total, 'f', 2) + "€"));
                     
-                    QString status = order.status.isEmpty() ? "Pendente" : 
-                                   order.status == "accepted" ? "Aceite" : 
-                                   order.status == "rejected" ? "Recusada" : "Desconhecido";
+                    QString status = obterTextoEstadoEncomenda(order.status);
                     QTableWidgetItem* statusItem = new QTableWidgetItem(status);
-                    statusItem->setForeground(
-                        status == "Aceite" ? QColor("#4CAF50") :
-                        status == "Recusada" ? QColor("#f44336") :
-                        QColor("#FFC107")
-                    );
+                    statusItem->setForeground(obterCorEstadoEncomenda(order.status));
                     table->setItem(row, 4, statusItem);
                 }
             }
             break;
         }
     }
+}
+void MainWindow::filtrarProdutos(const QString& searchText) {
+    if (!productsGrid || !productsWidget) return;
+    
+    QString lowerSearch = searchText.toLower();
+    QVector<ProdutoFull> produtos = productManager->getAllProducts();
+    
+    // Limpar grid atual
+    while (productsGrid->count() > 0) {
+        QLayoutItem* it = productsGrid->takeAt(0);
+        if (!it) break;
+        if (QWidget* w = it->widget()) { w->deleteLater(); }
+        delete it;
+    }
+    
+    const int cols = 4;
+    int idx = 0;
+    
+    for (const auto &pf : produtos) {
+        // Filtrar por categoria primeiro
+        if (currentCategory != "Todos" && pf.categoria != currentCategory) {
+            continue;
+        }
+        
+        // Depois filtrar por texto de pesquisa
+        if (!lowerSearch.isEmpty()) {
+            QString produtoNome = pf.nome.toLower();
+            QString produtoId = pf.id.toLower();
+            if (!produtoNome.contains(lowerSearch) && !produtoId.contains(lowerSearch)) {
+                continue;
+            }
+        }
+        
+        ProductCard* card = new ProductCard(pf, this);
+        card->setAvailableStock(productManager->getAvailableStock(pf.id));
+        connect(card, &ProductCard::compraProduto, this, &MainWindow::adicionarAoCarrinho);
+        int row = idx / cols;
+        int col = idx % cols;
+        productsGrid->addWidget(card, row, col, Qt::AlignTop);
+        ++idx;
+    }
+    
+    // Se não há resultados, mostrar mensagem
+    if (idx == 0) {
+        QLabel* noResults = new QLabel("Nenhum produto encontrado");
+        noResults->setStyleSheet("color: #9e9e9e; font-size: 18px; padding: 40px;");
+        noResults->setAlignment(Qt::AlignCenter);
+        productsGrid->addWidget(noResults, 0, 0, 1, cols);
+    }
+}
+
+void MainWindow::mostrarPreviewPesquisa(const QString& searchText) {
+    if (!searchPreviewWidget) return;
+    
+    // Esconder se texto vazio
+    if (searchText.trimmed().isEmpty()) {
+        esconderPreviewPesquisa();
+        return;
+    }
+    
+    // Limpar conteúdo anterior
+    QLayout* oldLayout = searchPreviewWidget->layout();
+    if (oldLayout) {
+        QLayoutItem* item;
+        while ((item = oldLayout->takeAt(0)) != nullptr) {
+            if (item->widget()) {
+                item->widget()->deleteLater();
+            }
+            delete item;
+        }
+        delete oldLayout;
+    }
+    
+    QVBoxLayout* previewLayout = new QVBoxLayout(searchPreviewWidget);
+    previewLayout->setContentsMargins(8, 8, 8, 8);
+    previewLayout->setSpacing(6);
+    
+    // Título (mais compacto)
+    QLabel* titleLabel = new QLabel("🔍 Resultados");
+    titleLabel->setStyleSheet(QString("color: %1; font-size: 12px; font-weight: 600; padding-bottom: 4px;")
+        .arg(GitHubDark::TEXT_PRIMARY));
+    previewLayout->addWidget(titleLabel);
+    
+    // Scroll area para os resultados
+    QScrollArea* scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setStyleSheet("QScrollArea { border: none; background: transparent; }");
+    
+    QWidget* scrollContent = new QWidget();
+    QVBoxLayout* scrollLayout = new QVBoxLayout(scrollContent);
+    scrollLayout->setSpacing(4); // Reduzido de 8 para 4
+    scrollLayout->setContentsMargins(0, 0, 0, 0);
+    
+    // Buscar produtos que correspondem
+    QString lowerSearch = searchText.toLower();
+    QVector<ProdutoFull> produtos = productManager->getAllProducts();
+    int resultCount = 0;
+    const int maxResults = 3; // Reduzido para 3 resultados
+    
+    for (const auto& pf : produtos) {
+        if (resultCount >= maxResults) break;
+        
+        QString produtoNome = pf.nome.toLower();
+        QString produtoId = pf.id.toLower();
+        
+        if (produtoNome.contains(lowerSearch) || produtoId.contains(lowerSearch)) {
+            // Criar card de preview para o produto
+            QWidget* productPreview = new QWidget();
+            productPreview->setStyleSheet(QString(R"(
+                QWidget {
+                    background-color: %1;
+                    border: 1px solid %2;
+                    border-radius: 4px;
+                    padding: 6px;
+                }
+                QWidget:hover {
+                    border-color: %3;
+                }
+            )").arg(GitHubDark::BG_TERTIARY)
+               .arg(GitHubDark::BORDER_DEFAULT)
+               .arg(GitHubDark::ACCENT_PRIMARY));
+            productPreview->setCursor(Qt::PointingHandCursor);
+            
+            QHBoxLayout* previewItemLayout = new QHBoxLayout(productPreview);
+            previewItemLayout->setSpacing(8);
+            previewItemLayout->setContentsMargins(4, 4, 4, 4);
+            
+            // Imagem do produto (mais pequena)
+            QLabel* imgLabel = new QLabel();
+            imgLabel->setFixedSize(45, 45); // Reduzido de 60x60 para 45x45
+            if (!pf.imagePath.isEmpty()) {
+                QPixmap px(pf.imagePath);
+                if (!px.isNull()) {
+                    imgLabel->setPixmap(px.scaled(45, 45, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                } else {
+                    imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px;")
+                        .arg(pf.cor.name()));
+                    imgLabel->setAlignment(Qt::AlignCenter);
+                    imgLabel->setText("📷");
+                }
+            } else {
+                imgLabel->setStyleSheet(QString("background-color: %1; border-radius: 4px; font-size: 18px;")
+                    .arg(GitHubDark::BG_OVERLAY));
+                imgLabel->setAlignment(Qt::AlignCenter);
+                imgLabel->setText("📷");
+            }
+            previewItemLayout->addWidget(imgLabel);
+            
+            // Informações do produto
+            QVBoxLayout* infoLayout = new QVBoxLayout();
+            infoLayout->setSpacing(2);
+            
+            QLabel* nameLabel = new QLabel(pf.nome);
+            nameLabel->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: 600;")
+                .arg(GitHubDark::TEXT_PRIMARY));
+            
+            QLabel* priceLabel = new QLabel(QString("%1€").arg(pf.preco, 0, 'f', 2));
+            priceLabel->setStyleSheet(QString("color: %1; font-size: 12px; font-weight: 500;")
+                .arg(GitHubDark::ACCENT_PRIMARY));
+            
+            int stock = productManager->getAvailableStock(pf.id);
+            QLabel* stockLabel = new QLabel(QString("Stock: %1").arg(stock));
+            stockLabel->setStyleSheet(QString("color: %1; font-size: 11px;")
+                .arg(stock > 0 ? GitHubDark::TEXT_SECONDARY : GitHubDark::ACCENT_RED));
+            
+            infoLayout->addWidget(nameLabel);
+            infoLayout->addWidget(priceLabel);
+            infoLayout->addWidget(stockLabel);
+            
+            previewItemLayout->addLayout(infoLayout, 1);
+            
+            // Botão de adicionar ao carrinho (mais pequeno)
+            QPushButton* addBtn = new QPushButton("🛒");
+            addBtn->setFixedSize(30, 30); // Reduzido de 36x36
+            addBtn->setStyleSheet(QString(R"(
+                QPushButton {
+                    background-color: %1;
+                    color: white;
+                    border: none;
+                    border-radius: 18px;
+                    font-size: 16px;
+                }
+                QPushButton:hover {
+                    background-color: %2;
+                }
+            )").arg(GitHubDark::ACCENT_PRIMARY)
+               .arg(GitHubDark::BUTTON_PRIMARY_HOVER));
+            addBtn->setEnabled(stock > 0);
+            
+            connect(addBtn, &QPushButton::clicked, this, [this, id = pf.id]() {
+                adicionarAoCarrinho(id);
+                esconderPreviewPesquisa();
+                if (searchBar) searchBar->clear();
+            });
+            
+            previewItemLayout->addWidget(addBtn);
+            
+            // Fazer o card inteiro clicável para ir à loja
+            productPreview->installEventFilter(new QObject(productPreview));
+            connect(productPreview, &QWidget::destroyed, this, [this, productPreview]() {
+                // Cleanup if needed
+            });
+            
+            // Adicionar evento de clique para navegar para a loja
+            productPreview->setProperty("productId", pf.id);
+            
+            scrollLayout->addWidget(productPreview);
+            resultCount++;
+        }
+    }
+    
+    if (resultCount == 0) {
+        QLabel* noResults = new QLabel("Nenhum produto encontrado");
+        noResults->setStyleSheet(QString("color: %1; font-size: 13px; padding: 20px;")
+            .arg(GitHubDark::TEXT_MUTED));
+        noResults->setAlignment(Qt::AlignCenter);
+        scrollLayout->addWidget(noResults);
+    } else if (resultCount >= maxResults) {
+        QLabel* moreLabel = new QLabel(QString("... e mais resultados. Vá para a Loja para ver todos."));
+        moreLabel->setStyleSheet(QString("color: %1; font-size: 12px; font-style: italic; padding: 8px;")
+            .arg(GitHubDark::TEXT_MUTED));
+        moreLabel->setAlignment(Qt::AlignCenter);
+        scrollLayout->addWidget(moreLabel);
+    }
+    
+    scrollLayout->addStretch();
+    scrollContent->setLayout(scrollLayout);
+    scrollArea->setWidget(scrollContent);
+    
+    previewLayout->addWidget(scrollArea);
+    searchPreviewWidget->setLayout(previewLayout);
+    searchPreviewWidget->show();
+}
+
+void MainWindow::esconderPreviewPesquisa() {
+    if (searchPreviewWidget) {
+        searchPreviewWidget->hide();
+    }
+}
+
+void MainWindow::filtrarPorCategoria(const QString& categoria) {
+    currentCategory = categoria;
+    // Aplicar os filtros atuais (pesquisa + categoria)
+    filtrarProdutos(searchBar ? searchBar->text() : QString());
+}
+
+void MainWindow::atualizarBadgeAdmin() {
+    if (!adminMenuButton) return;
+    
+    // Contar encomendas pendentes
+    QVector<Order> orders = carregarEncomendas();
+    int pendingCount = 0;
+    for (const Order& order : orders) {
+        if (order.status.isEmpty() || order.status == "pending") {
+            pendingCount++;
+        }
+    }
+    
+    // Atualizar texto do botão com badge
+    if (pendingCount > 0) {
+        adminMenuButton->setText(QString("Admin (%1)").arg(pendingCount));
+    } else {
+        adminMenuButton->setText("Admin");
+    }
+}
+
+
+QString MainWindow::obterTextoEstadoEncomenda(const QString& status) {
+    if (status.isEmpty() || status == "pending") return "Pendente";
+    if (status == "accepted") return "Aceite";
+    if (status == "processing") return "Em Processamento";
+    if (status == "shipped") return "Enviada";
+    if (status == "delivered") return "Entregue";
+    if (status == "rejected") return "Recusada";
+    if (status == "cancelled") return "Cancelada";
+    return "Desconhecido";
+}
+
+QColor MainWindow::obterCorEstadoEncomenda(const QString& status) {
+    if (status.isEmpty() || status == "pending") return QColor("#FFC107"); // Amarelo
+    if (status == "accepted") return QColor("#2196F3"); // Azul
+    if (status == "processing") return QColor("#9C27B0"); // Roxo
+    if (status == "shipped") return QColor("#FF9800"); // Laranja
+    if (status == "delivered") return QColor("#4CAF50"); // Verde
+    if (status == "rejected") return QColor("#f44336"); // Vermelho
+    if (status == "cancelled") return QColor("#757575"); // Cinza
+    return QColor("#9e9e9e"); // Cinza claro
+}
+
+void MainWindow::mostrarPreviewCarrinho() {
+    if (carrinho.isEmpty()) return;
+    
+    // Criar tooltip personalizado
+    QString tooltipText = "<div style='background-color: #161b22; padding: 12px; border-radius: 6px;'>";
+    tooltipText += "<p style='font-size: 14px; font-weight: 600; color: #c9d1d9; margin-bottom: 8px;'>🛒 Carrinho</p>";
+    
+    double total = 0;
+    int itemCount = 0;
+    for (auto it = carrinho.begin(); it != carrinho.end() && itemCount < 3; ++it, ++itemCount) {
+        const QString& id = it.key();
+        int quantidade = it.value();
+        ProdutoFull produto = productManager->getProduct(id);
+        
+        tooltipText += QString("<p style='font-size: 12px; color: #8b949e; margin: 4px 0;'>%1x %2 - %3€</p>")
+            .arg(quantidade)
+            .arg(produto.nome)
+            .arg(produto.preco * quantidade, 0, 'f', 2);
+        
+        total += produto.preco * quantidade;
+    }
+    
+    if (carrinho.size() > 3) {
+        tooltipText += QString("<p style='font-size: 12px; color: #6e7681; margin: 4px 0;'>... e mais %1 itens</p>")
+            .arg(carrinho.size() - 3);
+    }
+    
+    tooltipText += QString("<p style='font-size: 13px; font-weight: 600; color: #238636; margin-top: 8px; padding-top: 8px; border-top: 1px solid #21262d;'>Total: %1€</p>")
+        .arg(total, 0, 'f', 2);
+    tooltipText += "</div>";
+    
+    carrinhoIconLabel->setToolTip(tooltipText);
+}
+
+void MainWindow::exportarRelatoriosCSV() {
+    if (!adminTabWidget) return;
+    // Localizar a aba Relatórios e tabela
+    QTableWidget* table = nullptr;
+    for (int i = 0; i < adminTabWidget->count(); ++i) {
+        if (adminTabWidget->tabText(i) == "Relatórios") {
+            table = adminTabWidget->widget(i)->findChild<QTableWidget*>();
+            break;
+        }
+    }
+    if (!table) {
+        QMessageBox::warning(this, "Exportar CSV", "Tabela de relatórios não encontrada.");
+        return;
+    }
+    QString fileName = QFileDialog::getSaveFileName(this, "Exportar Relatórios CSV", QDir::homePath()+"/relatorios.csv", "CSV (*.csv)");
+    if (fileName.isEmpty()) return;
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Exportar CSV", "Não foi possível criar arquivo.");
+        return;
+    }
+    QTextStream out(&file);
+    // Cabeçalhos
+    QStringList headers;
+    for (int c = 0; c < table->columnCount(); ++c) headers << table->horizontalHeaderItem(c)->text();
+    out << headers.join(',') << '\n';
+    // Linhas
+    for (int r = 0; r < table->rowCount(); ++r) {
+        QStringList cols;
+        for (int c = 0; c < table->columnCount(); ++c) {
+            QTableWidgetItem* item = table->item(r, c);
+            cols << (item ? item->text().replace('\n',' ').replace(',',';') : "");
+        }
+        out << cols.join(',') << '\n';
+    }
+    file.close();
+    QMessageBox::information(this, "Exportar CSV", "Relatórios exportados com sucesso.");
 }

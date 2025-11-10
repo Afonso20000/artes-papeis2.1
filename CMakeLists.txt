@@ -24,6 +24,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Core
     Gui
     Widgets
+    Charts
 )
 
 # Set include path explicitly
@@ -34,6 +35,7 @@ include_directories("${QT_ROOT}/lib/QtWidgets.framework/Headers")
 # Add Qt module include paths
 include_directories(${Qt6_DIR}/../../../include)
 include_directories(${Qt6_DIR}/../../../include/QtWidgets)
+include_directories(${Qt6_DIR}/../../../include/QtCharts)
 include_directories(${Qt6Core_INCLUDE_DIRS})
 include_directories(${Qt6Gui_INCLUDE_DIRS})
 include_directories(${Qt6Widgets_INCLUDE_DIRS})
@@ -58,6 +60,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
+    Qt6::Charts
 )
 
 # Add include directories

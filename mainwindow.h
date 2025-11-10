@@ -59,6 +59,24 @@ struct Order {
 #include <QHBoxLayout>
 #include <QGridLayout>
 
+// Forward declaration
+class MainWindow;
+
+// Event filter helper para widgets clicáveis de encomenda
+class ClickableOrderWidget : public QObject
+{
+    Q_OBJECT
+public:
+    ClickableOrderWidget(QObject* parent, const QString& orderId) 
+        : QObject(parent), m_orderId(orderId) {}
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
+
+private:
+    QString m_orderId;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -79,6 +97,11 @@ public slots:
     void mostrarCarrinho();
     void atualizarQuantidadeCarrinho(const QString& id, int delta);
     void removerDoCarrinho(const QString& id);
+    void filtrarProdutos(const QString& searchText);
+    void filtrarPorCategoria(const QString& categoria);
+    void mostrarPreviewCarrinho();
+    void exportarRelatoriosCSV();
+    void mostrarDetalhesEncomenda(const QString& orderId); // Público para acesso do ClickableOrderWidget
 
     // Login/Admin
     void handleLogin();
@@ -116,6 +139,9 @@ private:
     void setupInventoryTab();
     void setupReportsTab();
     void atualizarListaEncomendas();
+    void filtrarEncomendas(const QString& searchText);
+    void mostrarPreviewPesquisa(const QString& searchText);
+    void esconderPreviewPesquisa();
     void atualizarDashboard();
     void atualizarEstoque();
     void atualizarRelatorios();
@@ -125,6 +151,8 @@ private:
     QMap<QString, int> obterProdutosMaisVendidos(int limite = 5);
     QMap<QString, int> obterClientesMaisAtivos(int limite = 5);
     QMap<QDate, double> obterVendasPorPeriodo(int dias = 30);
+    QString obterTextoEstadoEncomenda(const QString& status);
+    QColor obterCorEstadoEncomenda(const QString& status);
 
     // Loja: produtos geridos por código, mutáveis via admin
     ProductManager* productManager;
@@ -132,6 +160,10 @@ private:
     QGridLayout* productsGrid = nullptr;
     QScrollArea* productsScroll = nullptr;
     QPushButton* editProductsButton = nullptr; // visível apenas para admin
+    QLineEdit* searchBar = nullptr; // Barra de pesquisa
+    QWidget* searchPreviewWidget = nullptr; // Widget para preview de produtos na pesquisa
+    QString currentCategory = "Todos"; // Categoria atualmente selecionada
+    QWidget* categoryButtonsWidget = nullptr; // Widget com botões de categoria
 
         // Gerir produtos (apenas admin)
     void refreshLojaProducts();
@@ -155,6 +187,8 @@ private:
     QTimer* reservationTimer = nullptr;
     QVBoxLayout* mainLayout = nullptr; // Layout principal da janela
     QList<QPushButton*> menuButtons; // Lista de botões do menu principal
+    QPushButton* adminMenuButton = nullptr; // Botão Admin no menu (para badge)
+    void atualizarBadgeAdmin(); // Atualizar contador de notificações
 
     // stock / reservations
     void checkReservations();
@@ -163,7 +197,6 @@ private:
 
     // Order management
     void finalizarCompra();
-    void mostrarDetalhesEncomenda(const QString& orderId);
     bool salvarEncomenda(const Order& order, QString& outError);
     bool atualizarEncomendas(const QVector<Order>& orders, QString& outError);
     QString gerarOrderId();
