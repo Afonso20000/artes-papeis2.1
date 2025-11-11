@@ -2,8 +2,8 @@
 /Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.cpp
 /Users/valass/Documents/GitHub/artes-papeis2.1/productformdialog.cpp
 /Users/valass/Documents/GitHub/artes-papeis2.1/productcard.cpp
-/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp
 /Users/valass/Documents/GitHub/artes-papeis2.1/mainwindow.cpp
+/Users/valass/Documents/GitHub/artes-papeis2.1/main.cpp
 /Users/valass/Documents/GitHub/artes-papeis2.1/produto.h
 /Users/valass/Documents/GitHub/artes-papeis2.1/productmanager.h
  mmc:Q_OBJECT
